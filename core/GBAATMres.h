@@ -1,4 +1,3 @@
-#define GBAATMICON 3000
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,7 +8,7 @@ unsigned short * menufontshort=(unsigned short *)malloc(216);
 int wantbg=0;
 int wantselect=0;
 int wantfont=0;
-int hextoint(char *hexstr);
+
 struct INIVALUES {
     unsigned int * armtoembed;
         unsigned int * armtohook;

@@ -26,10 +26,6 @@ SOURCES += \
 
 HEADERS += \
     core/GBAATMres.h \
-    core/gbadeadbeef-noewram.h \
-    core/new-slomo.h \
-    core/ramtest.h \
-    core/resource.h \
     core/sprites.h \
     core/trainermenu.h \
     functions.h \

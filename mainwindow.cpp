@@ -8,13 +8,12 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
-#include "core/cheats.cpp"
-#include "core/cheatcodes.cpp"
-#include "core/convertbmps.cpp"
-#include <core/romfuncs.cpp>
 #include "core/trainermenu.h"
 #include "core/GBAATMres.h"
-#include "core/resource.h"
+#include "core/romfuncs.cpp"
+#include "core/cheats.cpp"
+#include "core/cheatcodes.cpp"
+//#include "core/convertbmps.cpp"
 
 char romname[25];
 ENABLEDISABLESTRUCT myedstruct;
@@ -162,7 +161,7 @@ void MainWindow::patchGame(){
         }
         unsigned int * cheatint=(unsigned int *)malloc(0x8000);
         memset(cheatint,0,0x8000);
-        char * cheatcodes;
+        char * cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
         cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
         memset(cheatcodes,0,MAXCODELEN*sizeof(char));
 
@@ -196,7 +195,6 @@ void MainWindow::patchGame(){
         }
         sprintf(myedstruct.disablekeystr,ui->trainer_disable_keys->text().toLocal8Bit().data());
         myslomostruct.wantslomo = ui->execute_every->text().toInt();
-        myslomostruct.wantslomo=
         myslomostruct.slowdownkey=ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
         if (myslomostruct.slowdownkey==0x3ff) {
             myslomostruct.slowdownkey=0xbf;
