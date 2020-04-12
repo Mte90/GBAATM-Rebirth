@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "functions.h"
 #include <stdio.h>
 #include <string.h>
 #include <iostream>
@@ -7,8 +8,13 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
-#include <functions.cpp>
-#include <core/GBAATM.cpp>
+#include "core/cheats.cpp"
+#include "core/cheatcodes.cpp"
+#include "core/convertbmps.cpp"
+#include <core/romfuncs.cpp>
+#include "core/trainermenu.h"
+#include "core/GBAATMres.h"
+#include "core/resource.h"
 
 char romname[25];
 
@@ -118,6 +124,8 @@ bool MainWindow::deadbeef(){
 void MainWindow::patchGame(){
     QString str;
     this->appendLog(tr("Game patching in progress"));
+    ENABLEDISABLESTRUCT myedstruct;
+    SLOMOSTRUCT myslomostruct;
     if( this->isOutputDefined() ) {
         temptrainermenuint=(unsigned int *)malloc(*trainermenuint+4);
         memcpy(temptrainermenuint,trainermenuint,*trainermenuint+4);
@@ -139,6 +147,7 @@ void MainWindow::patchGame(){
                 *(trainermenuchar+*temptrainermenuint-91+(thistrainerline*30))=(char)((42-(trainerlines*14))/2)+14*thistrainerline;
                 memcpy(trainermenuchar+*temptrainermenuint-90+(thistrainerline*30),menutitle,strlen(menutitle));
             }
+            myedstruct.wantenable = 1;
         }
 
         unsigned int * menuint=(unsigned int *)malloc(0x1000);
@@ -151,6 +160,60 @@ void MainWindow::patchGame(){
             this->appendLog(QString("Invalid RAM address -- Using 0x%X instead").arg(cheatselectram));
 //            ui->ram_block->setItemText(cheatselectram);
         }
+        unsigned int * cheatint=(unsigned int *)malloc(0x8000);
+        memset(cheatint,0,0x8000);
+        char * cheatcodes;
+        cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
+        memset(cheatcodes,0,MAXCODELEN*sizeof(char));
+
+        if (strlen(cheatcodes)>0) {
+            if (testcht(cheatcodes,"[gameinfo]")==1) {
+                importcht(cheatcodes);
+            }
+
+            formatcheats(cheatcodes);
+
+            int patchtype=ui->mode->currentIndex();
+
+            if (patchtype==0) { //cb/gssp
+                cheatintlength=convertcb(cheatcodes,cheatint,1,cheatselectram+4,menuint);
+            }
+            if (patchtype==1) { //raw
+                cheatintlength=convertraw(cheatcodes,cheatint,1,cheatselectram+4,menuint);
+            }
+        }
+        myedstruct.enablekey=ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
+        if (myedstruct.enablekey==0x3ff) {
+            myedstruct.enablekey=0xfe;
+            //sprintf(tempchar,"L+R+A");
+        }
+        sprintf(myedstruct.enablekeystr,ui->trainer_enable_keys->text().toLocal8Bit().data());
+
+        myedstruct.disablekey=ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
+        if (myedstruct.disablekey==0x3ff) {
+            myedstruct.disablekey=0xfd;
+//            sprintf(tempchar,"L+R+B");
+        }
+        sprintf(myedstruct.disablekeystr,ui->trainer_disable_keys->text().toLocal8Bit().data());
+        myslomostruct.wantslomo = ui->execute_every->text().toInt();
+        myslomostruct.wantslomo=
+        myslomostruct.slowdownkey=ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
+        if (myslomostruct.slowdownkey==0x3ff) {
+            myslomostruct.slowdownkey=0xbf;
+//            sprintf(tempchar,"L+R+UP");
+        }
+        sprintf(myslomostruct.slowdownkeystr,ui->slowmotion_slow_keys->text().toLocal8Bit().data());
+
+        myslomostruct.speedupkey=ConvertKeys(ui->slowmotion_up_keys->text().toLocal8Bit().data());
+        if (myslomostruct.speedupkey==0x3ff) {
+            myslomostruct.speedupkey=0x7f;
+//            sprintf(tempchar,"L+R+DOWN");
+        }
+        sprintf(myslomostruct.speedupkeystr,ui->slowmotion_up_keys->text().toLocal8Bit().data());
+
+        char mypath[500];
+        new_getpathfromfilename(mypath,ui->output_path->text().toLocal8Bit().data());
+        patchrom(ui->input_path->text().toLocal8Bit().data(),ui->output_path->text().toLocal8Bit().data(),cheatint,cheatintlength,cheatselectram,myslomostruct,myedstruct,ui->execute_every->text().toInt(),mypath,1,menuint,cheatselectram+4, ui->vblank->isChecked());
     }
 }
 

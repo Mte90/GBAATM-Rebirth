@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <cstring>
+#include "romfuncs.cpp"
 #define MAXCODELEN 40960
 
 short byteflip(short number) {

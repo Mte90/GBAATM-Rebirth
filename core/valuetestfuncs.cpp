@@ -1,4 +1,7 @@
-
+#include <stdio.h>
+#include <stdlib.h>
+#include <fstream>
+#include <cstring>
 int addresstest(char * addrtotest, char * asmaddresses, ADDRESSSTRUCT addressstruct) {
 	//IntMessage(*addressstruct.asmaddr,"address test");
 	char * asmaddrstr=(char *)malloc(3*sizeof(char));

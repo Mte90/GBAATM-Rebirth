@@ -1,4 +1,4 @@
-#GBAATM-Rebirth
+# GBAATM-Rebirth
 
 ## Roadmap
 
@@ -8,4 +8,4 @@
 
 ## Compile
 
-Use QT Creator 
+Use QT Creator.

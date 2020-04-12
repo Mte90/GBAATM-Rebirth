@@ -29,7 +29,6 @@ SOURCES += \
 HEADERS += \
     core/GBAATMres.h \
     core/gbadeadbeef-noewram.h \
-    core/mystructs.h \
     core/new-slomo.h \
     core/ramtest.h \
     core/randomcrap.h \
@@ -37,6 +36,7 @@ HEADERS += \
     core/sprites.h \
     core/trainermenu.h \
     core/valuetestfuncs.h \
+    functions.h \
     mainwindow.h
 
 FORMS += \

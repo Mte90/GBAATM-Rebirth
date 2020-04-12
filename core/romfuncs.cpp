@@ -3,7 +3,7 @@
 #include <fstream>
 #include <cstring>
 #include "GBAATMres.h"
-#include "mystructs.h"
+#include "trainermenu.h"
 #include <QString>
 #define SIZEOFHOOKJUMP 10 //7
 int ConvertKeys(char * keystr) {
