@@ -17,6 +17,8 @@
 #include "core/resource.h"
 
 char romname[25];
+ENABLEDISABLESTRUCT myedstruct;
+SLOMOSTRUCT myslomostruct;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -124,8 +126,6 @@ bool MainWindow::deadbeef(){
 void MainWindow::patchGame(){
     QString str;
     this->appendLog(tr("Game patching in progress"));
-    ENABLEDISABLESTRUCT myedstruct;
-    SLOMOSTRUCT myslomostruct;
     if( this->isOutputDefined() ) {
         temptrainermenuint=(unsigned int *)malloc(*trainermenuint+4);
         memcpy(temptrainermenuint,trainermenuint,*trainermenuint+4);
