@@ -4,9 +4,9 @@
 //unsigned short * menubgshort=(unsigned short *)malloc(76800);
 //unsigned short * menuselectshort=(unsigned short *)malloc(6720);
 //unsigned short * menufontshort=(unsigned short *)malloc(216);
-//int wantbg=0;
-//int wantselect=0;
-//int wantfont=0;
+int wantbg=0;
+int wantselect=0;
+int wantfont=0;
 
 struct INIVALUES {
     unsigned int * armtoembed;

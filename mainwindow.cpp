@@ -10,8 +10,6 @@
 #include <QFileInfo>
 #include "core/GBAATMres.h"
 #include "core/romfuncs.cpp"
-#include "core/cheats.cpp"
-#include "core/cheatcodes.cpp"
 #include "core/convertbmps.cpp"
 
 char romname[25];
@@ -62,13 +60,25 @@ void MainWindow::openCheat() {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open cheat file"), settings->value("files/cheat").toString(), tr("CHT Files (*.cht);;Text Files (*.txt);;Assembly Code File (*.asm)"));
     if (!fileName.isEmpty()) {
         QFile file(fileName);
-        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            this->appendLog(tr("Cheat has some issues on reading"));
             return;
+        }
         QString content = QString::fromUtf8(file.readAll());
-        ui->cheats->setPlainText(content);
         settings->setValue("files/cheat", fileName);
         this->appendLog(tr("Cheat loaded"));
-        parsecheat(fileName.toLocal8Bit().data());
+
+        char * cheatchar=(char *)malloc(MAXCODELEN); //cheatlen+300);
+        memset(cheatchar,0,MAXCODELEN); //cheatlen+300);
+        cheatchar=content.toLocal8Bit().data();
+        ui->cheats->setPlainText(content);
+        if (testcht(cheatchar,"[gameinfo]")==1) {
+            importcht(cheatchar);
+        } else {
+            removenpc(cheatchar);
+        }
+
+        ui->cheats->setPlainText(content);
         this->appendLog(tr("Cheat parsed"));
     }
 }
@@ -126,8 +136,9 @@ void MainWindow::patchGame(){
     if( this->isOutputDefined() ) {
         temptrainermenuint=(unsigned int *)malloc(*trainermenuint+4);
         memcpy(temptrainermenuint,trainermenuint,*trainermenuint+4);
-        QString menu_text = ui->menu_text->text().toLower();
+        QString menu_text = ui->menu_text->text().toUpper();
         if (menu_text.length() > 0) {
+            // TODO: check that the menu text include the letters of the alphabet
             settings->setValue("rom/menutitle", menu_text);
             char * trainermenuchar=(char *)temptrainermenuint+1;
             char* menutitle;
@@ -144,40 +155,36 @@ void MainWindow::patchGame(){
                 *(trainermenuchar+*temptrainermenuint-91+(thistrainerline*30))=(char)((42-(trainerlines*14))/2)+14*thistrainerline;
                 memcpy(trainermenuchar+*temptrainermenuint-90+(thistrainerline*30),menutitle,strlen(menutitle));
             }
+            this->appendLog(tr("Menu title added"));
+
             myedstruct.wantenable = 1;
         }
 
         unsigned int * menuint=(unsigned int *)malloc(0x1000);
         memset(menuint,0,0x1000);
         int cheatintlength=0;
-        int cheatselectram=new_hextoint(ui->ram_block->currentText());
-        int freemramaddrs[]={0x03007FA0,0x3007FC0,0x03007FD0,0x03007FE0};
-        if (!(((cheatselectram>=0x2000000) && (cheatselectram<=0x203fff0)) || ((cheatselectram>=0x3000000) && (cheatselectram<=0x3007ff0)))) {
-            cheatselectram=freemramaddrs[0];
-            this->appendLog(QString("Invalid RAM address -- Using 0x%X instead").arg(cheatselectram));
-//            ui->ram_block->setItemText(cheatselectram);
-        }
+        int cheatselectram=hextoint(ui->ram_block->currentText().toLocal8Bit().data());
+
         unsigned int * cheatint=(unsigned int *)malloc(0x8000);
         memset(cheatint,0,0x8000);
         char * cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
         cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
         memset(cheatcodes,0,MAXCODELEN*sizeof(char));
 
-        if (strlen(cheatcodes)>0) {
+        if (ui->cheats->toPlainText().length()>0) {
             if (testcht(cheatcodes,"[gameinfo]")==1) {
                 importcht(cheatcodes);
             }
 
             formatcheats(cheatcodes);
 
-            int patchtype=ui->mode->currentIndex();
-
-            if (patchtype==0) { //cb/gssp
+            if (ui->mode->currentText()=="Codebreaker/GS V3") { //cb/gssp
                 cheatintlength=convertcb(cheatcodes,cheatint,1,cheatselectram+4,menuint);
-            }
-            if (patchtype==1) { //raw
+            } else { //raw
                 cheatintlength=convertraw(cheatcodes,cheatint,1,cheatselectram+4,menuint);
             }
+            this->appendLog(tr("Cheat added"));
+            this->appendLog(QString(cheatintlength));
         }
         myedstruct.enablekey=ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
         if (myedstruct.enablekey==0x3ff) {
@@ -210,6 +217,7 @@ void MainWindow::patchGame(){
         char mypath[500];
         new_getpathfromfilename(mypath,ui->output_path->text().toLocal8Bit().data());
         patchrom(ui->input_path->text().toLocal8Bit().data(),ui->output_path->text().toLocal8Bit().data(),cheatint,cheatintlength,cheatselectram,myslomostruct,myedstruct,ui->execute_every->text().toInt(),mypath,1,menuint,cheatselectram+4, ui->vblank->isChecked(), temptrainermenuint);
+        this->appendLog(tr("Game patched"));
     }
 }
 

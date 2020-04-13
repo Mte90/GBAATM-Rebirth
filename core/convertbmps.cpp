@@ -68,12 +68,9 @@ if ((whichpic==3) && ((bmpwidth!=9)||(bmpheight!=12))) {
 	sprintf(tempchar,"The font texture bitmap needs to be 9x12");
 }
 if (gooddims==0) {
-	free(bmpfilechar);
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
+    free(bmpfilechar);
 	return -1;
 }
-
 
 unsigned short thisshort;
 unsigned char r;
@@ -88,10 +85,6 @@ for (int y=0; y<bmpheight; y++) {
 		g=*(pixchar+thisline+x*bmpbpp/8+1);
 		r=*(pixchar+thisline+x*bmpbpp/8);
 		thisshort=((r>>3)<<10)|((g>>3)<<5)|(b>>3);
-
-	//sprintf(tempchar,"0x%X:%d,%d - r = 0x%X, g = 0x%X, b = 0x%X = 0x%X",bmppixstart+thisline+x*bmpbpp/8,x,y,r,g,b,thisshort);
-	//AddList(hSTATUSLIST,tempchar);
-	//ScrollEnd(hSTATUSLIST);
 		*(shortbuffer+(bmpheight-1-y)*bmpwidth+x)=thisshort;
 	}
 	thisline+=bmpbytesperline;
