@@ -1,5 +1,5 @@
 #include <QString>
-#include "core/GBAATMres.h"
+//#include "core/GBAATMres.h"
 #include "functions.h"
 int new_hextoint(QString hexstr) {
     int pos=0;
