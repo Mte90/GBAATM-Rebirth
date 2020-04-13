@@ -3,6 +3,11 @@
 #include <fstream>
 #include <cstring>
 #include <QString>
+#include "core/trainermenu.h"
+unsigned short * menubgshort=(unsigned short *)malloc(76800);
+unsigned short * menuselectshort=(unsigned short *)malloc(6720);
+unsigned short * menufontshort=(unsigned short *)malloc(216);
+
 #define SIZEOFHOOKJUMP 10 //7
 int ConvertKeys(char * keystr) {
 	char * keys[] = {"L","R","DOWN","UP","LEFT","RIGHT","START","SELECT","B","A"};
@@ -58,19 +63,6 @@ if (tempstr[0]=='+') {
 	}
 
 return keycode;
-}
-
-void goodname(char * badname) {
-	char * tempchar=(char *)malloc(300*sizeof(char)); //strlen(badname)+20);
-	memset(tempchar,0,300*sizeof(char));
-	int charpointer=0;
-	for (unsigned int i=0; i<strlen(badname); i++) {
-		if ((*(badname+i)!=0x22)) {
-			*(tempchar+charpointer)=*(badname+i);
-			charpointer++;
-		}
-	}
-	strcpy(badname,tempchar);
 }
 
 int fileexists(const char * filename) {
@@ -300,34 +292,17 @@ QString deadbeefrom(char * gbaromname,char * newgbaromname) {
     return tempchar;
 }
 
-int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, int cheatintlen,int freeram, SLOMOSTRUCT slomostruct,ENABLEDISABLESTRUCT edstruct,int excycles,char * path,int wantmenu,unsigned int * menuint, int cheatselectram, int vblankcheck) {
-
-
-	//const char edstrdis[]="stmdb r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\nldr r1,settingsram\nldrb r4,[r1]\nldr r2,enablekey\nldr r3,disablekey\nmov r0,#0x4000000\nldr r0,[r0,#+0x130]\ncmp r0,r2\nmoveq r4,#0x1\ncmp r0,r3\nmoveq r4,#0x0\nstrb r4,[r1]\ncmp r4,#0x0\nbne turnedon\nldmia r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\nbx r14\nturnedon:\nldmia r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\n\n";
-	//const char edstren[]="stmdb r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\nldr r1,settingsram\nldrb r4,[r1]\nldr r2,enablekey\nldr r3,disablekey\nmov r0,#0x4000000\nldr r0,[r0,#+0x130]\ncmp r0,r2\nmoveq r4,#0x0\ncmp r0,r3\nmoveq r4,#0x1\nstrb r4,[r1]\ncmp r4,#0x0\nbeq turnedon\nldmia r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\nbx r14\nturnedon:\nldmia r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\n\n";
-	//const char smstr[]="stmdb r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\nmov r2,#0x0\nldr r4,slowdownkey\nldr r5,speedupkey\nmov r1,#0x4000000\nldr r1,[r1,#+0x130]\nldr r6,settingsram\nldrb r0,[r6,#+0x2]\ncmp r1,r4\nmoveq r2,#0x1\naddeq r0,#0x8\ncmp r0,#0xc0\nmovgt r0,#0xc0\ncmp r1,r5\nmoveq r2,#0x1\nsubeqs r0,#0x10\nmovlt r0,#0x0\nldrb r1,[r6,#+0x1]\ncmp r1,#0x0\nstreqb r0,[r6,#+0x2]\nstrb r2,[r6,#+0x1]\nslowmoloop:\nmov r1,#0x40\nslowmoinnerloop:\nsubs r1,r1,#0x1\nbne slowmoinnerloop\nsubs r0,r0,#0x1\nbcs slowmoloop\nslowmodone:\nldmia r13!,{r0,r1,r2,r3,r4,r5,r6,r7,r8,r9,r10,r11,r12,r14}\n\n";
-	//const char edstrdis[]="ldr r1,settingsram\nldrb r4,[r1]\nldr r2,enablekey\nldr r3,disablekey\nmov r0,#0x4000000\nldr r0,[r0,#+0x130]\ncmp r0,r2\nmoveq r4,#0x1\ncmp r0,r3\nmoveq r4,#0x0\nstrb r4,[r1]\ncmp r4,#0x0\nbne turnedon\nbx r14\nturnedon:\n\n";
-	//const char edstren[]="ldr r1,settingsram\nldrb r4,[r1]\nldr r2,enablekey\nldr r3,disablekey\nmov r0,#0x4000000\nldr r0,[r0,#+0x130]\ncmp r0,r2\nmoveq r4,#0x0\ncmp r0,r3\nmoveq r4,#0x1\nstrb r4,[r1]\ncmp r4,#0x1\nbne turnedon\nbx r14\nturnedon:\n\n";
-	//const char smstr[]="mov r2,#0x0\nldr r4,slowdownkey\nldr r5,speedupkey\nmov r1,#0x4000000\nldr r1,[r1,#+0x130]\nldr r6,settingsram\nldrb r0,[r6,#+0x2]\ncmp r1,r4\nmoveq r2,#0x1\naddeq r0,#0x2\ncmp r0,#0xfe\nmovgt r0,#0xfe\ncmp r1,r5\nmoveq r2,#0x1\nsubeqs r0,#0x2\nmovlt r0,#0x0\nldrb r1,[r6,#+0x1]\ncmp r1,#0x0\nstreqb r0,[r6,#+0x2]\ncmp r0,#0x0\nbeq slomodone\nstrb r2,[r6,#+0x1]\nslowmoloop:\nmov r1,#0x38\nslowmoinnerloop:\nsubs r1,r1,#0x1\nbne slowmoinnerloop\nsubs r0,r0,#0x1\nbcs slowmoloop\nslowmodone:\n\n";
-	//const char execstr[]="ldr r1,settingsram\nldrb r2,[r1,#+0x3]\nldr r3,executioncycles\nadd r2,#0x1\ncmp r2,r3\nmoveq r2,#0x0\nstrb r2,[r1,#+0x3]\nbxne r14\n\n";
-	//const char vblankstr[]="ldr r1,[r15,#+0xc]\nldr r0,[r1]\nands r0,r0,#0x1\nbne cheatstart\nbx r14\n.long 0x4000202\ncheatstart:\n\n";
-
+int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, int cheatintlen,int freeram, SLOMOSTRUCT slomostruct,ENABLEDISABLESTRUCT edstruct,int excycles,char * path,int wantmenu,unsigned int * menuint, int cheatselectram, int vblankcheck, unsigned int * temptrainermenuint) {
 
 	unsigned int eddisint[]={0xE59F103C,0xE5D14000,0xE1DF23BA,0xE1DF33B4,0xE3A00301,0xE5900130,0xE3A05C03,0xE28550FF,0xE0000005,0xE1500002,0x3A04001,0xE1500003,0x3A04000,0xE5C14000,0xE3540000,0x1A000002,0xE12FFF1E,0xDDDDDDDD,0xEEEEFFFF};
 
 	unsigned int edenint[]={0xE59F103C,0xE5D14000,0xE1DF23BA,0xE1DF33B4,0xE3A00301,0xE5900130,0xE3A05C03,0xE28550FF,0xE0000005,0xE1500002,0x3A04000,0xE1500003,0x3A04001,0xE5C14000,0xE3540001,0x1A000002,0xE12FFF1E,0xDDDDDDDD,0xEEEEFFFF};
 
-	unsigned int slomoint[]={0xE3A02000,0xE1DF47BE,0xE1DF57B8,0xE3A01301,0xE5911130,0xE3A03C03,0xE28330FF,0xE0011003,0xE59F605C,0xE5D60002,0xE1510004,0x3A02001,0x2800002,0xE35000FE,0xC3A000FE,0xE1510005,0x3A02001,0x2500002,0xB3A00000,0xE5D61001,0xE3510000,0x5C60002,0xE3500000,0xA00000A,0xE5C62001,0xE3A01088,0xE1A00000,0xE1A00000,0xE2511001,0x1AFFFFFB,0xE2500001,0x3A000002,0x2AFFFFF7,0xDDDDDDDD,0xEEEEFFFF};
-	//unsigned int slomoint[]={0xE3A02000,0xE1DF47B6,0xE1DF57B0,0xE3A01301,0xE5911130,0xE3A03C03,0xE28330FF,0xE0011003,0xE59F6054,0xE5D60002,0xE1510004,0x3A02001,0x2800002,0xE35000FE,0xC3A000FE,0xE1510005,0x3A02001,0x2500002,0xB3A00000,0xE5D61001,0xE3510000,0x5C60002,0xE3500000,0xA000008,0xE5C62001,0xE3A01038,0xE2511001,0x1AFFFFFD,0xE2500001,0x3A000002,0x2AFFFFF9,0xDDDDDDDD,0xEEEEFFFF};
-	//unsigned int eddisint[]={0xE59F1030,0xE5D14000,0xE1DF22BE,0xE1DF32B8,0xE3A00301,0xE5900130,0xE1500002,0x3A04001,0xE1500003,0x3A04000,0xE5C14000,0xE3540000,0x1A000002,0xE12FFF1E,0xDDDDDDDD,0xEEEEFFFF};
-	//unsigned int edenint[]={0xE59F1030,0xE5D14000,0xE1DF22BE,0xE1DF32B8,0xE3A00301,0xE5900130,0xE1500002,0x3A04000,0xE1500003,0x3A04001,0xE5C14000,0xE3540001,0x1A000002,0xE12FFF1E,0xDDDDDDDD,0xEEEEFFFF};
-	//unsigned int slomoint[]={0xE3A02000,0xE1DF46BA,0xE1DF56B4,0xE3A01301,0xE5911130,0xE59F6054,0xE5D60002,0xE1510004,0x3A02001,0x2800002,0xE35000FE,0xC3A000FE,0xE1510005,0x3A02001,0x2500002,0xB3A00000,0xE5D61001,0xE3510000,0x5C60002,0xE3500000,0xA000008,0xE5C62001,0xE3A01038,0xE2511001,0x1AFFFFFD,0xE2500001,0x3A000002,0x2AFFFFF9,0xDDDDDDDD,0xEEEEFFFF};
-	unsigned int execint[]={0xE59F101C,0xE5D12003,0xE3A03000,0xE2822001,0xE1520003,0x3A02000,0xE5C12003,0xA000001,0xE12FFF1E,0xFFFFFFFF};
-	//unsigned int vblankint[]={0xE59F100C,0xE5910000,0xE2100001,0x1A000001,0xE12FFF1E,0x4000204};
+    unsigned int slomoint[]={0xE3A02000,0xE1DF47BE,0xE1DF57B8,0xE3A01301,0xE5911130,0xE3A03C03,0xE28330FF,0xE0011003,0xE59F605C,0xE5D60002,0xE1510004,0x3A02001,0x2800002,0xE35000FE,0xC3A000FE,0xE1510005,0x3A02001,0x2500002,0xB3A00000,0xE5D61001,0xE3510000,0x5C60002,0xE3500000,0xA00000A,0xE5C62001,0xE3A01088,0xE1A00000,0xE1A00000,0xE2511001,0x1AFFFFFB,0xE2500001,0x3A000002,0x2AFFFFF7,0xDDDDDDDD,0xEEEEFFFF};
+    unsigned int execint[]={0xE59F101C,0xE5D12003,0xE3A03000,0xE2822001,0xE1520003,0x3A02000,0xE5C12003,0xA000001,0xE12FFF1E,0xFFFFFFFF};
 	unsigned int vblankint[]={0xE59F100C,0xE5910000,0xE35000A0,0xAA000001,0xE12FFF1E,0x4000206};
 	unsigned int trainerigmint[]={0xE3A01301,0xE591B130,0xE59F2008,0xE15B0002,0xA000000,0xEA000000,0x35b}; //select+down+left
 
-	//unsigned int hookint[]={0xE92D40FF,0xEB000000,0xE8BD40FF,0xE3A03301,0xE2833C02,0xE5932000,0xE52D0008,0xE59F0004,0xE58D0004,0xE8BD8001,0xffffffff};
 
 	#define TRAINERINTMAX 0x4000
 
@@ -357,10 +332,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 		}
 		fclose(gbafile);
 		int realgbaend = findromend(gbaromint,gbalen + 0x20000);
-		sprintf(tempchar, "Free space found at 0x%X", realgbaend + 0x8000004);
-// 		AddList(hSTATUSLIST, tempchar);
-// 		ScrollEnd(hSTATUSLIST);
-
+        sprintf(tempchar, "Free space found at 0x%X", realgbaend + 0x8000004);
 
 		int spaceneeded = 4;
 		if (cheatintlen > 0) spaceneeded = cheatintlen;
@@ -385,7 +357,6 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 
 		for(int gbaptr=0; gbaptr<(realgbaend-12)/4; gbaptr++) {
 
-
 			//new hook detect
 			if (((gbaromint[gbaptr]&0xffff0fff)==0xe3a00301 /*mov r[5th],*/) && ((gbaromint[gbaptr+1]&0xfff00fff)==0xe2800c02 /*add 4th,5th - badreg*/) && ((gbaromint[gbaptr+2]&0xfff00fff)==0xe5d00008 /*ldr 4th,5th - badreg*/) && ((gbaromint[gbaptr+2]&0xffff0000)!=0xe59f0000 /*ldr rX,[r15,+]*/ )) { // && ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000)) {
 				temphookaddr=gbaptr*4;
@@ -393,9 +364,6 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 				gbahooktype[gbahooks+1]=1;
 			}
 			//end new hook detect
-
-
-
 
 			if (((gbaromint[gbaptr]&0xffff0fff)==0xe3a00301 /*mov r[5th],*/) && ((gbaromint[gbaptr+1]&0xfff00fff)==0xe2800c02 /*add 4th,5th - badreg*/) && ((gbaromint[gbaptr+2]&0xfff00fff)==0xe5900000 /*ldr 4th,5th - badreg*/) && ((gbaromint[gbaptr+2]&0xffff0000)!=0xe59f0000 /*ldr rX,[r15,+]*/ )) { // && ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000)) {
 				temphookaddr=gbaptr*4;
@@ -428,15 +396,11 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 				gbahooktype[gbahooks+1]=1; //long jump
 			}
 
-
-									
 			if (temphookaddr!=0) { //((gbaromint[gbaptr]==0x3007FFC) && (temphookaddr!=0)) {
 				gbahooks++;
 				gbahookaddr[gbahooks]=temphookaddr;
 				gbahookreg[gbahooks]=temphookreg;
-				sprintf(tempchar,"IRQ found at 0x%X",temphookaddr+0x8000000);
-// 				AddList(hSTATUSLIST,tempchar);
-// 				ScrollEnd(hSTATUSLIST);
+                sprintf(tempchar,"IRQ found at 0x%X",temphookaddr+0x8000000);
 				temphookaddr=0;
 				temphookreg=0;
 				if (gbahooks==9) break;
@@ -445,9 +409,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 		}
 
 		if (gbahooks==-1) {
-			sprintf(tempchar,"No IRQs found!");
-// 			AddList(hSTATUSLIST,tempchar);
-// 			ScrollEnd(hSTATUSLIST);
+            sprintf(tempchar,"No IRQs found!");
 			free(gbaromint);
 			return -1;
 		}
@@ -463,9 +425,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 		if ((realgbaend+spaceneeded)>0x2000000) {
 // 			MessageBox(NULL,"The max size a GBA game can be is 32MB. There is not enough space at the end of this game.\r\nThe game will be trimmed to the proper size but it may result graphics corruption, etc.","Oh crap",MB_OK);
 			realgbaend=0x2000000-spaceneeded;
-			sprintf(tempchar,"The game was trimmed to 0x8%07X",realgbaend*4);
-// 			AddList(hSTATUSLIST,tempchar);
-// 			ScrollEnd(hSTATUSLIST);
+            sprintf(tempchar,"The game was trimmed to 0x8%07X",realgbaend*4);
 		}
 
 		int oktopatch = 1;
@@ -481,9 +441,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 				}
 
 		if (oktopatch == -1) {
-			sprintf(tempchar,"Patch not applied to %08", gbahookaddr[hookctr] + 0x8000000);
-// 			AddList(hSTATUSLIST,tempchar);
-// 			ScrollEnd(hSTATUSLIST);
+            sprintf(tempchar,"Patch not applied to %08", gbahookaddr[hookctr] + 0x8000000);
 			continue;
 		}
 
@@ -499,62 +457,13 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 				*(trainerint+trainerintptr+7)=gbaromint[gbahookaddr[hookctr]/4+1];
 				*(trainerint+trainerintptr+8)=gbaromint[gbahookaddr[hookctr]/4+2];
 
-//				*(trainerint + trainerintptr + 6) = 0xE12FFF10 | regtouse; //0xE12FFF1E;
-
 				*(trainerint + trainerintptr + 9) = 0xE8BD8000; //pop r15
-
-				//*(trainerint+trainerintptr+6)=gbaromint[gbahookaddr[hookctr]/4+3];
-				//*(trainerint+trainerintptr+7)=gbaromint[gbahookaddr[hookctr]/4+4];
-				//*(trainerint+trainerintptr+8)=gbaromint[gbahookaddr[hookctr]/4+5];
-
-			//}
-
-			
-			//if (gbahooktype[hookctr]==2) {
-
-				//*(trainerint+trainerintptr)=0xE92D40FF; //push r0-r12,r14
-				//gbaromint[gbahookaddr[hookctr]/4+1]=0xE51FF004;
-				//*(trainerint+trainerintptr+1)=0xEB000000|(((gbahooks-hookctr)*SIZEOFHOOKJUMP)+8); //bl trainerfunc
-
-				//*(trainerint+trainerintptr+2)=0xE8BD40FF; //pop r0-r12,r14
-				//*(trainerint+trainerintptr+3)=0xE8BD0004; //pop r2
-				//*(trainerint+trainerintptr+4)=gbaromint[gbahookaddr[hookctr]/4];
-				//*(trainerint+trainerintptr+5)=gbaromint[gbahookaddr[hookctr]/4+1];
-				//*(trainerint+trainerintptr+6)=gbaromint[gbahookaddr[hookctr]/4+2];
-				//*(trainerint+trainerintptr+7)=gbaromint[gbahookaddr[hookctr]/4+3];
-				//*(trainerint+trainerintptr+8)=gbaromint[gbahookaddr[hookctr]/4+4];
-				//*(trainerint+trainerintptr+9)=gbaromint[gbahookaddr[hookctr]/4+5];
-				//*(trainerint+trainerintptr+9)=0xE92D0004; //push r2
-				//*(trainerint+trainerintptr+10)=0xE12FFF1E;
-
-			//gbaromint[gbahookaddr[hookctr]/4]=0xE28F0004|(regtouse<<12); //add r14,=return
-			//gbaromint[gbahookaddr[hookctr]/4+1]=0xE51FF004; //ldr r15,traineraddr
-			//gbaromint[gbahookaddr[hookctr]/4+2]=realgbaend+0x8000004+hookctr*SIZEOFHOOKJUMP; //traineraddr
-			//trainerintptr+=2; //SIZEOFHOOKJUMP;
-
-			//}
-			//else {
-			
-			//gbaromint[gbahookaddr[hookctr]/4]=0xE92D4000; //push r14
-			//gbaromint[gbahookaddr[hookctr]/4+1]=0xE28FE004; //0xE28FE008; //add r14,=returnaddr
-			//gbaromint[gbahookaddr[hookctr]/4+2]=0xE51FF004; //ldr r15,traineraddr
-			//gbaromint[gbahookaddr[hookctr]/4+3]=realgbaend+0x8000004+hookctr*SIZEOFHOOKJUMP; //traineraddr
-			//gbaromint[gbahookaddr[hookctr]/4+4]=0xE8BD4000; // pop r14
-			
-/* newly commented out
-			gbaromint[gbahookaddr[hookctr]/4]=0xE28F0004|(regtouse<<12); //add r14,=return
-			gbaromint[gbahookaddr[hookctr]/4+1]=0xE51FF004; //ldr r15,traineraddr
-			gbaromint[gbahookaddr[hookctr]/4+2]=realgbaend+0x8000004+hookctr*SIZEOFHOOKJUMP*4; //traineraddr
-			trainerintptr+=SIZEOFHOOKJUMP;
-*/ //end newly commented out
 
 			gbaromint[gbahookaddr[hookctr]/4]=0xE92D8000; //push r15
 			gbaromint[gbahookaddr[hookctr]/4+1]=0xE51FF004; //ldr r15,traineraddr
 			gbaromint[gbahookaddr[hookctr]/4+2]=realgbaend+0x8000004+hookctr*SIZEOFHOOKJUMP*4; //traineraddr
 			trainerintptr+=SIZEOFHOOKJUMP;
 
-
-			//}
 		}
 
 		if (vblankcheck == 1) {
@@ -634,21 +543,21 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 					break;
 				}
 			}
-			if (wantbg==1) {
+//			if (wantbg==1) {
 				char * bgptr=(char *)temptrainermenuint;
 				bgptr+=(*(temptrainermenuint+searchptr+7)&0xffffff)+8;
 				memcpy(bgptr,(char *)menubgshort,76800);
-			}
-			if (wantselect==1) {
+//			}
+//			if (wantselect==1) {
 				char * selectptr=(char *)temptrainermenuint;
 				selectptr+=(*(temptrainermenuint+searchptr+5)&0xffffff)+8;
 				memcpy(selectptr,(char *)menuselectshort,6720);
-			}
-			if (wantfont==1) {
+//			}
+//			if (wantfont==1) {
 				char * fontptr=(char *)temptrainermenuint;
 				fontptr+=(*(temptrainermenuint+searchptr+2)&0xffffff)+4;
 				memcpy(fontptr,(char *)menufontshort,216);
-			}
+//			}
 			for (int trainerptr=0; trainerptr<9; trainerptr++) {
 				*(temptrainermenuint+menupatchoffset+trainerptr+1)=(*(temptrainermenuint+menupatchoffset+trainerptr+1)&0xffffff)+0x8000000+realgbaend+4+trainerintptr*4;
 			}
@@ -680,16 +589,13 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 			fclose(newgbaromfile);
 			if ((byteswritten==realgbaend+4) && (byteswritten2 == bytewritenum)) {
 // 				AddList(hSTATUSLIST,"The patched game was written successfully!");
-// 				ScrollEnd(hSTATUSLIST);
 			}
 			else {
 // 				AddList(hSTATUSLIST,"There was a problem writing the game!");
-// 				ScrollEnd(hSTATUSLIST);
 			}
 		}
 		else {
 // 			AddList(hSTATUSLIST,"The file could not be written!");
-// 			ScrollEnd(hSTATUSLIST);
 		}
 	}
 

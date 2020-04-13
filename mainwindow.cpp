@@ -8,16 +8,13 @@
 #include <QFileDialog>
 #include <QSettings>
 #include <QFileInfo>
-#include "core/trainermenu.h"
 #include "core/GBAATMres.h"
 #include "core/romfuncs.cpp"
 #include "core/cheats.cpp"
 #include "core/cheatcodes.cpp"
-//#include "core/convertbmps.cpp"
+#include "core/convertbmps.cpp"
 
 char romname[25];
-ENABLEDISABLESTRUCT myedstruct;
-SLOMOSTRUCT myslomostruct;
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -125,6 +122,7 @@ bool MainWindow::deadbeef(){
 void MainWindow::patchGame(){
     QString str;
     this->appendLog(tr("Game patching in progress"));
+    unsigned int * temptrainermenuint;
     if( this->isOutputDefined() ) {
         temptrainermenuint=(unsigned int *)malloc(*trainermenuint+4);
         memcpy(temptrainermenuint,trainermenuint,*trainermenuint+4);
@@ -211,7 +209,7 @@ void MainWindow::patchGame(){
 
         char mypath[500];
         new_getpathfromfilename(mypath,ui->output_path->text().toLocal8Bit().data());
-        patchrom(ui->input_path->text().toLocal8Bit().data(),ui->output_path->text().toLocal8Bit().data(),cheatint,cheatintlength,cheatselectram,myslomostruct,myedstruct,ui->execute_every->text().toInt(),mypath,1,menuint,cheatselectram+4, ui->vblank->isChecked());
+        patchrom(ui->input_path->text().toLocal8Bit().data(),ui->output_path->text().toLocal8Bit().data(),cheatint,cheatintlength,cheatselectram,myslomostruct,myedstruct,ui->execute_every->text().toInt(),mypath,1,menuint,cheatselectram+4, ui->vblank->isChecked(), temptrainermenuint);
     }
 }
 

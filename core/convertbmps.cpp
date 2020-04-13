@@ -1,4 +1,19 @@
+#include <stdio.h>
+#include <fstream>
+#include <cstring>
 
+void goodname(char * badname) {
+    char * tempchar=(char *)malloc(300*sizeof(char)); //strlen(badname)+20);
+    memset(tempchar,0,300*sizeof(char));
+    int charpointer=0;
+    for (unsigned int i=0; i<strlen(badname); i++) {
+        if ((*(badname+i)!=0x22)) {
+            *(tempchar+charpointer)=*(badname+i);
+            charpointer++;
+        }
+    }
+    strcpy(badname,tempchar);
+}
 
 int bmp2short(char * bmpfilestr, unsigned short * shortbuffer, int whichpic) {
 
@@ -15,15 +30,13 @@ fclose(bmpfile);
 if (bytesread!=bmplen) {
 	free(bmpfilechar);
 	sprintf(tempchar,"Error reading bitmap");
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
+
 	return -1;
 }
 if ((*bmpfilechar!='B') || (*(bmpfilechar+1)!='M')) {
 	free(bmpfilechar);
 	sprintf(tempchar,"Nice try... But I need a real bitmap...");
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
+
 	return -1;
 }
 
@@ -38,8 +51,7 @@ int bmpbytesperline=((bmpwidth*bmpbpp-1)/32)*4+4;
 if (*bmpint!=bmplen) {
 	free(bmpfilechar);
 	sprintf(tempchar,"The bitmap length doesn't match! It is corrupted!");
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
+
 	return -1;
 }
 int gooddims=1;
@@ -96,8 +108,7 @@ fclose(bmpoutfile);
 #endif
 
 	sprintf(tempchar,"Bitmap imported successfully");
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
+
 free(bmpfilechar);
 return 1;
 }
