@@ -88,11 +88,12 @@ MainWindow::openCheat()
 
     char* cheatchar = (char*)malloc(MAXCODELEN); // cheatlen+300);
     memset(cheatchar, 0, MAXCODELEN);            // cheatlen+300);
+    cheatchar = content.toLocal8Bit().data();
     ui->cheats->setPlainText(content);
-    if (testcht(content.toLocal8Bit().data(), "[gameinfo]") == 1) {
-      importcht(content.toLocal8Bit().data());
+    if (testcht(cheatchar, "[gameinfo]") == 1) {
+      importcht(cheatchar);
     } else {
-      removenpc(content.toLocal8Bit().data());
+      removenpc(cheatchar);
     }
 
     ui->cheats->setPlainText(content);

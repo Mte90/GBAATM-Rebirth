@@ -453,9 +453,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
            0xe5d00008 /*ldr 4th,5th - badreg*/) &&
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) { // &&
-                                             // ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                                             // {
+           0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1;
@@ -468,9 +466,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
            0xe5900000 /*ldr 4th,5th - badreg*/) &&
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) { // &&
-                                             // ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                                             // {
+           0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1;
@@ -482,9 +478,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
            0xe5b00200 /*ldr - 4th,5th = bad reg*/) &&
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) { // &&
-                                             // ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                                             // {
+           0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1; // 2;
@@ -500,9 +494,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 6] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/) &&
           ((gbaromint[gbaptr + 7] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) { // &&
-                                             // ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                                             // {
+           0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 5) * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1; // 3;
@@ -510,9 +502,7 @@ patchrom(char* gbaromname,
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301) &&
           ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200) &&
-          ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
-           0xe1d000b8)) { // && ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                          // {
+          ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe1d000b8)) {
         temphookaddr = gbaptr * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1; // 4;
@@ -524,16 +514,13 @@ patchrom(char* gbaromname,
            0xe59f0000 /*ldr rX,[r15,+]*/) &&
           ((gbaromint[gbaptr + 2] & 0xffff0000) == 0xe1a00000 /*mov*/) &&
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) { // &&
-                                             // ((gbaromint[gbaptr+4]&0xffff0000)!=0xe3a00000))
-                                             // {
+           0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
         temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
         gbahooktype[gbahooks + 1] = 1; // long jump
       }
 
-      if (temphookaddr !=
-          0) { //((gbaromint[gbaptr]==0x3007FFC) && (temphookaddr!=0)) {
+      if (temphookaddr != 0) {
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
         gbahookreg[gbahooks] = temphookreg;
@@ -556,18 +543,19 @@ patchrom(char* gbaromname,
     spaceneeded = ((int)((spaceneeded + 3) / 4)) * 4;
 
     if ((realgbaend + spaceneeded) > 0x1000000) {
-      /*AddList(hSTATUSLIST,"The game will be larger than 16MB. Many flash carts
-      have a 16MB limit if the games run from PSRAM so it may not work!");
-      ScrollEnd(hSTATUSLIST);		*/
+      QTextStream(stdout)
+        << "The game will be larger than 16MB. Many flash carts have a 16MB "
+           "limit if the games run from PSRAM so it may not work!";
     }
 
     if ((realgbaend + spaceneeded) > 0x2000000) {
-      // 			MessageBox(NULL,"The max size a GBA game can be is
-      // 32MB. There is not enough space at the end of this game.\r\nThe game
-      // will be trimmed to the proper size but it may result graphics
-      // corruption, etc.","Oh crap",MB_OK);
+      QTextStream(stdout)
+        << "The max size a GBA game can be is 32MB. There is not enough space "
+           "at the end of this game.\r\nThe game will be trimmed to the proper "
+           "size but it may result graphics corruption, etc.";
       realgbaend = 0x2000000 - spaceneeded;
       sprintf(tempchar, "The game was trimmed to 0x8%07X", realgbaend * 4);
+      QTextStream(stdout) << tempchar;
     }
 
     int oktopatch = 1;
@@ -664,14 +652,11 @@ patchrom(char* gbaromname,
 
     int savejump = 0;
     if (wantmenu == 1) {
-#ifdef DEVING
       sprintf(tempchar,
               "Menu placed at 0x%X - trainerintptr = 0x%X",
               0x8000000 + realgbaend + 4 + trainerintptr * 4,
               trainerintptr * 4);
-      // 				AddList(hSTATUSLIST,tempchar);
-      // 				ScrollEnd(hSTATUSLIST);
-#endif
+      QTextStream(stdout) << tempchar;
       savejump = *gbaromint;
       *gbaromint = 0xEA000000 | (((realgbaend + 4) / 4 + trainerintptr) - 2);
     }
@@ -1812,8 +1797,9 @@ convertraw(char* cheatcodes,
 
       } else {
 
-        if (wantmenu == 1) { /////////////////////////////////////////////////////might
-                             ///need to fix offsets
+        if (wantmenu ==
+            1) { /////////////////////////////////////////////////////might
+                 /// need to fix offsets
           copyint(cheatcodeint + intcounter, ramtest, 5);
           *(cheatcodeint + intcounter + 5) = (1 << whichbit);
           if (menujmp == 0) {
@@ -2036,7 +2022,7 @@ convertcb(char* cheatcodes,
       }
 
       //	* CodeBreaker codes types: (based on the CBA clone "Cheatcode S"
-      //v1.1)
+      // v1.1)
       //	*
       //	* 0000AAAA 000Y - Game CRC (Y are flags: 8 - CRC, 2 - DI)
       //	* 1AAAAAAA YYYY - Master Code function (store address at ((YYYY
@@ -2046,26 +2032,26 @@ convertcb(char* cheatcodes,
       //	* 3AAAAAAA YYYY - 8-bit constant write
       //	* 4AAAAAAA YYYY - Slide code
       //	* XXXXCCCC IIII   (C is count and I is address increment, X is
-      //value incr.)
+      // value incr.)
       //	* 5AAAAAAA CCCC - Super code (Write bytes to address, 2*CCCC is
-      //count)
+      // count)
       //	* BBBBBBBB BBBB
       //	* 6AAAAAAA YYYY - 16-bit and
       //	* 7AAAAAAA YYYY - if address contains 16-bit value enable next
-      //code
+      // code
       //	* 8AAAAAAA YYYY - 16-bit constant write
       //	* 9AAAAAAA YYYY - change decryption (when first code only?)
       //	* AAAAAAAA YYYY - if address does not contain 16-bit value
-      //enable next code
+      // enable next code
       //	* BAAAAAAA YYYY - if 16-bit value at address  <= YYYY skip next
-      //code
+      // code
       //	* CAAAAAAA YYYY - if 16-bit value at address  >= YYYY skip next
-      //code
+      // code
       //	* D00000X0 YYYY - if button keys ... enable next code (else skip
-      //next code)
+      // next code)
       //	* EAAAAAAA YYYY - increase 16/32bit value stored in address
       //	* FAAAAAAA YYYY - if 16-bit value at address AND YYYY = 0 then
-      //skip next code
+      // skip next code
       memset(tempaddr, 0, 9);
       strleft(cheatline, tempaddr, 8);
       int tempdec = hextoint(tempaddr);
