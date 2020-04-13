@@ -3,66 +3,86 @@
 #include <fstream>
 #include <cstring>
 #include <QString>
+#include <QTextStream>
 #include "core/trainermenu.h"
 unsigned short * menubgshort=(unsigned short *)malloc(76800);
 unsigned short * menuselectshort=(unsigned short *)malloc(6720);
 unsigned short * menufontshort=(unsigned short *)malloc(216);
+#define MAXCHTLINE 4000
+#define MAXCODELEN 40960
+#define u8 unsigned char
+#define u16 unsigned short
+#define u32 unsigned int
+
+u8 cheatsCBASeedBuffer[0x30];
+u32 cheatsCBASeed[4];
+u32 cheatsCBATemporaryValue = 0;
+u16 cheatsCBATable[256];
+bool cheatsCBATableGenerated = false;
+
+u8 cheatsCBACurrentSeed[12] = {
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00,
+  0x00, 0x00, 0x00, 0x00
+};
+
+#define CHEAT_IS_HEX(a) ( ((a)>='A' && (a) <='F') || ((a) >='0' && (a) <= '9'))
 
 #define SIZEOFHOOKJUMP 10 //7
 int ConvertKeys(char * keystr) {
 	char * keys[] = {"L","R","DOWN","UP","LEFT","RIGHT","START","SELECT","B","A"};
-int keycode=0x3ff;
+    int keycode=0x3ff;
 	for (int toupperptr=0; toupperptr<strlen(keystr); toupperptr++) {
 		keystr[toupperptr]=toupper(keystr[toupperptr]);
 	}
 	
-char tempstr[100];
-tempstr[0]=0;
-for (int thiskey=0; thiskey<10; thiskey++) {
-	if (strstr(keystr,keys[thiskey])) {
-		if ((thiskey==0) || (thiskey==1) || (thiskey==9)) {
+    char tempstr[100];
+    tempstr[0]=0;
+    for (int thiskey=0; thiskey<10; thiskey++) {
+        if (strstr(keystr,keys[thiskey])) {
+            if ((thiskey==0) || (thiskey==1) || (thiskey==9)) {
 
-			if (thiskey==0) {
-				if (*(strstr(keystr,keys[0])+1)!='E') {
-					keycode^=1<<(9-thiskey);
-					sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
-				}
-			}
+                if (thiskey==0) {
+                    if (*(strstr(keystr,keys[0])+1)!='E') {
+                        keycode^=1<<(9-thiskey);
+                        sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
+                    }
+                }
 
-			if (thiskey==1) {
-				if ((*(strstr(keystr,keys[1])+1)!='I') && (*(strstr(keystr,keys[1])+1)!='T')) {
-					keycode^=1<<(9-thiskey);
-					sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
-				}
-			}
+                if (thiskey==1) {
+                    if ((*(strstr(keystr,keys[1])+1)!='I') && (*(strstr(keystr,keys[1])+1)!='T')) {
+                        keycode^=1<<(9-thiskey);
+                        sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
+                    }
+                }
 
-			if (thiskey==9) {
-				if (*(strstr(keystr,keys[9])-2)!='S') {
-					keycode^=1<<(9-thiskey);
-					sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
-				}
-			}
+                if (thiskey==9) {
+                    if (*(strstr(keystr,keys[9])-2)!='S') {
+                        keycode^=1<<(9-thiskey);
+                        sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
+                    }
+                }
 
-		}
-		else {
-			if ( ((thiskey==3) && (!strstr(keystr,keys[2]))) ||
-				((thiskey==5) && (!strstr(keystr,keys[4]))) ||
-				((thiskey<3) || (thiskey==4) || (thiskey>5)) ) {
-			keycode^=1<<(9-thiskey);
-			sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
-			}
-		}
+            }
+            else {
+                if ( ((thiskey==3) && (!strstr(keystr,keys[2]))) ||
+                    ((thiskey==5) && (!strstr(keystr,keys[4]))) ||
+                    ((thiskey<3) || (thiskey==4) || (thiskey>5)) ) {
+                keycode^=1<<(9-thiskey);
+                sprintf(tempstr+strlen(tempstr),"+%s",keys[thiskey]);
+                }
+            }
+        }
+
+    }
+    if (tempstr[0]=='+') {
+        sprintf(keystr,"%s",tempstr+1);
+        }
+        else {
+        sprintf(keystr,"%s",tempstr);
 	}
 
-}
-if (tempstr[0]=='+') {
-	sprintf(keystr,"%s",tempstr+1);
-	}
-	else {
-	sprintf(keystr,"%s",tempstr);
-	}
-
-return keycode;
+    return keycode;
 }
 
 int fileexists(const char * filename) {
@@ -77,25 +97,26 @@ int fileexists(const char * filename) {
 }
 
 int hextoint(char *hexstr) {
-int pos=0;
-char hexmap[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','a','b','c','d','e','f'};
-int returnval=-1;   
-while (hexstr[pos]!=0) {
-for(int i=0; i<22; i++) {
-if (hexstr[pos]==hexmap[i]) {
-	if (returnval==-1) { returnval=0; }
-returnval<<=4;
-if (i<16) {
-returnval|=i;         
-}
-else {
-returnval|=(i-6);    
-}                             
-}        
-}
-pos++;
-}   
-return returnval;        
+    int pos=0;
+    char hexmap[]={'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F','a','b','c','d','e','f'};
+    int returnval=-1;
+    while (hexstr[pos]!=0) {
+        for(int i=0; i<22; i++) {
+            if (hexstr[pos]==hexmap[i]) {
+                if (returnval==-1) {
+                    returnval=0;
+                }
+                returnval<<=4;
+                if (i<16) {
+                    returnval|=i;
+                } else {
+                    returnval|=(i-6);
+                }
+            }
+        }
+        pos++;
+    }
+    return returnval;
 }
 
 void flippath(char * path) {
@@ -125,17 +146,16 @@ void formatsystemstr(char * path) {
 	}
 }
 
-
 void getpathfromfilename(char * filename, char * path) {
 	int lastslash;
-lastslash=-1;
-for (int charptr=0; charptr<strlen(filename); charptr++) {
-if ((filename[charptr]=='\\') || (filename[charptr]=='/')) {
-lastslash=charptr;
-}
-}
-memcpy(path,filename,lastslash+1);
-path[lastslash+1]=0;
+    lastslash=-1;
+    for (int charptr=0; charptr<strlen(filename); charptr++) {
+        if ((filename[charptr]=='\\') || (filename[charptr]=='/')) {
+        lastslash=charptr;
+        }
+    }
+    memcpy(path,filename,lastslash+1);
+    path[lastslash+1]=0;
 }
 
 void copyint(unsigned int * destint,unsigned int * srcint,int numint) {
@@ -169,20 +189,18 @@ void stripnpc(char * stringtostrip) {
 	memset(tempstr,0,strlen(stringtostrip)+100);
 	int tempptr=0;
 	for (int charptr=0; charptr<strlen(stringtostrip); charptr++) {
-	char thischar=*(stringtostrip+charptr);
+        char thischar=*(stringtostrip+charptr);
 
-	if ((thischar>=0x20) && (thischar<=0x7a)) {
-		//if ((thischar!=0x5b) && (thischar!=0x5d)) {
-			*(tempstr+tempptr)=thischar;
-			tempptr++;
-		//}
-	}
+        if ((thischar>=0x20) && (thischar<=0x7a)) {
+                *(tempstr+tempptr)=thischar;
+                tempptr++;
+        }
 
-	if (thischar==0xa) {
-		*(tempstr+tempptr)='\r';
-		*(tempstr+tempptr+1)='\n';
-		tempptr+=2;
-    }
+        if (thischar==0xa) {
+            *(tempstr+tempptr)='\r';
+            *(tempstr+tempptr+1)='\n';
+            tempptr+=2;
+        }
 	}
 	memset(stringtostrip,0,strlen(stringtostrip)+1);
 	memcpy(stringtostrip,tempstr,strlen(tempstr)+1);
@@ -251,6 +269,7 @@ QString deadbeefrom(char * gbaromname,char * newgbaromname) {
             fclose(gbafile);
             int realgbaend=findromend(gbaromint,gbalen+SIZEOFDBFUNC*4);
             sprintf(tempchar,"Free space found at 0x%X",realgbaend+0x8000004);
+            QTextStream(stdout) << tempchar;
 
             copyint(gbaromint+(realgbaend+4)/4,gbadeadbeefint,SIZEOFDBFUNC);
             *(gbaromint+(realgbaend+4)/4+SIZEOFDBFUNC-2)=0x8000000|((*gbaromint&0xffffff)*4+8);
@@ -290,22 +309,19 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 	unsigned int vblankint[]={0xE59F100C,0xE5910000,0xE35000A0,0xAA000001,0xE12FFF1E,0x4000206};
 	unsigned int trainerigmint[]={0xE3A01301,0xE591B130,0xE59F2008,0xE15B0002,0xA000000,0xEA000000,0x35b}; //select+down+left
 
-
 	#define TRAINERINTMAX 0x4000
 
 	int menupatch=0;
 	int menustart=0;
 
-	char tempchar[300];
-	//int freeram=0x3007Fe0;
-	//ErrorMessage(cheatcodechar);
-	int objstart,objend;
+    char tempchar[300];
 
 	unsigned int * trainerint = (unsigned int *)malloc(TRAINERINTMAX);
 	int trainerintptr = 0;
 	memset(trainerint, 0, TRAINERINTMAX);
 	formatfopenstr(gbaromname);
 	FILE * gbafile = fopen(gbaromname, "rb");
+
 	if (gbafile) {
 		fseek(gbafile,0,SEEK_END);
 		int gbalen = ftell(gbafile);
@@ -321,6 +337,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 		int realgbaend = findromend(gbaromint,gbalen + 0x20000);
         sprintf(tempchar, "Free space found at 0x%X", realgbaend + 0x8000004);
 
+        QTextStream(stdout) << tempchar;
 		int spaceneeded = 4;
 		if (cheatintlen > 0) spaceneeded = cheatintlen;
 		spaceneeded += 924;
@@ -397,6 +414,7 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 
 		if (gbahooks==-1) {
             sprintf(tempchar,"No IRQs found!");
+            QTextStream(stdout) << tempchar;
 			free(gbaromint);
 			return -1;
 		}
@@ -424,11 +442,11 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 
 					if (((thisop & 0xf0000) == 0xd0000) || ((thisop & 0xf000) == 0xd000)) oktopatch = -1;
 
-					//int oc = ((thisop >> 24) & 0xf);
 				}
 
 		if (oktopatch == -1) {
             sprintf(tempchar,"Patch not applied to %08", gbahookaddr[hookctr] + 0x8000000);
+            QTextStream(stdout) << tempchar;
 			continue;
 		}
 
@@ -486,8 +504,8 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 			copyint(trainerint + trainerintptr, trainerigmint, 7);
 			*(trainerint + trainerintptr + 4) |= cheatintlen + 6; ////////////////////////////////
 			trainerintptr += 7;
-		}
-		//HexMessage(cheatintlen,"cheatintlen");
+        }
+
 		if (cheatintlen > 0) {
 			copyint(trainerint + trainerintptr, mycheatint, cheatintlen);
 			trainerintptr += cheatintlen;
@@ -497,28 +515,18 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 			trainerintptr++;
 		}
 
-		/*
-		FILE *cheattest=fopen("cheat.bin","wb");
-		fwrite(mycheatint,1,cheatintlen*4,cheattest);
-		fclose(cheattest);
-		*/
-
-
 		int savejump = 0;
 		if (wantmenu==1) {
 			#ifdef DEVING
 				sprintf(tempchar,"Menu placed at 0x%X - trainerintptr = 0x%X",0x8000000+realgbaend+4+trainerintptr*4,trainerintptr*4);
 // 				AddList(hSTATUSLIST,tempchar);
 // 				ScrollEnd(hSTATUSLIST);
-			#endif
-			//menupatch=*(gbaromint+0x30);
-			//*(gbaromint+0x30)=0xEA000000|((realgbaend+4)/4+trainerintptr)-0x32; //0x32;
+            #endif
 			savejump=*gbaromint;
 			*gbaromint=0xEA000000|(((realgbaend+4)/4+trainerintptr)-2);
 		}
 
-		copyint(gbaromint+(realgbaend+4)/4,trainerint,trainerintptr);
-		//free(trainerint);
+        copyint(gbaromint+(realgbaend+4)/4,trainerint,trainerintptr);
 
 		if (wantmenu==1) {
             
@@ -550,15 +558,9 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 			}
 			copyint(gbaromint+((realgbaend+4)/4)+trainerintptr,temptrainermenuint+1,(*trainermenuint)/4); //TRAINERMENULEN/4);
 			*(gbaromint+((realgbaend+4)/4)+trainerintptr+2)=0xE1A00000; //menupatch;
-			*(gbaromint+((realgbaend+4)/4)+trainerintptr+4)=0x8000000|((savejump&0xffffff)*4+8);
-			//*(gbaromint+((realgbaend+4)/4)+trainerintptr+menupatchoffset)=0x8000000+realgbaend+4+trainerintptr*4;
+            *(gbaromint+((realgbaend+4)/4)+trainerintptr+4)=0x8000000|((savejump&0xffffff)*4+8);
 			*(gbaromint+((realgbaend+4)/4)+trainerintptr+menupatchoffset+9)=cheatselectram;
 			copyint(gbaromint+((realgbaend+4)/4)+trainerintptr+(*temptrainermenuint)/4,menuint,0x400); //TRAINERMENULEN/4,menuint,0x400);
-			/*
-			FILE *menufiletest=fopen("menu.bin","wb");
-			fwrite(menuint,1,0x1000,menufiletest);
-			fclose(menufiletest);
-			*/
 		}
 
 		if (fileexists(newgbaromname)==1) remove(newgbaromname);
@@ -574,44 +576,20 @@ int patchrom(char * gbaromname,char * newgbaromname,unsigned int * mycheatint, i
 			if (bytewritenum == 0) bytewritenum = 16;
 			int byteswritten2 = fwrite(padbuff, 1, bytewritenum, newgbaromfile);
 			fclose(newgbaromfile);
-			if ((byteswritten==realgbaend+4) && (byteswritten2 == bytewritenum)) {
-// 				AddList(hSTATUSLIST,"The patched game was written successfully!");
+            if ((byteswritten==realgbaend+4) && (byteswritten2 == bytewritenum)) {
+                QTextStream(stdout) << "The patched game was written successfully!";
 			}
-			else {
-// 				AddList(hSTATUSLIST,"There was a problem writing the game!");
+            else {
+                QTextStream(stdout) << "There was a problem writing the game!";
 			}
 		}
-		else {
-// 			AddList(hSTATUSLIST,"The file could not be written!");
+        else {
+            QTextStream(stdout) << "The file could not be written!";
 		}
 	}
 
-	
 	return 1;
 }
-#define MAXCHTLINE 4000
-#define MAXCODELEN 40960
-#include <stdio.h>
-#include <fstream>
-#include <cstring>
-#define u8 unsigned char
-#define u16 unsigned short
-#define u32 unsigned int
-
-u8 cheatsCBASeedBuffer[0x30];
-u32 cheatsCBASeed[4];
-u32 cheatsCBATemporaryValue = 0;
-u16 cheatsCBATable[256];
-bool cheatsCBATableGenerated = false;
-
-u8 cheatsCBACurrentSeed[12] = {
-  0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00,
-  0x00, 0x00, 0x00, 0x00
-};
-
-#define CHEAT_IS_HEX(a) ( ((a)>='A' && (a) <='F') || ((a) >='0' && (a) <= '9'))
-
 
 void cheatsCBAReverseArray(u8 *array, u8 *dest)
 {
@@ -992,12 +970,7 @@ void formatcheats(char * cheatcodechar) {
 							if (goodchars<15) {
 								char tempcpychar[2];
 								memset(tempcpychar,0,2);
-								char * newtempline=(char *)malloc(strlen(templine)+20);
-								//if ((templine[7]!=' ') && (templine[8]!=' ')) {
-								//strleft(templine,newtempline,8);
-								//sprintf(newtempline+8," %s\0",templine+8);
-								//sprintf(templine,"%s",newtempline);
-								//}
+                                char * newtempline=(char *)malloc(strlen(templine)+20);
 								memset(newtempline,0,strlen(templine)+7);
 								int tempcpyptr=0;
 								while((tempcpychar[0]!=' ') && (tempcpyptr<strlen(templine))) {
@@ -1010,33 +983,19 @@ void formatcheats(char * cheatcodechar) {
 									*(newtempline+strlen(templine)-6)=0;
 								}
 								strcat(newtempline," ");
-								memset(newtempline+strlen(newtempline),0,strlen(templine)+20-strlen(newtempline));
-								//IntMessage(strlen(templine),"strlen(templine)");
-								//IntMessage(tempcpyptr,"tempcpyptr");
+                                memset(newtempline+strlen(newtempline),0,strlen(templine)+20-strlen(newtempline));
 								memset(newtempline+tempcpyptr+1,'0',10-(strlen(templine)-tempcpyptr));
-								sprintf(newtempline+strlen(newtempline),"%s",templine+tempcpyptr);
-								//if (tempcpyptr==strlen(templine)) {
-								//	char badcodestr[60];
-								//	sprintf(badcodestr,"Bad code detected: %s",templine);
-								//	AddList(hSTATUSLIST,badcodestr);
-								//	ScrollEnd(hSTATUSLIST);
-								//	templine[0]=0;
-								//}
-								//else {
+                                sprintf(newtempline+strlen(newtempline),"%s",templine+tempcpyptr);
 									labellast=0;
-									sprintf(templine,newtempline);
-								//}
+                                    sprintf(templine,newtempline);
 								
 								free(newtempline);
 								
 							}
-							
-							
-						}
-						
-						
-						strcat(tempchar,templine);
 
+						}
+
+						strcat(tempchar,templine);
 					}
 					
 					else {								 //label or bad code
@@ -1047,8 +1006,6 @@ void formatcheats(char * cheatcodechar) {
 						lastgood=tempchar+strlen(tempchar);
 						sprintf(tempchar+strlen(tempchar),"[%s] - %d/%d\n{\n",templine,goodchars,strlen(templine));
 						labellast=1;
-
-
 						}
 					}
 				}
@@ -1090,15 +1047,7 @@ void getnextcheatline(char * cheatcodechar,int * chtptr, char * chtline) {
 }
 
 void getnextchtline(char * cheatcodechar,int * chtptr, char * chtline) {
-	//IntMessage(chtptr[0], "ctptr");
 	memset(chtline, 0, MAXCHTLINE * sizeof(char));
-	/*
-	char * endline = strstr(cheatcodechar + chtptr[0], "\n");
-	if (endline) {
-		memcpy(chtline, cheatcodechar, endline - cheatcodechar);
-		chtptr[0] += endline - cheatcodechar + 3;
-	}
-*/
 	
 	while (1) {
 		char thischtchar;
@@ -1162,11 +1111,7 @@ void removenpc(char * cheatcodechar) {
 			*tempchtptr=0xD;
 			*(tempchtptr+1)=0xA;
 			tempchtptr+=2;
-		}
-		//else {
-		//	*tempchtptr='-';
-		//}
-		//}
+        }
 		tempccptr++;
 	}
 	memset(cheatcodechar,0,MAXCODELEN);
@@ -1224,14 +1169,12 @@ void importcht(char * cheatcodechar) {
 	while (myptr<strlen(cheatcodechar)) {
 		getnextcheatline(cheatcodechar,&myptr,cheatline);
 		if (strlen(cheatline)==0) continue;
-		if (*cheatline=='=') continue;
-		//if (testcht(cheatline,"OFF=")==1) continue;
+        if (*cheatline=='=') continue;
 		char * multimodchar=strstr(cheatline,"=");
 		if (multimodchar) {
-			if (lastlabel!=NULL) { //(descwaslast==1) {
+            if (lastlabel!=NULL) {
 				*lastlabel=0;
-				lastlabel=NULL;
-				//descwaslast=0;
+                lastlabel=NULL;
 			}
 
 			*multimodchar=0;
@@ -1352,7 +1295,6 @@ void importcht(char * cheatcodechar) {
 
 				}
 
-
 				if (size==4) {
 					if (commacount==1) {
 						sprintf(tempchar+strlen(tempchar),"8%X %04X\r\n",addressint,values[0]&0xffff);
@@ -1379,7 +1321,6 @@ void importcht(char * cheatcodechar) {
 
 				}
 
-
 			}
 		}
 		else {
@@ -1396,27 +1337,27 @@ void importcht(char * cheatcodechar) {
 	free(tempchar);
 	free(cheatline);
 
-// 	AddList(hSTATUSLIST,"CHT format detected -- importing cheats");
+    QTextStream(stdout) << "CHT format detected -- importing cheats";
 }
 
 int convertraw(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int cheatselectram,unsigned int * menuint) {
 
-unsigned int bytewrite[]={0xE3A00000,0xE59F1004,0xE5C10000,0xEA000000,0xFFFFFFFF};
-unsigned int bigwrite[]={0xE59F000C,0xE59F1004,0xE1C100B0,0xEA000001,0xFFFFFFFF,0xEEEEEEEE};
+    unsigned int bytewrite[]={0xE3A00000,0xE59F1004,0xE5C10000,0xEA000000,0xFFFFFFFF};
+    unsigned int bigwrite[]={0xE59F000C,0xE59F1004,0xE1C100B0,0xEA000001,0xFFFFFFFF,0xEEEEEEEE};
 
-unsigned int loadramreg[]={0xE59FB000,0xEA000000,cheatselectram};
-unsigned int ramtest[]={0xE5DB0000,0xE59F1008,0xE0100001,0xA000002,0xEA000000};
-int intcounter=0;
-int cheatcounter=0;
+    unsigned int loadramreg[]={0xE59FB000,0xEA000000,cheatselectram};
+    unsigned int ramtest[]={0xE5DB0000,0xE59F1008,0xE0100001,0xA000002,0xEA000000};
+    int intcounter=0;
+    int cheatcounter=0;
 
-#define maxaddr 300
+    #define maxaddr 300
 
-int menujmp=0;
-int jumpwidth=0;
-int whichbit=-1;
-char * tempaddr=(char *)malloc(9*sizeof(char));
+    int menujmp=0;
+    int jumpwidth=0;
+    int whichbit=-1;
+    char * tempaddr=(char *)malloc(9*sizeof(char));
 
-char tempchar[600];
+    char tempchar[600];
 
 	int asmloop=0;
 	int asmlabel=0;
@@ -1487,9 +1428,7 @@ char tempchar[600];
 
 						if (wantmenu==1) {
 						copyint(cheatcodeint+intcounter,ramtest,5);
-						*(cheatcodeint+intcounter+5)=(1<<whichbit);
-						//*(cheatcodeint+intcounter)|=cheatcounter-1;
-						//*(cheatcodeint+intcounter+2)|=4;
+                        *(cheatcodeint+intcounter+5)=(1<<whichbit);
 						if (menujmp==0) {
 							menujmp=intcounter+3;
 							jumpwidth=4;
@@ -1590,7 +1529,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 		copyint(cheatcodeint+intcounter,loadramreg,3);
 		intcounter+=3;
 	}
-	
+
 	while (cheatptr[0]<strlen(cheatcodes)) {
 		if (strlen(cheatline)>0) { strcpy(lastcheatline,cheatline); }
 		getnextcheatline(cheatcodes,cheatptr,cheatline);
@@ -1626,7 +1565,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 			cheatcounter++;
 			
 		}
-		
+
 		if ((cheatline[0] == '}') && (wantmenu == 1)) {
 			*menuint = 0x1c00 | cheatcounter;
             *(cheatcodeint + menujumppatch) |= (intcounter - menujumppatch - 2);
@@ -1672,7 +1611,6 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 		
 		
         if ((cheatline[0] == '[') || (cheatline[0] == '{')) {
-			
 			labellast = 1; //might need to take out
 			
 			//add some labeling code here if needed
@@ -1695,30 +1633,24 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
         }
 		
 		if (strlen(cheatline)!=0) {
-			if (encryptionon==1) {
-				//ErrorMessage(cheatline);
-				//decrypt code
+            if (encryptionon==1) {
 				char tempaddressstr[9];
 				memset(tempaddressstr,0,9);
 				memcpy(tempaddressstr,cheatline,8);
                 int tempaddress=hextoint(tempaddressstr);
 				char tempvaluestr[9];
-				memset(tempvaluestr,0,9);
-				//strright(tempvaluestr,cheatline,4);
+                memset(tempvaluestr,0,9);
 				memcpy(tempvaluestr,cheatline+9,8);
-				int tempvalue=hextoint(tempvaluestr);
-				//HexMessage(tempvalue,tempvaluestr);
+                int tempvalue=hextoint(tempvaluestr);
 				unsigned char codebuffer[8]={(tempaddress&255),((tempaddress>>8)&255),((tempaddress>>16)&255),((tempaddress>>24)&255),(tempvalue&255),((tempvalue>>8)&255),0,0};
 				cheatsCBADecrypt(codebuffer);
 				int * codebuffint=(int *)codebuffer;
 				tempaddress=*codebuffint;
 				short * codebuffshort=(short *)codebuffer;
 				tempvalue=*(codebuffint+1);
-				sprintf(cheatline,"%08X %08X",tempaddress,tempvalue);
-				//ErrorMessage(cheatline);
+                sprintf(cheatline,"%08X %08X",tempaddress,tempvalue);
 			}
-			
-			
+
 			
 			//	* CodeBreaker codes types: (based on the CBA clone "Cheatcode S" v1.1)
 			//	*
@@ -1759,9 +1691,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 						*(cheatcodeint + intcounter) = (((decval & 0xff00) >> 8) | ((decval & 0xff) << 8));
 						intcounter ++;
 					}
-				}
-				else {
-					//HexMessage(*(cheatcodeint+intcounter-1), "oldval");
+                }	else {
 					*(cheatcodeint + intcounter - 1) = byteflipint(((((*(cheatcodeint + intcounter - 1) & 0xff) << 8) | ((*(cheatcodeint + intcounter - 1) & 0xff00) >> 8)) << 16) | ((tempdec & 0xffff0000) >> 16)); //byteflipint(>>16)0x7788<<16
 					
 					if (superon > 4) {
@@ -1770,10 +1700,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 						intcounter++;
 					}
 				}
-				
-				
-				//superon-=6;
-				
+
 				superon -= 6; //3;
 				
 				*(cheatcodeint + superptr) = 0xea000000 | (intcounter - superptr - 2);
@@ -1781,14 +1708,9 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 				if (superon > 0) { 
 				}
 				else {
-					
-					//intcounter--;
-					
-					
+
 					labellast = 1;
-				}
-				//cheatline[0] = 0;
-				
+                }
 				continue;
 			}
 			
@@ -1863,13 +1785,10 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 
 					*(cheatcodeint+intcounter)=(0xE3A02000|decval);
 					
-				}
-				else {
-
+				}				else {
 					*(cheatcodeint+intcounter)=0xE59F2014;
 					
-				}
-				
+                }
 				
 				*(cheatcodeint+intcounter+1)=0xE59F100C;
 				*(cheatcodeint+intcounter+2)=0xE1D100B0;
@@ -1883,14 +1802,12 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 				if (cheatline[0]=='E') {
 					*(cheatcodeint+intcounter+3)=0xE0800002;
 				}
-				
-				
+
 				
 				*(cheatcodeint+intcounter+4)=0xE1C100B0;
 				if (decval<=0xff) {
 					*(cheatcodeint+intcounter+5)=0xEA000000;
-				}
-				else {
+				}				else {
 					*(cheatcodeint+intcounter+5)=0xEA000001;
                 }
 				
@@ -1911,10 +1828,8 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 					
 					*(cheatcodeint+intcounter)=(0xE3A00000|decval);
 					
-				}
-				else {
-					
-					
+				}				else {
+
 					*(cheatcodeint+intcounter)=0xE59F000C;
 					
 				}
@@ -1929,8 +1844,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 					
 					intcounter+=5;
 					
-				}
-				else {
+				}				else {
 					
 					*(cheatcodeint+intcounter+2)=0xE1C100B0;
 					*(cheatcodeint+intcounter+3)=0xEA000001;
@@ -1939,8 +1853,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 					
 					intcounter+=6;
 				}
-				
-				
+
 			}
 			
 			if ((cheatline[0] == '7') || (cheatline[0] == 'A') || (cheatline[0] == 'B') || (cheatline[0] == 'C') || (cheatline[0] == 'F')) {
@@ -1951,8 +1864,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 					copyint(cheatcodeint+intcounter,iftopbyte,3);
 					*(cheatcodeint+intcounter)|=decval;
 					
-				}
-				else {
+				}				else {
 					
 					copyint(cheatcodeint+intcounter,iftopbyte,3);
 					*(cheatcodeint+intcounter)=0xE59F2014;
@@ -2078,9 +1990,7 @@ int convertcb(char * cheatcodes,unsigned int * cheatcodeint,int wantmenu,int che
 			
 			
 		}
-		}
-		
-		
+        }
 		
 		*(cheatcodeint+intcounter) = 0xE12FFF1E;
 		intcounter++;

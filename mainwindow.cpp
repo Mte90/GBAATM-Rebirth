@@ -167,9 +167,8 @@ void MainWindow::patchGame(){
 
         unsigned int * cheatint=(unsigned int *)malloc(0x8000);
         memset(cheatint,0,0x8000);
+
         char * cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
-        cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
-        memset(cheatcodes,0,MAXCODELEN*sizeof(char));
 
         if (ui->cheats->toPlainText().length()>0) {
             if (testcht(cheatcodes,"[gameinfo]")==1) {
@@ -184,7 +183,6 @@ void MainWindow::patchGame(){
                 cheatintlength=convertraw(cheatcodes,cheatint,1,cheatselectram+4,menuint);
             }
             this->appendLog(tr("Cheat added"));
-            this->appendLog(QString(cheatintlength));
         }
         myedstruct.enablekey=ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
         if (myedstruct.enablekey==0x3ff) {
