@@ -26,6 +26,12 @@ MainWindow::MainWindow(QWidget* parent)
   connect(ui->opencht, &QPushButton::pressed, this, &MainWindow::openCheat);
   connect(ui->deadbeef, &QPushButton::pressed, this, &MainWindow::deadbeef);
   connect(ui->patchgame, &QPushButton::pressed, this, &MainWindow::patchGame);
+  connect(ui->loadbg, &QPushButton::pressed, this, &MainWindow::loadBg);
+  connect(ui->loadfont, &QPushButton::pressed, this, &MainWindow::loadFont);
+  connect(ui->loadselection,
+          &QPushButton::pressed,
+          this,
+          &MainWindow::loadSelectionBar);
 
   if (settings->value("files/input").toString() != "") {
     ui->input_path->setText(settings->value("files/input").toString());
@@ -52,6 +58,54 @@ MainWindow::openRom()
     settings->setValue("files/input", fileName);
   }
   this->readRom();
+}
+
+void
+MainWindow::loadBg()
+{
+  QString fileName =
+    QFileDialog::getOpenFileName(this,
+                                 tr("Open background image"),
+                                 settings->value("files/input").toString(),
+                                 tr("Image Files (*.bmp)"));
+  if (!fileName.isEmpty()) {
+    int goodbmp;
+    goodbmp = bmp2short(fileName.toLocal8Bit().data(), menubgshort, 1);
+    if (goodbmp == 1)
+      wantbg = 1;
+  }
+}
+
+void
+MainWindow::loadFont()
+{
+  QString fileName =
+    QFileDialog::getOpenFileName(this,
+                                 tr("Open font image"),
+                                 settings->value("files/input").toString(),
+                                 tr("Image Files (*.bmp)"));
+  if (!fileName.isEmpty()) {
+    int goodbmp;
+    goodbmp = bmp2short(fileName.toLocal8Bit().data(), menufontshort, 3);
+    if (goodbmp == 1)
+      wantfont = 1;
+  }
+}
+
+void
+MainWindow::loadSelectionBar()
+{
+  QString fileName =
+    QFileDialog::getOpenFileName(this,
+                                 tr("Open background image"),
+                                 settings->value("files/input").toString(),
+                                 tr("Image Files (*.bmp)"));
+  if (!fileName.isEmpty()) {
+    int goodbmp;
+    goodbmp = bmp2short(fileName.toLocal8Bit().data(), menuselectshort, 2);
+    if (goodbmp == 1)
+      wantselect = 1;
+  }
 }
 
 void
