@@ -1370,7 +1370,6 @@ importcht(char* cheatcodechar)
   while (myptr < strlen(cheatcodechar)) {
     getnextchtline(cheatcodechar, &myptr, cheatline);
 
-    // ErrorMessage(cheatline);
     if (testcht(cheatline, "OFF=") == 1)
       continue;
     if (strlen(cheatline) > 0) {
@@ -1388,13 +1387,10 @@ importcht(char* cheatcodechar)
       trim(cheatline, "TEXT=", "");
       trim(cheatline, "Text=", "");
       // removenpc(cheatline);
-      // ErrorMessage(cheatline);
       if (strlen(cheatline) > 1)
         sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
     }
   }
-
-  // ErrorMessage(tempchar);
 
   memset(cheatcodechar, 0, MAXCODELEN);
   memcpy(cheatcodechar, tempchar, strlen(tempchar));

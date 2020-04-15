@@ -87,16 +87,6 @@ MainWindow::openCheat()
     this->appendLog(tr("Cheat loaded"));
 
     ui->cheats->setPlainText(content);
-    char* cheatchar = ui->cheats->toPlainText().toLocal8Bit().data();
-    if (testcht(cheatchar, "[gameinfo]") == 1) {
-      importcht(cheatchar);
-    } else {
-      removenpc(cheatchar);
-    }
-
-    ui->cheats->setPlainText(QString(cheatchar));
-    free(cheatchar);
-    this->appendLog(tr("Cheat parsed"));
   }
 }
 
@@ -160,6 +150,8 @@ void
 MainWindow::patchGame()
 {
   QString str;
+  myslomostruct.wantslomo = 0;
+  myedstruct.wantenable = 0;
   this->appendLog(tr("Game patching in progress"));
   unsigned int* temptrainermenuint;
   if (this->isOutputDefined()) {
@@ -237,6 +229,7 @@ MainWindow::patchGame()
         cheatintlength =
           convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       }
+
       this->appendLog(tr("Cheats added"));
     } else {
       this->appendLog(tr("Cheats missing!"));
@@ -266,7 +259,7 @@ MainWindow::patchGame()
       this->appendLog(tr("Slowmotion enabled"));
     }
 
-    if (((myslomostruct.wantslomo | myedstruct.wantenable)) == 0) {
+    if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
       this->appendLog(tr("You didn't select any patches!"));
       return;
     }
@@ -283,7 +276,7 @@ MainWindow::patchGame()
              myedstruct,
              ui->execute_every->text().toInt(),
              mypath,
-             1,
+             (menu_text.length() > 0),
              menuint,
              cheatselectram + 4,
              ui->vblank->isChecked(),
