@@ -1140,6 +1140,7 @@ formatcheats(char* cheatcodechar)
         strcat(templine, thischar);
         lastchar[0] = thischar[0];
       }
+
       if (thischar[0] == 0xa) {
         if (templine[0] != '/') {
           howmanylines++;
@@ -1179,7 +1180,7 @@ formatcheats(char* cheatcodechar)
                      strlen(templine) + 20 - strlen(newtempline));
               memset(newtempline + tempcpyptr + 1,
                      '0',
-                     10 - (strlen(templine) - tempcpyptr));
+                     9 - (strlen(templine) - tempcpyptr));
               sprintf(
                 newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
               labellast = 0;
@@ -1225,9 +1226,6 @@ formatcheats(char* cheatcodechar)
 
   strcpy(cheatcodechar, tempchar);
   free(tempchar);
-#ifdef DEVING
-  ErrorMessage(cheatcodechar);
-#endif
 }
 
 void
@@ -1785,9 +1783,7 @@ convertraw(char* cheatcodes,
 
       } else {
 
-        if (wantmenu ==
-            1) { /////////////////////////////////////////////////////might
-                 /// need to fix offsets
+        if (wantmenu == 1) {
           copyint(cheatcodeint + intcounter, ramtest, 5);
           *(cheatcodeint + intcounter + 5) = (1 << whichbit);
           if (menujmp == 0) {
@@ -1826,7 +1822,6 @@ convertcb(char* cheatcodes,
           int cheatselectram,
           unsigned int* menuint)
 {
-  // ErrorMessage(cheatcodes);
 
   unsigned int iftopbyte[] = { 0xE3A02000, 0xE59F100C, 0xE1D100B0 };
   unsigned int superint[] = { 0xE59F1014, 0xE28F2014, 0xE0D200B2, 0xE0C100B2,
