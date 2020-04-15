@@ -355,7 +355,7 @@ patchrom(char* gbaromname,
          int wantmenu,
          unsigned int* menuint,
          int cheatselectram,
-         int vblankcheck,
+         bool vblankcheck,
          unsigned int* temptrainermenuint)
 {
 
@@ -426,11 +426,11 @@ patchrom(char* gbaromname,
       spaceneeded += trainermenuint[0] + 28 + 340;
     if (excycles > 1)
       spaceneeded += 40;
-    if ((edstruct.wantenable == 3) || (edstruct.wantenable == 1))
+    if (edstruct.wantenable == 1)
       spaceneeded += 76;
     if (slomostruct.wantslomo == 1)
       spaceneeded += 132;
-    if (vblankcheck == 0)
+    if (!vblankcheck)
       spaceneeded -= 6;
 
     int gbahookaddr[10];
@@ -614,13 +614,6 @@ patchrom(char* gbaromname,
       *(trainerint + trainerintptr + 9) = freeram;
       trainerintptr += 10;
     }
-    if (edstruct.wantenable == 3) {
-      copyint(trainerint + trainerintptr, edenint, 19);
-      *(trainerint + trainerintptr + 17) = freeram;
-      *(trainerint + trainerintptr + 18) =
-        (edstruct.enablekey << 16) | edstruct.disablekey;
-      trainerintptr += 19;
-    }
     if (edstruct.wantenable == 1) {
       copyint(trainerint + trainerintptr, eddisint, 19);
       *(trainerint + trainerintptr + 17) = freeram;
@@ -637,8 +630,7 @@ patchrom(char* gbaromname,
     }
     if (wantmenu == 1) {
       copyint(trainerint + trainerintptr, trainerigmint, 7);
-      *(trainerint + trainerintptr + 4) |=
-        cheatintlen + 6; ////////////////////////////////
+      *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
       trainerintptr += 7;
     }
 

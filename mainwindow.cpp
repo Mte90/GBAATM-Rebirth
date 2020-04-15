@@ -275,6 +275,7 @@ MainWindow::patchGame()
       }
 
       formatcheats(cheatcodes);
+      this->appendLog(QString(cheatcodes));
 
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
         cheatintlength =
