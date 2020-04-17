@@ -309,7 +309,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
     }
     fclose(gbafile);
     int realgbaend = findromend(gbaromint, gbalen + SIZEOFDBFUNC * 4);
-    sprintf(tempchar, "Free space found at 0x%X", realgbaend + 0x8000004);
+    sprintf(tempchar, "Free space found at 0x%X\n", realgbaend + 0x8000004);
     QTextStream(stdout) << tempchar;
 
     copyint(gbaromint + (realgbaend + 4) / 4, gbadeadbeefint, SIZEOFDBFUNC);
@@ -524,7 +524,8 @@ patchrom(char* gbaromname,
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
         gbahookreg[gbahooks] = temphookreg;
-        sprintf(tempchar, "IRQ found at 0x%X", temphookaddr + 0x8000000);
+        sprintf(tempchar, "IRQ found at 0x%X\n", temphookaddr + 0x8000000);
+        QTextStream(stdout) << tempchar;
         temphookaddr = 0;
         temphookreg = 0;
         if (gbahooks == 9)
@@ -533,7 +534,7 @@ patchrom(char* gbaromname,
     }
 
     if (gbahooks == -1) {
-      sprintf(tempchar, "No IRQs found!");
+      sprintf(tempchar, "No IRQs found!\n");
       QTextStream(stdout) << tempchar;
       free(gbaromint);
       return -1;
@@ -545,14 +546,14 @@ patchrom(char* gbaromname,
     if ((realgbaend + spaceneeded) > 0x1000000) {
       QTextStream(stdout)
         << "The game will be larger than 16MB. Many flash carts have a 16MB "
-           "limit if the games run from PSRAM so it may not work!";
+           "limit if the games run from PSRAM so it may not work!\n";
     }
 
     if ((realgbaend + spaceneeded) > 0x2000000) {
       QTextStream(stdout)
         << "The max size a GBA game can be is 32MB. There is not enough space "
            "at the end of this game.\r\nThe game will be trimmed to the proper "
-           "size but it may result graphics corruption, etc.";
+           "size but it may result graphics corruption, etc.\n";
       realgbaend = 0x2000000 - spaceneeded;
       sprintf(tempchar, "The game was trimmed to 0x8%07X", realgbaend * 4);
       QTextStream(stdout) << tempchar;
@@ -571,7 +572,7 @@ patchrom(char* gbaromname,
 
       if (oktopatch == -1) {
         sprintf(tempchar,
-                "Patch not applied to %08",
+                "Patch not applied to %08\n",
                 gbahookaddr[hookctr] + 0x8000000);
         QTextStream(stdout) << tempchar;
         continue;
@@ -1694,11 +1695,6 @@ convertraw(char* cheatcodes,
   int whichbit = -1;
   char* tempaddr = (char*)malloc(9 * sizeof(char));
 
-  char tempchar[600];
-
-  int asmloop = 0;
-  int asmlabel = 0;
-  int labellast = 0;
   int* cheatptr = (int*)malloc(2 * sizeof(int));
   char* cheatline = (char*)malloc(MAXCHTLINE * sizeof(char));
   char* lastcheatline = (char*)malloc(MAXCHTLINE * sizeof(char));
@@ -1847,18 +1843,14 @@ convertcb(char* cheatcodes,
 #define maxaddr 300
 
   char* tempaddr = (char*)malloc(9 * sizeof(char));
-  char* tempstr = (char*)malloc(50 * sizeof(char));
-  char* lvalstr = (char*)malloc(4 * sizeof(char));
   char* templongchar = (char*)malloc(9 * sizeof(char));
 
-  int labellevel = 0;
   int encryptionon = 0;
   int slideon = 0;
   int superon = 0;
   int conditionalon = 0;
   int conditionallast = 0;
   int nextconditional = 0;
-  char tempchar[600];
 
   int labellast = 1; //=0;
   int* cheatptr = (int*)malloc(2 * sizeof(int));
@@ -2062,7 +2054,6 @@ convertcb(char* cheatcodes,
           if (superon > 4) {
             *(cheatcodeint + intcounter) =
               byteflipint(((decval & 0xffff)) | ((tempdec & 0xffff) << 16));
-            // HexMessage(*(cheatcodeint+intcounter), "byte flipped value");
             intcounter++;
           }
         }
@@ -2070,7 +2061,6 @@ convertcb(char* cheatcodes,
         superon -= 6; // 3;
 
         *(cheatcodeint + superptr) = 0xea000000 | (intcounter - superptr - 2);
-        // if (superon==0) conditionalon--;
         if (superon > 0) {
         } else {
 
@@ -2337,7 +2327,6 @@ convertcb(char* cheatcodes,
       }
     }
   }
-
   *(cheatcodeint + intcounter) = 0xE12FFF1E;
   intcounter++;
 
