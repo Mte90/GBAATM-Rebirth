@@ -1127,6 +1127,7 @@ formatcheats(char* cheatcodechar)
     if ((thischar[0] == ':') || (thischar[0] == '-')) {
       thischar[0] = ' ';
     }
+
     if (((thischar[0] < 0x20) || (thischar[0] > 0x7e)) &&
         (thischar[0] != 0xa) && (thischar[0] != 0x9)) {
       lastchar[0] = thischar[0];
@@ -1155,6 +1156,7 @@ formatcheats(char* cheatcodechar)
               }
             }
           }
+
           if ((goodchars >= 10) && ((strlen(templine) - goodchars) < 5)) {
             if (goodchars < 20) {
               char tempcpychar[2];
@@ -1171,8 +1173,8 @@ formatcheats(char* cheatcodechar)
                 tempcpyptr++;
               }
               if (tempcpyptr == strlen(templine)) {
-                tempcpyptr = strlen(templine) - 6;
-                *(newtempline + strlen(templine) - 6) = 0;
+                tempcpyptr = strlen(templine) - 5;
+                *(newtempline + strlen(templine) - 5) = 0;
               }
               strcat(newtempline, " ");
               memset(newtempline + strlen(newtempline),
@@ -1199,11 +1201,7 @@ formatcheats(char* cheatcodechar)
                 memset(lastgood, 0, 100);
               }
               lastgood = tempchar + strlen(tempchar);
-              sprintf(tempchar + strlen(tempchar),
-                      "[%s] - %d/%d\n{\n",
-                      templine,
-                      goodchars,
-                      strlen(templine));
+              sprintf(tempchar + strlen(tempchar), "[%s] \n{\n", templine);
               labellast = 1;
             }
           }
@@ -2219,7 +2217,6 @@ convertcb(char* cheatcodes,
           (cheatline[0] == 'B') || (cheatline[0] == 'C') ||
           (cheatline[0] == 'F')) {
 
-        // ErrorMessage(cheatline);
         if (decval <= 0xff) {
 
           copyint(cheatcodeint + intcounter, iftopbyte, 3);
