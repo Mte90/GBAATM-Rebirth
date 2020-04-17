@@ -1156,7 +1156,9 @@ formatcheats(char* cheatcodechar)
               }
             }
           }
-
+          // This lines seems that fix the correct generation of the output.
+          // Why? I have no idea
+          QTextStream(stdout) << "\n";
           if ((goodchars >= 10) && ((strlen(templine) - goodchars) < 5)) {
             if (goodchars < 20) {
               char tempcpychar[2];
@@ -1219,8 +1221,6 @@ formatcheats(char* cheatcodechar)
 
   if (labellast == 1)
     *lastgood = 0;
-
-  strcat(tempchar, "}\n");
 
   strcpy(cheatcodechar, tempchar);
   free(tempchar);
