@@ -415,7 +415,7 @@ patchrom(char* gbaromname,
     }
     fclose(gbafile);
     int realgbaend = findromend(gbaromint, gbalen + 0x20000);
-    sprintf(tempchar, "Free space found at 0x%X", realgbaend + 0x8000004);
+    sprintf(tempchar, "Free space found at 0x%X\n", realgbaend + 0x8000004);
 
     QTextStream(stdout) << tempchar;
     int spaceneeded = 4;
@@ -646,7 +646,7 @@ patchrom(char* gbaromname,
     int savejump = 0;
     if (wantmenu == 1) {
       sprintf(tempchar,
-              "Menu placed at 0x%X - trainerintptr = 0x%X",
+              "Menu placed at 0x%X - trainerintptr = 0x%X\n",
               0x8000000 + realgbaend + 4 + trainerintptr * 4,
               trainerintptr * 4);
       QTextStream(stdout) << tempchar;
