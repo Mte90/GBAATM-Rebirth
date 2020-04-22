@@ -4,7 +4,7 @@
 
 ## Roadmap
 
-* Port all the features
+* <s>Port all the features</s>
 * Revamp the original source code
 * Add new features to UI
 

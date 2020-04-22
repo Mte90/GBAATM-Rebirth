@@ -23,17 +23,17 @@ bool cheatsCBATableGenerated = false;
 u8 cheatsCBACurrentSeed[12] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-#define CHEAT_IS_HEX(a)                                                        \
+#define CHEAT_IS_HEX(a) \
   (((a) >= 'A' && (a) <= 'F') || ((a) >= '0' && (a) <= '9'))
 
 #define SIZEOFHOOKJUMP 10 // 7
 int
 ConvertKeys(char* keystr)
 {
-  char* keys[] = { "L",     "R",     "DOWN",   "UP", "LEFT",
+  const char* keys[] = { "L",     "R",     "DOWN",   "UP", "LEFT",
                    "RIGHT", "START", "SELECT", "B",  "A" };
   int keycode = 0x3ff;
-  for (int toupperptr = 0; toupperptr < strlen(keystr); toupperptr++) {
+  for (int toupperptr = 0; toupperptr < (int)strlen(keystr); toupperptr++) {
     keystr[toupperptr] = toupper(keystr[toupperptr]);
   }
 
@@ -125,7 +125,7 @@ hextoint(char* hexstr)
 void
 flippath(char* path)
 {
-  for (int strptr = 0; strptr < strlen(path); strptr++) {
+  for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
     if (path[strptr] == '\\') {
       path[strptr] = (char)'/';
     } else if (path[strptr] == '/') {
@@ -137,7 +137,7 @@ flippath(char* path)
 void
 formatfopenstr(char* path)
 {
-  for (int strptr = 0; strptr < strlen(path); strptr++) {
+  for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
     if (path[strptr] == '\\') {
       path[strptr] = (char)'/';
     }
@@ -147,7 +147,7 @@ formatfopenstr(char* path)
 void
 formatsystemstr(char* path)
 {
-  for (int strptr = 0; strptr < strlen(path); strptr++) {
+  for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
     if (path[strptr] == '\\') {
       path[strptr] = (char)'/';
     }
@@ -159,7 +159,7 @@ getpathfromfilename(char* filename, char* path)
 {
   int lastslash;
   lastslash = -1;
-  for (int charptr = 0; charptr < strlen(filename); charptr++) {
+  for (int charptr = 0; charptr < (int)strlen(filename); charptr++) {
     if ((filename[charptr] == '\\') || (filename[charptr] == '/')) {
       lastslash = charptr;
     }
@@ -213,7 +213,7 @@ stripnpc(char* stringtostrip)
   char* tempstr = (char*)malloc(strlen(stringtostrip) + 100);
   memset(tempstr, 0, strlen(stringtostrip) + 100);
   int tempptr = 0;
-  for (int charptr = 0; charptr < strlen(stringtostrip); charptr++) {
+  for (int charptr = 0; charptr < (int)strlen(stringtostrip); charptr++) {
     char thischar = *(stringtostrip + charptr);
 
     if ((thischar >= 0x20) && (thischar <= 0x7a)) {
@@ -351,7 +351,6 @@ patchrom(char* gbaromname,
          SLOMOSTRUCT slomostruct,
          ENABLEDISABLESTRUCT edstruct,
          int excycles,
-         char* path,
          int wantmenu,
          unsigned int* menuint,
          int cheatselectram,
@@ -364,12 +363,6 @@ patchrom(char* gbaromname,
                               0xE0000005, 0xE1500002, 0x3A04001,  0xE1500003,
                               0x3A04000,  0xE5C14000, 0xE3540000, 0x1A000002,
                               0xE12FFF1E, 0xDDDDDDDD, 0xEEEEFFFF };
-
-  unsigned int edenint[] = { 0xE59F103C, 0xE5D14000, 0xE1DF23BA, 0xE1DF33B4,
-                             0xE3A00301, 0xE5900130, 0xE3A05C03, 0xE28550FF,
-                             0xE0000005, 0xE1500002, 0x3A04000,  0xE1500003,
-                             0x3A04001,  0xE5C14000, 0xE3540001, 0x1A000002,
-                             0xE12FFF1E, 0xDDDDDDDD, 0xEEEEFFFF };
 
   unsigned int slomoint[] = {
     0xE3A02000, 0xE1DF47BE, 0xE1DF57B8, 0xE3A01301, 0xE5911130, 0xE3A03C03,
@@ -389,9 +382,6 @@ patchrom(char* gbaromname,
                                    0x35b }; // select+down+left
 
 #define TRAINERINTMAX 0x4000
-
-  int menupatch = 0;
-  int menustart = 0;
 
   char tempchar[300];
 
@@ -434,12 +424,9 @@ patchrom(char* gbaromname,
       spaceneeded -= 6;
 
     int gbahookaddr[10];
-    int gbahookreg[10];
-    int gbahooktype[10];
     int gbahooks = -1;
 
     int temphookaddr = 0;
-    int temphookreg = 0;
 
     char regtaken[16];
     memset(regtaken, 0, 16);
@@ -455,8 +442,6 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1;
       }
       // end new hook detect
 
@@ -468,8 +453,6 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe92d0000 /*push*/) &&
@@ -480,8 +463,6 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1; // 2;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00640 /*mov 5th],*/) &&
@@ -496,16 +477,12 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 7] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 5) * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1; // 3;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301) &&
           ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200) &&
           ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe1d000b8)) {
         temphookaddr = gbaptr * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1; // 4;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe59f0000 /*ldr rX,[r15,+]*/) &&
@@ -516,18 +493,14 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
-        temphookreg = (gbaromint[gbaptr] & 0xf000) >> 12;
-        gbahooktype[gbahooks + 1] = 1; // long jump
       }
 
       if (temphookaddr != 0) {
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
-        gbahookreg[gbahooks] = temphookreg;
         sprintf(tempchar, "IRQ found at 0x%X\n", temphookaddr + 0x8000000);
         QTextStream(stdout) << tempchar;
         temphookaddr = 0;
-        temphookreg = 0;
         if (gbahooks == 9)
           break;
       }
@@ -572,7 +545,7 @@ patchrom(char* gbaromname,
 
       if (oktopatch == -1) {
         sprintf(tempchar,
-                "Patch not applied to %08\n",
+                "Patch not applied to %d\n",
                 gbahookaddr[hookctr] + 0x8000000);
         QTextStream(stdout) << tempchar;
         continue;
@@ -1084,14 +1057,14 @@ testcht(char* cheatcodechar, char* srchstr)
   memset(tempsrch, 0, strlen(srchstr) + 10);
   char thischar;
   int charptr = 0;
-  for (int charptr = 0; charptr < strlen(cheatcodechar); charptr++) {
+  for (int charptr = 0; charptr < (int)strlen(cheatcodechar); charptr++) {
     thischar = *(cheatcodechar + charptr);
     if ((thischar >= 0x61) && (thischar <= 0x7a))
       thischar -= 0x20;
     *(tempchar + charptr) = thischar;
   }
 
-  for (charptr = 0; charptr < strlen(srchstr); charptr++) {
+  for (charptr = 0; charptr < (int)strlen(srchstr); charptr++) {
     thischar = *(srchstr + charptr);
     if ((thischar >= 0x61) && (thischar <= 0x7a))
       thischar -= 0x20;
@@ -1168,14 +1141,14 @@ formatcheats(char* cheatcodechar)
               memset(newtempline, 0, strlen(templine) + 7);
               int tempcpyptr = 0;
               while ((tempcpychar[0] != ' ') &&
-                     (tempcpyptr < strlen(templine))) {
+                     (tempcpyptr < (int)strlen(templine))) {
                 tempcpychar[0] = *(templine + tempcpyptr);
                 if (tempcpychar[0] != ' ') {
                   strcat(newtempline, tempcpychar);
                 }
                 tempcpyptr++;
               }
-              if (tempcpyptr == strlen(templine)) {
+              if (tempcpyptr == (int)strlen(templine)) {
                 tempcpyptr = strlen(templine) - 5;
                 *(newtempline + strlen(templine) - 5) = 0;
               }
@@ -1189,7 +1162,7 @@ formatcheats(char* cheatcodechar)
               sprintf(
                 newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
               labellast = 0;
-              sprintf(templine, newtempline);
+              sprintf(templine, "%s", newtempline);
 
               free(newtempline);
             }
@@ -1290,9 +1263,9 @@ testchtline(char* cheatline)
   char goodcharlist[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B',
                           'C', 'D', 'E', 'F', '0', '1', '2', '3',
                           '4', '5', '6', '7', '8', '9', ':', ',' };
-  for (int chtptr = 0; chtptr < strlen(cheatline); chtptr++) {
+  for (int chtptr = 0; chtptr < (int)strlen(cheatline); chtptr++) {
     int thismatch = 0;
-    for (int goodcharptr = 0; goodcharptr < strlen(goodcharlist); goodcharptr++)
+    for (int goodcharptr = 0; goodcharptr < (int)strlen(goodcharlist); goodcharptr++)
       if (*(cheatline + chtptr) == *(goodcharlist + goodcharptr))
         thismatch++;
     if (thismatch == 0)
@@ -1305,7 +1278,7 @@ int
 countcommas(char* textchar)
 {
   int commas = 0;
-  for (int textptr = 0; textptr < strlen(textchar); textptr++)
+  for (int textptr = 0; textptr < (int)strlen(textchar); textptr++)
     if (*(textchar + textptr) == ',')
       commas++;
   return commas;
@@ -1320,7 +1293,7 @@ removenpc(char* cheatcodechar)
   char* tempchtchar = (char*)malloc(MAXCODELEN);
   memset(tempchtchar, 0, MAXCODELEN);
   char* tempchtptr = tempchtchar;
-  for (int chtptr = 0; chtptr < strlen(cheatcodechar); chtptr++) {
+  for (int chtptr = 0; chtptr < (int)strlen(cheatcodechar); chtptr++) {
     if ((*tempccptr > 0x1F) && (*tempccptr < 0x80) && (*tempccptr != 0)) {
       *tempchtptr = *tempccptr;
       tempchtptr++;
@@ -1351,30 +1324,29 @@ importcht(char* cheatcodechar)
     memset(endcht, 0, 8);
 
   int myptr = 0;
-  int descwaslast = 0;
 
   char* cheatline = (char*)malloc(MAXCHTLINE);
   char* lastdesc = (char*)malloc(MAXCHTLINE);
   char* lastlabel = NULL;
-  while (myptr < strlen(cheatcodechar)) {
+  while (myptr < (int)strlen(cheatcodechar)) {
     getnextchtline(cheatcodechar, &myptr, cheatline);
 
-    if (testcht(cheatline, "OFF=") == 1)
+    if (testcht(cheatline, (char *)"OFF=") == 1)
       continue;
     if (strlen(cheatline) > 0) {
-      trim(cheatline, "[", "");
-      trim(cheatline, "]", "");
-      trim(cheatline, ",\r\n", "\r\n");
-      trim(cheatline, ";\r\n", "\r\n");
-      trim(cheatline, "ON=\r\n", "");
-      trim(cheatline, "ON=", "");
-      trim(cheatline, "0=", "");
-      trim(cheatline, "MAX=", "");
+      trim(cheatline, (char *)"[", (char *)"");
+      trim(cheatline, (char *)"]", (char *)"");
+      trim(cheatline, (char *)",\r\n", (char *)"\r\n");
+      trim(cheatline, (char *)";\r\n", (char *)"\r\n");
+      trim(cheatline, (char *)"ON=\r\n", (char *)"");
+      trim(cheatline, (char *)"ON=", (char *)"");
+      trim(cheatline, (char *)"0=", (char *)"");
+      trim(cheatline, (char *)"MAX=", (char *)"");
       if (*cheatline == '=')
-        trim(cheatline, "=", "");
-      trim(cheatline, ";", "\r\n");
-      trim(cheatline, "TEXT=", "");
-      trim(cheatline, "Text=", "");
+        trim(cheatline, (char *)"=", (char *)"");
+      trim(cheatline, (char *)";", (char *)"\r\n");
+      trim(cheatline, (char *)"TEXT=", (char *)"");
+      trim(cheatline, (char *)"Text=", (char *)"");
       // removenpc(cheatline);
       if (strlen(cheatline) > 1)
         sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
@@ -1387,7 +1359,7 @@ importcht(char* cheatcodechar)
 
   myptr = 0;
 
-  while (myptr < strlen(cheatcodechar)) {
+  while (myptr < (int)strlen(cheatcodechar)) {
     getnextcheatline(cheatcodechar, &myptr, cheatline);
     if (strlen(cheatline) == 0)
       continue;
@@ -1402,18 +1374,16 @@ importcht(char* cheatcodechar)
 
       *multimodchar = 0;
       sprintf(tempchar + strlen(tempchar), "%s - %s\r\n", lastdesc, cheatline);
-      for (int copyptr = 0; copyptr < strlen(multimodchar + 1); copyptr++) {
+      for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1); copyptr++) {
         *(cheatline + copyptr) = *(multimodchar + 1 + copyptr);
       }
       *(cheatline + strlen(multimodchar + 1)) = 0;
-    } else
-      descwaslast = 0;
+    }
 
     int cheat = testchtline(cheatline);
 
     if (cheat == 1) {
-      trim(cheatline, ":", ",");
-      descwaslast = 0;
+      trim(cheatline, (char *)":", (char *)",");
       char* addrchar = strstr(cheatline, ",");
       *addrchar = 0;
       addrchar++;
@@ -1651,7 +1621,6 @@ importcht(char* cheatcodechar)
         }
       }
     } else {
-      descwaslast = 1;
       lastlabel = tempchar + strlen(tempchar);
       sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
       memset(lastdesc, 0, MAXCHTLINE);
@@ -1681,7 +1650,7 @@ convertraw(char* cheatcodes,
   unsigned int bigwrite[] = { 0xE59F000C, 0xE59F1004, 0xE1C100B0,
                               0xEA000001, 0xFFFFFFFF, 0xEEEEEEEE };
 
-  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, cheatselectram };
+  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
   unsigned int ramtest[] = {
     0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000002, 0xEA000000
   };
@@ -1706,7 +1675,7 @@ convertraw(char* cheatcodes,
     intcounter += 3;
   }
 
-  while (cheatptr[0] < strlen(cheatcodes)) {
+  while (cheatptr[0] < (int)strlen(cheatcodes)) {
     if (strlen(cheatline) > 0) {
       strcpy(lastcheatline, cheatline);
     }
@@ -1825,7 +1794,7 @@ convertcb(char* cheatcodes,
   unsigned int dpadint[] = { 0xE3A01301, 0xE5911130, 0xE3A00C03, 0xE28000FF,
                              0xE0010000, 0xE1500002, 0x1A000000 };
 
-  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, cheatselectram };
+  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
   unsigned int ramtest[] = {
     0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000000, 0xEA000000
   };
@@ -1864,7 +1833,7 @@ convertcb(char* cheatcodes,
     intcounter += 3;
   }
 
-  while (cheatptr[0] < strlen(cheatcodes)) {
+  while (cheatptr[0] < (int)strlen(cheatcodes)) {
     if (strlen(cheatline) > 0) {
       strcpy(lastcheatline, cheatline);
     }
@@ -1978,18 +1947,17 @@ convertcb(char* cheatcodes,
         memset(tempvaluestr, 0, 9);
         memcpy(tempvaluestr, cheatline + 9, 8);
         int tempvalue = hextoint(tempvaluestr);
-        unsigned char codebuffer[8] = { (tempaddress & 255),
-                                        ((tempaddress >> 8) & 255),
-                                        ((tempaddress >> 16) & 255),
-                                        ((tempaddress >> 24) & 255),
-                                        (tempvalue & 255),
-                                        ((tempvalue >> 8) & 255),
+        unsigned char codebuffer[8] = { (unsigned char)(tempaddress & 255),
+                                        (unsigned char)((tempaddress >> 8) & 255),
+                                        (unsigned char)((tempaddress >> 16) & 255),
+                                        (unsigned char)((tempaddress >> 24) & 255),
+                                        (unsigned char)(tempvalue & 255),
+                                        (unsigned char)((tempvalue >> 8) & 255),
                                         0,
                                         0 };
         cheatsCBADecrypt(codebuffer);
         int* codebuffint = (int*)codebuffer;
         tempaddress = *codebuffint;
-        short* codebuffshort = (short*)codebuffer;
         tempvalue = *(codebuffint + 1);
         sprintf(cheatline, "%08X %08X", tempaddress, tempvalue);
       }
@@ -2705,7 +2673,7 @@ r0,[r1,#+0x130]\nand r0,r0,r2\ncmp r0,r2\nbeq label%d\n",asmlabel);
         //strcat(cheatcodes,"return:\n\n");
 
 
-        //*(menuint+cheatcounter*7+1)=0xEFBEADDE;
+        // *(menuint+cheatcounter*7+1)=0xEFBEADDE;
         return intcounter;
 }
 */

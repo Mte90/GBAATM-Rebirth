@@ -320,9 +320,6 @@ MainWindow::patchGame()
       return;
     }
 
-    char mypath[500];
-    new_getpathfromfilename(mypath,
-                            ui->output_path->text().toLocal8Bit().data());
     patchrom(ui->input_path->text().toLocal8Bit().data(),
              ui->output_path->text().toLocal8Bit().data(),
              cheatint,
@@ -331,7 +328,6 @@ MainWindow::patchGame()
              myslomostruct,
              myedstruct,
              ui->execute_every->text().toInt(),
-             mypath,
              (menu_text.length() > 0),
              menuint,
              cheatselectram + 4,
