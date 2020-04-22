@@ -355,7 +355,10 @@ patchrom(char* gbaromname,
          unsigned int* menuint,
          int cheatselectram,
          bool vblankcheck,
-         unsigned int* temptrainermenuint)
+         unsigned int* temptrainermenuint,
+         int wantbg,
+         int wantfont,
+         int wantselect)
 {
 
   unsigned int eddisint[] = { 0xE59F103C, 0xE5D14000, 0xE1DF23BA, 0xE1DF33B4,
@@ -702,6 +705,7 @@ patchrom(char* gbaromname,
     }
   }
 
+  free(trainerint);
   return 1;
 }
 

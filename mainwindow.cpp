@@ -335,7 +335,10 @@ MainWindow::patchGame()
              menuint,
              cheatselectram + 4,
              ui->vblank->isChecked(),
-             temptrainermenuint);
+             temptrainermenuint,
+             wantbg,
+             wantfont,
+             wantselect);
     this->appendLog(tr("Game patched"));
   } else {
       this->appendLog(tr("Output not defined"));
