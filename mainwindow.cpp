@@ -209,10 +209,7 @@ MainWindow::patchGame()
   myslomostruct.wantslomo = 0;
   myedstruct.wantenable = 0;
   this->appendLog(tr("Game patching in progress"));
-  unsigned int* temptrainermenuint;
   if (this->isOutputDefined()) {
-    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
-    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
     QString menu_text = ui->menu_text->text().toUpper();
     if (ui->enable_trainer->isChecked()) {
       myedstruct.wantenable = 1;
@@ -235,6 +232,42 @@ MainWindow::patchGame()
               ui->trainer_disable_keys->text().toLocal8Bit().data());
       this->appendLog(tr("Trainer enabled"));
     }
+
+    unsigned int* menuint = (unsigned int*)malloc(0x1000);
+    memset(menuint, 0, 0x1000);
+    unsigned int* cheatint = (unsigned int*)malloc(0x8000);
+    memset(cheatint, 0, 0x8000);
+    int cheatintlength = 0;
+    int cheatselectram =
+      hextoint(ui->ram_block->currentText().toLocal8Bit().data());
+
+    if (ui->cheats->toPlainText().length() > 0) {
+      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
+      if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
+        importcht(cheatcodes);
+      }
+
+      formatcheats(cheatcodes);
+
+      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
+        cheatintlength =
+          convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+      } else { // raw
+        cheatintlength =
+          convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+      }
+
+      this->appendLog(tr("Cheats added"));
+    } else {
+      this->appendLog(tr("Cheats missing!"));
+        free(menuint);
+            free(cheatint);
+      return;
+    }
+
+    unsigned int* temptrainermenuint;
+    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
+    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
     if (menu_text.length() > 0) {
       settings->setValue("rom/menutitle", menu_text);
       char* trainermenuchar = (char*)temptrainermenuint + 1;
@@ -259,37 +292,6 @@ MainWindow::patchGame()
                strlen(menutitle));
       }
       this->appendLog(tr("Menu title added"));
-    }
-
-    unsigned int* menuint = (unsigned int*)malloc(0x1000);
-    memset(menuint, 0, 0x1000);
-    int cheatintlength = 0;
-    int cheatselectram =
-      hextoint(ui->ram_block->currentText().toLocal8Bit().data());
-
-    unsigned int* cheatint = (unsigned int*)malloc(0x8000);
-    memset(cheatint, 0, 0x8000);
-
-    if (ui->cheats->toPlainText().length() > 0) {
-      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
-      if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
-        importcht(cheatcodes);
-      }
-
-      formatcheats(cheatcodes);
-
-      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
-        cheatintlength =
-          convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      } else { // raw
-        cheatintlength =
-          convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      }
-
-      this->appendLog(tr("Cheats added"));
-    } else {
-      this->appendLog(tr("Cheats missing!"));
-      return;
     }
 
     if (ui->enable_slowmotion->isChecked()) {
@@ -317,6 +319,7 @@ MainWindow::patchGame()
 
     if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
       this->appendLog(tr("You didn't select any patches!"));
+        free(temptrainermenuint);
       return;
     }
 

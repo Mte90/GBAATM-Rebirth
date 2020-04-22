@@ -1285,34 +1285,6 @@ countcommas(char* textchar)
 }
 
 void
-removenpc(char* cheatcodechar)
-{
-  if (strlen(cheatcodechar) == 0)
-    return;
-  char* tempccptr = cheatcodechar;
-  char* tempchtchar = (char*)malloc(MAXCODELEN);
-  memset(tempchtchar, 0, MAXCODELEN);
-  char* tempchtptr = tempchtchar;
-  for (int chtptr = 0; chtptr < (int)strlen(cheatcodechar); chtptr++) {
-    if ((*tempccptr > 0x1F) && (*tempccptr < 0x80) && (*tempccptr != 0)) {
-      *tempchtptr = *tempccptr;
-      tempchtptr++;
-    } else if (*tempccptr == 0xA) {
-      *tempchtptr = 0xD;
-      *(tempchtptr + 1) = 0xA;
-      tempchtptr += 2;
-    }
-    tempccptr++;
-  }
-  memset(cheatcodechar, 0, MAXCODELEN);
-  if (strlen(tempchtchar) == 0)
-    sprintf(cheatcodechar, "Cheat Label\0");
-  else
-    sprintf(cheatcodechar, "%s\0", tempchtchar);
-  free(tempchtchar);
-}
-
-void
 importcht(char* cheatcodechar)
 {
 
@@ -1347,7 +1319,6 @@ importcht(char* cheatcodechar)
       trim(cheatline, (char *)";", (char *)"\r\n");
       trim(cheatline, (char *)"TEXT=", (char *)"");
       trim(cheatline, (char *)"Text=", (char *)"");
-      // removenpc(cheatline);
       if (strlen(cheatline) > 1)
         sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
     }
