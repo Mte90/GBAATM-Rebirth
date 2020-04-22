@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <fstream>
 #include <cstring>
+#include <QTextStream>
 
 void goodname(char * badname) {
     char * tempchar=(char *)malloc(300*sizeof(char)); //strlen(badname)+20);
@@ -36,19 +37,18 @@ if (bytesread!=bmplen) {
 if ((*bmpfilechar!='B') || (*(bmpfilechar+1)!='M')) {
 	free(bmpfilechar);
 	sprintf(tempchar,"Nice try... But I need a real bitmap...");
+    QTextStream(stdout) << tempchar;
 
 	return -1;
 }
 
 unsigned int * bmpint=(unsigned int *)(bmpfilechar+2);
-//int filelen=(*(bmpfilechar+5)<<24)|(*(bmpfilechar+4)<<16)|(*(bmpfilechar+3)<<8)|*(bmpfilechar+2);
 int bmppixstart=*(bmpint+2);
 int bmpwidth=*(bmpint+4);
 int bmpheight=*(bmpint+5);
-int bmppixlen=*(bmpint+8);
 int bmpbpp=(*(bmpint+6)>>16);
 int bmpbytesperline=((bmpwidth*bmpbpp-1)/32)*4+4;
-if (*bmpint!=bmplen) {
+if (*bmpint!=(unsigned int)bmplen) {
 	free(bmpfilechar);
 	sprintf(tempchar,"The bitmap length doesn't match! It is corrupted!");
 
@@ -67,6 +67,7 @@ if ((whichpic==3) && ((bmpwidth!=9)||(bmpheight!=12))) {
 	gooddims=0;
 	sprintf(tempchar,"The font texture bitmap needs to be 9x12");
 }
+QTextStream(stdout) << tempchar;
 if (gooddims==0) {
     free(bmpfilechar);
 	return -1;
@@ -77,7 +78,7 @@ unsigned char r;
 unsigned char g;
 unsigned char b;
 unsigned char * pixchar=(bmpfilechar+bmppixstart);
-//bmpbpp=3;
+
 int thisline=0;
 for (int y=0; y<bmpheight; y++) {
 	for (int x=0; x<bmpwidth; x++) {
@@ -90,17 +91,11 @@ for (int y=0; y<bmpheight; y++) {
 	thisline+=bmpbytesperline;
 }
 
-#ifdef DEVING
-	sprintf(tempchar,"BMP info - width: %d height: %d bpp: %d bytes per line: %d",bmpwidth,bmpheight,bmpbpp, bmpbytesperline);
-// 	AddList(hSTATUSLIST,tempchar);
-// 	ScrollEnd(hSTATUSLIST);
-sprintf(bmpfilestr+strlen(bmpfilestr)-4,".bin");
-FILE * bmpoutfile=fopen(bmpfilestr,"wb");
-fwrite(shortbuffer,1,bmpwidth*bmpheight*2,bmpoutfile);
-fclose(bmpoutfile);
-#endif
+sprintf(tempchar,"BMP info - width: %d height: %d bpp: %d bytes per line: %d",bmpwidth,bmpheight,bmpbpp, bmpbytesperline);
+QTextStream(stdout) << tempchar;
 
 	sprintf(tempchar,"Bitmap imported successfully");
+    QTextStream(stdout) << tempchar;
 
 free(bmpfilechar);
 return 1;
