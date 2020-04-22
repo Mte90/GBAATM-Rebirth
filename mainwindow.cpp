@@ -167,7 +167,7 @@ bool
 MainWindow::isOutputDefined()
 {
   QString fileName = ui->output_path->text();
-  if (!fileName.isEmpty() && !QFileInfo::exists(fileName)) {
+  if (fileName.isEmpty()) {
     return false;
   }
   return true;
@@ -195,6 +195,8 @@ MainWindow::deadbeef()
     this->appendLog(tr("0x3007F00-0x3007FFF is a good place to start"));
     this->appendLog(tr("Then enter the RAM to use address where at least 2 "
                        "DEADBEEFs are in a row"));
+  } else {
+      this->appendLog(tr("Output not defined"));
   }
 
   return true;
@@ -220,7 +222,7 @@ MainWindow::patchGame()
         myedstruct.enablekey = 0xfe;
         ui->trainer_enable_keys->setText("L+R+A");
       }
-      sprintf(myedstruct.enablekeystr,
+      sprintf(myedstruct.enablekeystr, "%s",
               ui->trainer_enable_keys->text().toLocal8Bit().data());
 
       myedstruct.disablekey =
@@ -229,7 +231,7 @@ MainWindow::patchGame()
         myedstruct.disablekey = 0xfd;
         ui->trainer_disable_keys->setText("L+R+B");
       }
-      sprintf(myedstruct.disablekeystr,
+      sprintf(myedstruct.disablekeystr, "%s",
               ui->trainer_disable_keys->text().toLocal8Bit().data());
       this->appendLog(tr("Trainer enabled"));
     }
@@ -270,7 +272,7 @@ MainWindow::patchGame()
 
     if (ui->cheats->toPlainText().length() > 0) {
       char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
-      if (testcht(cheatcodes, "[gameinfo]") == 1) {
+      if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
         importcht(cheatcodes);
       }
 
@@ -298,7 +300,7 @@ MainWindow::patchGame()
         myslomostruct.slowdownkey = 0xbf;
         ui->slowmotion_slow_keys->setText("L+R+UP");
       }
-      sprintf(myslomostruct.slowdownkeystr,
+      sprintf(myslomostruct.slowdownkeystr, "%s",
               ui->slowmotion_slow_keys->text().toLocal8Bit().data());
 
       myslomostruct.speedupkey =
@@ -307,7 +309,7 @@ MainWindow::patchGame()
         myslomostruct.speedupkey = 0x7f;
         ui->slowmotion_up_keys->setText("L+R+DOWN");
       }
-      sprintf(myslomostruct.speedupkeystr,
+      sprintf(myslomostruct.speedupkeystr, "%s",
               ui->slowmotion_up_keys->text().toLocal8Bit().data());
 
       this->appendLog(tr("Slowmotion enabled"));
@@ -336,6 +338,8 @@ MainWindow::patchGame()
              ui->vblank->isChecked(),
              temptrainermenuint);
     this->appendLog(tr("Game patched"));
+  } else {
+      this->appendLog(tr("Output not defined"));
   }
 }
 
