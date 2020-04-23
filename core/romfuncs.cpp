@@ -23,7 +23,7 @@ bool cheatsCBATableGenerated = false;
 u8 cheatsCBACurrentSeed[12] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
                                 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-#define CHEAT_IS_HEX(a) \
+#define CHEAT_IS_HEX(a)                                                        \
   (((a) >= 'A' && (a) <= 'F') || ((a) >= '0' && (a) <= '9'))
 
 #define SIZEOFHOOKJUMP 10 // 7
@@ -31,7 +31,7 @@ int
 ConvertKeys(char* keystr)
 {
   const char* keys[] = { "L",     "R",     "DOWN",   "UP", "LEFT",
-                   "RIGHT", "START", "SELECT", "B",  "A" };
+                         "RIGHT", "START", "SELECT", "B",  "A" };
   int keycode = 0x3ff;
   for (int toupperptr = 0; toupperptr < (int)strlen(keystr); toupperptr++) {
     keystr[toupperptr] = toupper(keystr[toupperptr]);
@@ -1269,7 +1269,8 @@ testchtline(char* cheatline)
                           '4', '5', '6', '7', '8', '9', ':', ',' };
   for (int chtptr = 0; chtptr < (int)strlen(cheatline); chtptr++) {
     int thismatch = 0;
-    for (int goodcharptr = 0; goodcharptr < (int)strlen(goodcharlist); goodcharptr++)
+    for (int goodcharptr = 0; goodcharptr < (int)strlen(goodcharlist);
+         goodcharptr++)
       if (*(cheatline + chtptr) == *(goodcharlist + goodcharptr))
         thismatch++;
     if (thismatch == 0)
@@ -1307,22 +1308,22 @@ importcht(char* cheatcodechar)
   while (myptr < (int)strlen(cheatcodechar)) {
     getnextchtline(cheatcodechar, &myptr, cheatline);
 
-    if (testcht(cheatline, (char *)"OFF=") == 1)
+    if (testcht(cheatline, (char*)"OFF=") == 1)
       continue;
     if (strlen(cheatline) > 0) {
-      trim(cheatline, (char *)"[", (char *)"");
-      trim(cheatline, (char *)"]", (char *)"");
-      trim(cheatline, (char *)",\r\n", (char *)"\r\n");
-      trim(cheatline, (char *)";\r\n", (char *)"\r\n");
-      trim(cheatline, (char *)"ON=\r\n", (char *)"");
-      trim(cheatline, (char *)"ON=", (char *)"");
-      trim(cheatline, (char *)"0=", (char *)"");
-      trim(cheatline, (char *)"MAX=", (char *)"");
+      trim(cheatline, (char*)"[", (char*)"");
+      trim(cheatline, (char*)"]", (char*)"");
+      trim(cheatline, (char*)",\r\n", (char*)"\r\n");
+      trim(cheatline, (char*)";\r\n", (char*)"\r\n");
+      trim(cheatline, (char*)"ON=\r\n", (char*)"");
+      trim(cheatline, (char*)"ON=", (char*)"");
+      trim(cheatline, (char*)"0=", (char*)"");
+      trim(cheatline, (char*)"MAX=", (char*)"");
       if (*cheatline == '=')
-        trim(cheatline, (char *)"=", (char *)"");
-      trim(cheatline, (char *)";", (char *)"\r\n");
-      trim(cheatline, (char *)"TEXT=", (char *)"");
-      trim(cheatline, (char *)"Text=", (char *)"");
+        trim(cheatline, (char*)"=", (char*)"");
+      trim(cheatline, (char*)";", (char*)"\r\n");
+      trim(cheatline, (char*)"TEXT=", (char*)"");
+      trim(cheatline, (char*)"Text=", (char*)"");
       if (strlen(cheatline) > 1)
         sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
     }
@@ -1349,7 +1350,8 @@ importcht(char* cheatcodechar)
 
       *multimodchar = 0;
       sprintf(tempchar + strlen(tempchar), "%s - %s\r\n", lastdesc, cheatline);
-      for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1); copyptr++) {
+      for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1);
+           copyptr++) {
         *(cheatline + copyptr) = *(multimodchar + 1 + copyptr);
       }
       *(cheatline + strlen(multimodchar + 1)) = 0;
@@ -1358,7 +1360,7 @@ importcht(char* cheatcodechar)
     int cheat = testchtline(cheatline);
 
     if (cheat == 1) {
-      trim(cheatline, (char *)":", (char *)",");
+      trim(cheatline, (char*)":", (char*)",");
       char* addrchar = strstr(cheatline, ",");
       *addrchar = 0;
       addrchar++;
@@ -1625,7 +1627,9 @@ convertraw(char* cheatcodes,
   unsigned int bigwrite[] = { 0xE59F000C, 0xE59F1004, 0xE1C100B0,
                               0xEA000001, 0xFFFFFFFF, 0xEEEEEEEE };
 
-  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
+  unsigned int loadramreg[] = { 0xE59FB000,
+                                0xEA000000,
+                                (unsigned int)cheatselectram };
   unsigned int ramtest[] = {
     0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000002, 0xEA000000
   };
@@ -1769,7 +1773,9 @@ convertcb(char* cheatcodes,
   unsigned int dpadint[] = { 0xE3A01301, 0xE5911130, 0xE3A00C03, 0xE28000FF,
                              0xE0010000, 0xE1500002, 0x1A000000 };
 
-  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
+  unsigned int loadramreg[] = { 0xE59FB000,
+                                0xEA000000,
+                                (unsigned int)cheatselectram };
   unsigned int ramtest[] = {
     0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000000, 0xEA000000
   };
@@ -1922,14 +1928,16 @@ convertcb(char* cheatcodes,
         memset(tempvaluestr, 0, 9);
         memcpy(tempvaluestr, cheatline + 9, 8);
         int tempvalue = hextoint(tempvaluestr);
-        unsigned char codebuffer[8] = { (unsigned char)(tempaddress & 255),
-                                        (unsigned char)((tempaddress >> 8) & 255),
-                                        (unsigned char)((tempaddress >> 16) & 255),
-                                        (unsigned char)((tempaddress >> 24) & 255),
-                                        (unsigned char)(tempvalue & 255),
-                                        (unsigned char)((tempvalue >> 8) & 255),
-                                        0,
-                                        0 };
+        unsigned char codebuffer[8] = {
+          (unsigned char)(tempaddress & 255),
+          (unsigned char)((tempaddress >> 8) & 255),
+          (unsigned char)((tempaddress >> 16) & 255),
+          (unsigned char)((tempaddress >> 24) & 255),
+          (unsigned char)(tempvalue & 255),
+          (unsigned char)((tempvalue >> 8) & 255),
+          0,
+          0
+        };
         cheatsCBADecrypt(codebuffer);
         int* codebuffint = (int*)codebuffer;
         tempaddress = *codebuffint;
