@@ -465,7 +465,7 @@ formatcheats(char* cheatcodechar)
                 memset(lastgood, 0, 100);
               }
               lastgood = tempchar + strlen(tempchar);
-              sprintf(tempchar + strlen(tempchar), "[%s] \n{\n", templine);
+              sprintf(tempchar + strlen(tempchar), "[%s]\n{\n", templine);
               labellast = 1;
             }
           }
