@@ -2,6 +2,8 @@
 #include "core/GBAATMres.h"
 #include "core/convertbmps.cpp"
 #include "core/romfuncs.cpp"
+#include "core/cheatcodes.cpp"
+#include <core/cheatcodes-converters.cpp>
 #include "functions.h"
 #include "ui_mainwindow.h"
 #include <QFileDialog>
