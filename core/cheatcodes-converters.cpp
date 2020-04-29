@@ -1,29 +1,15 @@
-#include <QTextStream>
-#include <cstring>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h> 
+#include <../functions.h>
+#include <../variables.h>
 
 int
-convertraw(char* cheatcodes,
-           unsigned int* cheatcodeint,
-           int wantmenu,
-           int cheatselectram,
-           unsigned int* menuint)
+convertraw(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheatselectram, unsigned int* menuint)
 {
 
-  unsigned int bytewrite[] = {
-    0xE3A00000, 0xE59F1004, 0xE5C10000, 0xEA000000, 0xFFFFFFFF
-  };
-  unsigned int bigwrite[] = { 0xE59F000C, 0xE59F1004, 0xE1C100B0,
-                              0xEA000001, 0xFFFFFFFF, 0xEEEEEEEE };
+  unsigned int bytewrite[] = { 0xE3A00000, 0xE59F1004, 0xE5C10000, 0xEA000000, 0xFFFFFFFF };
+  unsigned int bigwrite[] = { 0xE59F000C, 0xE59F1004, 0xE1C100B0, 0xEA000001, 0xFFFFFFFF, 0xEEEEEEEE };
 
-  unsigned int loadramreg[] = { 0xE59FB000,
-                                0xEA000000,
-                                (unsigned int)cheatselectram };
-  unsigned int ramtest[] = {
-    0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000002, 0xEA000000
-  };
+  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
+  unsigned int ramtest[] = { 0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000002, 0xEA000000 };
   int intcounter = 0;
   int cheatcounter = 0;
 
@@ -77,8 +63,7 @@ convertraw(char* cheatcodes,
       jumpwidth = 0;
     }
 
-    if ((cheatline[0] == '[') || (cheatline[0] == '{') ||
-        (cheatline[0] == '}')) {
+    if ((cheatline[0] == '[') || (cheatline[0] == '{') || (cheatline[0] == '}')) {
       // add some labeling code here if needed
       cheatline[0] = 0;
     }
@@ -148,29 +133,17 @@ convertraw(char* cheatcodes,
   return intcounter;
 }
 
-
 int
-convertcb(char* cheatcodes,
-          unsigned int* cheatcodeint,
-          int wantmenu,
-          int cheatselectram,
-          unsigned int* menuint)
+convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheatselectram, unsigned int* menuint)
 {
 
   unsigned int iftopbyte[] = { 0xE3A02000, 0xE59F100C, 0xE1D100B0 };
-  unsigned int superint[] = { 0xE59F1014, 0xE28F2014, 0xE0D200B2, 0xE0C100B2,
-                              0xE2533001, 0x1AFFFFFB, 0xEA000000 };
-  unsigned int slideint[] = { 0xE1DF21BE, 0xE1DF31BC, 0xE1DF41BA, 0xE08100B2,
-                              0xE0800004, 0xE2533001, 0x1AFFFFFB, 0xEA000002 };
-  unsigned int dpadint[] = { 0xE3A01301, 0xE5911130, 0xE3A00C03, 0xE28000FF,
-                             0xE0010000, 0xE1500002, 0x1A000000 };
+  unsigned int superint[] = { 0xE59F1014, 0xE28F2014, 0xE0D200B2, 0xE0C100B2, 0xE2533001, 0x1AFFFFFB, 0xEA000000 };
+  unsigned int slideint[] = { 0xE1DF21BE, 0xE1DF31BC, 0xE1DF41BA, 0xE08100B2, 0xE0800004, 0xE2533001, 0x1AFFFFFB, 0xEA000002 };
+  unsigned int dpadint[] = { 0xE3A01301, 0xE5911130, 0xE3A00C03, 0xE28000FF, 0xE0010000, 0xE1500002, 0x1A000000 };
 
-  unsigned int loadramreg[] = { 0xE59FB000,
-                                0xEA000000,
-                                (unsigned int)cheatselectram };
-  unsigned int ramtest[] = {
-    0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000000, 0xEA000000
-  };
+  unsigned int loadramreg[] = { 0xE59FB000, 0xEA000000, (unsigned int)cheatselectram };
+  unsigned int ramtest[] = { 0xE5DB0000, 0xE59F1008, 0xE0100001, 0xA000000, 0xEA000000 };
 
   int intcounter = 0;
   int menujumppatch = 0;
@@ -275,8 +248,7 @@ convertcb(char* cheatcodes,
         nextconditional = 0;
 
         for (int jumpctr = 0; jumpctr < numpatches; jumpctr++) {
-          *(cheatcodeint + jumppatches[jumpctr]) |=
-            (intcounter - jumppatches[jumpctr] - 2);
+          *(cheatcodeint + jumppatches[jumpctr]) |= (intcounter - jumppatches[jumpctr] - 2);
         }
 
         numpatches = 0;
@@ -298,9 +270,7 @@ convertcb(char* cheatcodes,
       continue; // cheatline[0]=0;
 
     if (superon <= 0) {
-      if ((((cheatline[0] == '0') && (slideon == 0)) ||
-           (cheatline[0] == '1')) &&
-          (encryptionon == 0)) {
+      if ((((cheatline[0] == '0') && (slideon == 0)) || (cheatline[0] == '1')) && (encryptionon == 0)) {
         intcounter -= 6;
         conditionalon = 0;
         whichbit--;
@@ -320,16 +290,14 @@ convertcb(char* cheatcodes,
         memset(tempvaluestr, 0, 9);
         memcpy(tempvaluestr, cheatline + 9, 8);
         int tempvalue = hextoint(tempvaluestr);
-        unsigned char codebuffer[8] = {
-          (unsigned char)(tempaddress & 255),
-          (unsigned char)((tempaddress >> 8) & 255),
-          (unsigned char)((tempaddress >> 16) & 255),
-          (unsigned char)((tempaddress >> 24) & 255),
-          (unsigned char)(tempvalue & 255),
-          (unsigned char)((tempvalue >> 8) & 255),
-          0,
-          0
-        };
+        unsigned char codebuffer[8] = { (unsigned char)(tempaddress & 255),
+                                        (unsigned char)((tempaddress >> 8) & 255),
+                                        (unsigned char)((tempaddress >> 16) & 255),
+                                        (unsigned char)((tempaddress >> 24) & 255),
+                                        (unsigned char)(tempvalue & 255),
+                                        (unsigned char)((tempvalue >> 8) & 255),
+                                        0,
+                                        0 };
         cheatsCBADecrypt(codebuffer);
         int* codebuffint = (int*)codebuffer;
         tempaddress = *codebuffint;
@@ -383,20 +351,16 @@ convertcb(char* cheatcodes,
           intcounter++;
 
           if (superon > 4) {
-            *(cheatcodeint + intcounter) =
-              (((decval & 0xff00) >> 8) | ((decval & 0xff) << 8));
+            *(cheatcodeint + intcounter) = (((decval & 0xff00) >> 8) | ((decval & 0xff) << 8));
             intcounter++;
           }
         } else {
-          *(cheatcodeint + intcounter - 1) = byteflipint(
-            ((((*(cheatcodeint + intcounter - 1) & 0xff) << 8) |
-              ((*(cheatcodeint + intcounter - 1) & 0xff00) >> 8))
-             << 16) |
-            ((tempdec & 0xffff0000) >> 16)); // byteflipint(>>16)0x7788<<16
+          *(cheatcodeint + intcounter - 1) =
+            byteflipint(((((*(cheatcodeint + intcounter - 1) & 0xff) << 8) | ((*(cheatcodeint + intcounter - 1) & 0xff00) >> 8)) << 16) |
+                        ((tempdec & 0xffff0000) >> 16)); // byteflipint(>>16)0x7788<<16
 
           if (superon > 4) {
-            *(cheatcodeint + intcounter) =
-              byteflipint(((decval & 0xffff)) | ((tempdec & 0xffff) << 16));
+            *(cheatcodeint + intcounter) = byteflipint(((decval & 0xffff)) | ((tempdec & 0xffff) << 16));
             intcounter++;
           }
         }
@@ -473,8 +437,7 @@ convertcb(char* cheatcodes,
         cheatline[0] = 0;
       }
 
-      if ((cheatline[0] == '2') || (cheatline[0] == '6') ||
-          (cheatline[0] == 'E')) {
+      if ((cheatline[0] == '2') || (cheatline[0] == '6') || (cheatline[0] == 'E')) {
 
         if (decval <= 0xff) {
 
@@ -546,9 +509,7 @@ convertcb(char* cheatcodes,
         }
       }
 
-      if ((cheatline[0] == '7') || (cheatline[0] == 'A') ||
-          (cheatline[0] == 'B') || (cheatline[0] == 'C') ||
-          (cheatline[0] == 'F')) {
+      if ((cheatline[0] == '7') || (cheatline[0] == 'A') || (cheatline[0] == 'B') || (cheatline[0] == 'C') || (cheatline[0] == 'F')) {
 
         if (decval <= 0xff) {
 

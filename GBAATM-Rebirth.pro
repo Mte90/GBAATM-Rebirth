@@ -20,16 +20,15 @@ SOURCES += \
     core/cheatcodes.cpp \
     core/convertbmps.cpp \
     core/romfuncs.cpp \
-    functions.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
-    core/GBAATMres.h \
     core/sprites.h \
     core/trainermenu.h \
     functions.h \
-    mainwindow.h
+    mainwindow.h \
+    variables.h
 
 FORMS += \
     mainwindow.ui

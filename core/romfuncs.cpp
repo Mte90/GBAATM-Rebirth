@@ -1,20 +1,11 @@
 #include "core/trainermenu.h"
-#include <QString>
-#include <QTextStream>
-#include <cstring>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h>
-unsigned short* menubgshort = (unsigned short*)malloc(76800);
-unsigned short* menuselectshort = (unsigned short*)malloc(6720);
-unsigned short* menufontshort = (unsigned short*)malloc(216);
-#define SIZEOFHOOKJUMP 10 // 7
+#include <../functions.h>
+#include <../variables.h>
 
 int
 ConvertKeys(char* keystr)
 {
-  const char* keys[] = { "L",     "R",     "DOWN",   "UP", "LEFT",
-                         "RIGHT", "START", "SELECT", "B",  "A" };
+  const char* keys[] = { "L", "R", "DOWN", "UP", "LEFT", "RIGHT", "START", "SELECT", "B", "A" };
   int keycode = 0x3ff;
   for (int toupperptr = 0; toupperptr < (int)strlen(keystr); toupperptr++) {
     keystr[toupperptr] = toupper(keystr[toupperptr]);
@@ -34,8 +25,7 @@ ConvertKeys(char* keystr)
         }
 
         if (thiskey == 1) {
-          if ((*(strstr(keystr, keys[1]) + 1) != 'I') &&
-              (*(strstr(keystr, keys[1]) + 1) != 'T')) {
+          if ((*(strstr(keystr, keys[1]) + 1) != 'I') && (*(strstr(keystr, keys[1]) + 1) != 'T')) {
             keycode ^= 1 << (9 - thiskey);
             sprintf(tempstr + strlen(tempstr), "+%s", keys[thiskey]);
           }
@@ -49,8 +39,7 @@ ConvertKeys(char* keystr)
         }
 
       } else {
-        if (((thiskey == 3) && (!strstr(keystr, keys[2]))) ||
-            ((thiskey == 5) && (!strstr(keystr, keys[4]))) ||
+        if (((thiskey == 3) && (!strstr(keystr, keys[2]))) || ((thiskey == 5) && (!strstr(keystr, keys[4]))) ||
             ((thiskey < 3) || (thiskey == 4) || (thiskey > 5))) {
           keycode ^= 1 << (9 - thiskey);
           sprintf(tempstr + strlen(tempstr), "+%s", keys[thiskey]);
@@ -135,9 +124,7 @@ copyint(unsigned int* destint, unsigned int* srcint, int numint)
 void
 strright(char* srcstr, char* deststr, unsigned int chartocpy)
 {
-  for (unsigned int charcpy = strlen(srcstr) - chartocpy;
-       charcpy < strlen(srcstr);
-       charcpy++) {
+  for (unsigned int charcpy = strlen(srcstr) - chartocpy; charcpy < strlen(srcstr); charcpy++) {
     deststr[charcpy - (strlen(srcstr) - chartocpy)] = srcstr[charcpy];
   }
   deststr[chartocpy] = 0;
@@ -153,10 +140,7 @@ strleft(char* srcstr, char* deststr, unsigned int chartocpy)
 }
 
 void
-strmid(char* srcstr,
-       char* deststr,
-       unsigned int charstart,
-       unsigned int chartocpy)
+strmid(char* srcstr, char* deststr, unsigned int charstart, unsigned int chartocpy)
 {
   for (unsigned int charcpy = 0; charcpy < chartocpy; charcpy++) {
     deststr[charcpy] = srcstr[charcpy + charstart - 1];
@@ -213,8 +197,7 @@ findromend(unsigned int* gbaint, int gbaeof)
   int lastnonpad = -1;
   for (int gbaptr = 0; gbaptr < (gbaeof / 4) - 1; gbaptr++) {
     // if (gbaint[gbaptr]!=padint) { lastnonpad=gbaptr; }
-    if (((gbaint[gbaptr] != 0xffffffff) && (gbaint[gbaptr] != 0x0)) ||
-        (gbaint[gbaptr] != gbaint[gbaptr + 1])) {
+    if (((gbaint[gbaptr] != 0xffffffff) && (gbaint[gbaptr] != 0x0)) || (gbaint[gbaptr] != gbaint[gbaptr + 1])) {
       lastnonpad = gbaptr;
     }
   }
@@ -240,9 +223,7 @@ r%d\n\n",0x8000000+gbaptr*4,((gbaint[gbaptr]&0xf000)>>12));
 QString
 deadbeefrom(char* gbaromname, char* newgbaromname)
 {
-  unsigned int gbadeadbeefint[] = { 0xE59F0018, 0xE3A01403, 0xE3A02A02,
-                                    0xE4810004, 0xE2522001, 0x1AFFFFFC,
-                                    0xE51FF004, 0x0,        0xEFBEADDE };
+  unsigned int gbadeadbeefint[] = { 0xE59F0018, 0xE3A01403, 0xE3A02A02, 0xE4810004, 0xE2522001, 0x1AFFFFFC, 0xE51FF004, 0x0, 0xEFBEADDE };
 
 #define SIZEOFDBFUNC 9
 
@@ -270,8 +251,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
     QTextStream(stdout) << tempchar;
 
     copyint(gbaromint + (realgbaend + 4) / 4, gbadeadbeefint, SIZEOFDBFUNC);
-    *(gbaromint + (realgbaend + 4) / 4 + SIZEOFDBFUNC - 2) =
-      0x8000000 | ((*gbaromint & 0xffffff) * 4 + 8);
+    *(gbaromint + (realgbaend + 4) / 4 + SIZEOFDBFUNC - 2) = 0x8000000 | ((*gbaromint & 0xffffff) * 4 + 8);
     *gbaromint = 0xea000000 | ((realgbaend / 4) - 1);
     if (fileexists(newgbaromname) == 1) {
       remove(newgbaromname);
@@ -300,46 +280,23 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 }
 
 int
-patchrom(char* gbaromname,
-         char* newgbaromname,
-         unsigned int* mycheatint,
-         int cheatintlen,
-         int freeram,
-         SLOMOSTRUCT slomostruct,
-         ENABLEDISABLESTRUCT edstruct,
-         int excycles,
-         int wantmenu,
-         unsigned int* menuint,
-         int cheatselectram,
-         bool vblankcheck,
-         unsigned int* temptrainermenuint,
-         int wantbg,
-         int wantfont,
-         int wantselect)
+patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
+         ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu, unsigned int* menuint, int cheatselectram, bool vblankcheck,
+         unsigned int* temptrainermenuint, int wantbg, int wantfont, int wantselect)
 {
 
-  unsigned int eddisint[] = { 0xE59F103C, 0xE5D14000, 0xE1DF23BA, 0xE1DF33B4,
-                              0xE3A00301, 0xE5900130, 0xE3A05C03, 0xE28550FF,
-                              0xE0000005, 0xE1500002, 0x3A04001,  0xE1500003,
-                              0x3A04000,  0xE5C14000, 0xE3540000, 0x1A000002,
-                              0xE12FFF1E, 0xDDDDDDDD, 0xEEEEFFFF };
+  unsigned int eddisint[] = { 0xE59F103C, 0xE5D14000, 0xE1DF23BA, 0xE1DF33B4, 0xE3A00301, 0xE5900130, 0xE3A05C03,
+                              0xE28550FF, 0xE0000005, 0xE1500002, 0x3A04001,  0xE1500003, 0x3A04000,  0xE5C14000,
+                              0xE3540000, 0x1A000002, 0xE12FFF1E, 0xDDDDDDDD, 0xEEEEFFFF };
 
-  unsigned int slomoint[] = {
-    0xE3A02000, 0xE1DF47BE, 0xE1DF57B8, 0xE3A01301, 0xE5911130, 0xE3A03C03,
-    0xE28330FF, 0xE0011003, 0xE59F605C, 0xE5D60002, 0xE1510004, 0x3A02001,
-    0x2800002,  0xE35000FE, 0xC3A000FE, 0xE1510005, 0x3A02001,  0x2500002,
-    0xB3A00000, 0xE5D61001, 0xE3510000, 0x5C60002,  0xE3500000, 0xA00000A,
-    0xE5C62001, 0xE3A01088, 0xE1A00000, 0xE1A00000, 0xE2511001, 0x1AFFFFFB,
-    0xE2500001, 0x3A000002, 0x2AFFFFF7, 0xDDDDDDDD, 0xEEEEFFFF
-  };
-  unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001,
-                             0xE1520003, 0x3A02000,  0xE5C12003, 0xA000001,
-                             0xE12FFF1E, 0xFFFFFFFF };
-  unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0,
-                               0xAA000001, 0xE12FFF1E, 0x4000206 };
-  unsigned int trainerigmint[] = { 0xE3A01301, 0xE591B130, 0xE59F2008,
-                                   0xE15B0002, 0xA000000,  0xEA000000,
-                                   0x35b }; // select+down+left
+  unsigned int slomoint[] = { 0xE3A02000, 0xE1DF47BE, 0xE1DF57B8, 0xE3A01301, 0xE5911130, 0xE3A03C03, 0xE28330FF, 0xE0011003, 0xE59F605C,
+                              0xE5D60002, 0xE1510004, 0x3A02001,  0x2800002,  0xE35000FE, 0xC3A000FE, 0xE1510005, 0x3A02001,  0x2500002,
+                              0xB3A00000, 0xE5D61001, 0xE3510000, 0x5C60002,  0xE3500000, 0xA00000A,  0xE5C62001, 0xE3A01088, 0xE1A00000,
+                              0xE1A00000, 0xE2511001, 0x1AFFFFFB, 0xE2500001, 0x3A000002, 0x2AFFFFF7, 0xDDDDDDDD, 0xEEEEFFFF };
+  unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
+                             0x3A02000,  0xE5C12003, 0xA000001,  0xE12FFF1E, 0xFFFFFFFF };
+  unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
+  unsigned int trainerigmint[] = { 0xE3A01301, 0xE591B130, 0xE59F2008, 0xE15B0002, 0xA000000, 0xEA000000, 0x35b }; // select+down+left
 
 #define TRAINERINTMAX 0x4000
 
@@ -395,56 +352,41 @@ patchrom(char* gbaromname,
       int hooktype = 0;
       // new hook detect
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301 /*mov r[5th],*/) &&
-          ((gbaromint[gbaptr + 1] & 0xfff00fff) ==
-           0xe2800c02 /*add 4th,5th - badreg*/) &&
-          ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
-           0xe5d00008 /*ldr 4th,5th - badreg*/) &&
-          ((gbaromint[gbaptr + 2] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) {
+          ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe2800c02 /*add 4th,5th - badreg*/) &&
+          ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe5d00008 /*ldr 4th,5th - badreg*/) &&
+          ((gbaromint[gbaptr + 2] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
         hooktype = 1;
       }
       // end new hook detect
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301 /*mov r[5th],*/) &&
-          ((gbaromint[gbaptr + 1] & 0xfff00fff) ==
-           0xe2800c02 /*add 4th,5th - badreg*/) &&
-          ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
-           0xe5900000 /*ldr 4th,5th - badreg*/) &&
-          ((gbaromint[gbaptr + 2] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) {
+          ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe2800c02 /*add 4th,5th - badreg*/) &&
+          ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe5900000 /*ldr 4th,5th - badreg*/) &&
+          ((gbaromint[gbaptr + 2] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
         hooktype = 2;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe92d0000 /*push*/) &&
-          ((gbaromint[gbaptr + 1] & 0xffff0fff) ==
-           0xe3a00301 /*mov r[5th],*/) &&
-          ((gbaromint[gbaptr + 2] & 0xfff00fff) ==
-           0xe5b00200 /*ldr - 4th,5th = bad reg*/) &&
-          ((gbaromint[gbaptr + 3] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) {
+          ((gbaromint[gbaptr + 1] & 0xffff0fff) == 0xe3a00301 /*mov r[5th],*/) &&
+          ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe5b00200 /*ldr - 4th,5th = bad reg*/) &&
+          ((gbaromint[gbaptr + 3] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
         hooktype = 3;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00640 /*mov 5th],*/) &&
-          ((gbaromint[gbaptr + 1] & 0xfff00fff) ==
-           0xe5b00200 /*ldr - 4th,5th = bad reg*/) &&
-          ((gbaromint[gbaptr + 2] & 0xfff00000) ==
-           0xe1d00000 /*ldr? - 4th,5th = bad reg*/) &&
-          ((gbaromint[gbaptr + 5] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/) &&
-          ((gbaromint[gbaptr + 6] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/) &&
-          ((gbaromint[gbaptr + 7] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) {
+          ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200 /*ldr - 4th,5th = bad reg*/) &&
+          ((gbaromint[gbaptr + 2] & 0xfff00000) == 0xe1d00000 /*ldr? - 4th,5th = bad reg*/) &&
+          ((gbaromint[gbaptr + 5] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/) &&
+          ((gbaromint[gbaptr + 6] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/) &&
+          ((gbaromint[gbaptr + 7] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 5) * 4;
         hooktype = 4;
       }
 
-      if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301) &&
-          ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200) &&
+      if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301) && ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200) &&
           ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe1d000b8)) {
         temphookaddr = gbaptr * 4;
         hooktype = 5;
@@ -452,11 +394,9 @@ patchrom(char* gbaromname,
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe59f0000 /*ldr rX,[r15,+]*/) &&
           ((gbaromint[gbaptr + 1] & 0xfff000ff) == 0xe5900000 /*ldr rX*/) &&
-          ((gbaromint[gbaptr + 1] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/) &&
+          ((gbaromint[gbaptr + 1] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/) &&
           ((gbaromint[gbaptr + 2] & 0xffff0000) == 0xe1a00000 /*mov*/) &&
-          ((gbaromint[gbaptr + 3] & 0xffff0000) !=
-           0xe59f0000 /*ldr rX,[r15,+]*/)) {
+          ((gbaromint[gbaptr + 3] & 0xffff0000) != 0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
         hooktype = 6;
       }
@@ -485,16 +425,14 @@ patchrom(char* gbaromname,
     spaceneeded = ((int)((spaceneeded + 3) / 4)) * 4;
 
     if ((realgbaend + spaceneeded) > 0x1000000) {
-      QTextStream(stdout)
-        << "The game will be larger than 16MB. Many flash carts have a 16MB "
-           "limit if the games run from PSRAM so it may not work!\n";
+      QTextStream(stdout) << "The game will be larger than 16MB. Many flash carts have a 16MB "
+                             "limit if the games run from PSRAM so it may not work!\n";
     }
 
     if ((realgbaend + spaceneeded) > 0x2000000) {
-      QTextStream(stdout)
-        << "The max size a GBA game can be is 32MB. There is not enough space "
-           "at the end of this game.\r\nThe game will be trimmed to the proper "
-           "size but it may result graphics corruption, etc.\n";
+      QTextStream(stdout) << "The max size a GBA game can be is 32MB. There is not enough space "
+                             "at the end of this game.\r\nThe game will be trimmed to the proper "
+                             "size but it may result graphics corruption, etc.\n";
       realgbaend = 0x2000000 - spaceneeded;
       sprintf(tempchar, "The game was trimmed to 0x8%07X", realgbaend * 4);
       QTextStream(stdout) << tempchar;
@@ -512,17 +450,13 @@ patchrom(char* gbaromname,
       }
 
       if (oktopatch == -1) {
-        sprintf(tempchar,
-                "Patch not applied to %d\n",
-                gbahookaddr[hookctr] + 0x8000000);
+        sprintf(tempchar, "Patch not applied to %d\n", gbahookaddr[hookctr] + 0x8000000);
         QTextStream(stdout) << tempchar;
         continue;
       }
 
       *(trainerint + trainerintptr) = 0xE92D48FF; // push r0-r7,r11,r14
-      *(trainerint + trainerintptr + 1) =
-        0xEB000000 | (((gbahooks - hookctr) * SIZEOFHOOKJUMP +
-                       (SIZEOFHOOKJUMP - 3))); // bl trainerfunc
+      *(trainerint + trainerintptr + 1) = 0xEB000000 | (((gbahooks - hookctr) * SIZEOFHOOKJUMP + (SIZEOFHOOKJUMP - 3))); // bl trainerfunc
 
       *(trainerint + trainerintptr + 2) = 0xE51D005A; // ldr r0, [r13, -5A]
       *(trainerint + trainerintptr + 3) = 0xE2800008; // add r0, 8
@@ -530,18 +464,14 @@ patchrom(char* gbaromname,
 
       *(trainerint + trainerintptr + 5) = 0xE8BD48FF; // pop r0-r7,r11,r14
       *(trainerint + trainerintptr + 6) = gbaromint[gbahookaddr[hookctr] / 4];
-      *(trainerint + trainerintptr + 7) =
-        gbaromint[gbahookaddr[hookctr] / 4 + 1];
-      *(trainerint + trainerintptr + 8) =
-        gbaromint[gbahookaddr[hookctr] / 4 + 2];
+      *(trainerint + trainerintptr + 7) = gbaromint[gbahookaddr[hookctr] / 4 + 1];
+      *(trainerint + trainerintptr + 8) = gbaromint[gbahookaddr[hookctr] / 4 + 2];
 
       *(trainerint + trainerintptr + 9) = 0xE8BD8000; // pop r15
 
-      gbaromint[gbahookaddr[hookctr] / 4] = 0xE92D8000; // push r15
-      gbaromint[gbahookaddr[hookctr] / 4 + 1] =
-        0xE51FF004; // ldr r15,traineraddr
-      gbaromint[gbahookaddr[hookctr] / 4 + 2] =
-        realgbaend + 0x8000004 + hookctr * SIZEOFHOOKJUMP * 4; // traineraddr
+      gbaromint[gbahookaddr[hookctr] / 4] = 0xE92D8000;                                                // push r15
+      gbaromint[gbahookaddr[hookctr] / 4 + 1] = 0xE51FF004;                                            // ldr r15,traineraddr
+      gbaromint[gbahookaddr[hookctr] / 4 + 2] = realgbaend + 0x8000004 + hookctr * SIZEOFHOOKJUMP * 4; // traineraddr
       trainerintptr += SIZEOFHOOKJUMP;
     }
 
@@ -559,16 +489,14 @@ patchrom(char* gbaromname,
     if (edstruct.wantenable == 1) {
       copyint(trainerint + trainerintptr, eddisint, 19);
       *(trainerint + trainerintptr + 17) = freeram;
-      *(trainerint + trainerintptr + 18) =
-        (edstruct.enablekey << 16) | edstruct.disablekey;
+      *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
       trainerintptr += 19;
     }
     if (slomostruct.wantslomo == 1) {
       copyint(trainerint + trainerintptr, slomoint, 35);
       trainerintptr += 35;
       *(trainerint + trainerintptr - 2) = freeram;
-      *(trainerint + trainerintptr - 1) =
-        (slomostruct.slowdownkey << 16) | slomostruct.speedupkey;
+      *(trainerint + trainerintptr - 1) = (slomostruct.slowdownkey << 16) | slomostruct.speedupkey;
     }
     if (wantmenu == 1) {
       copyint(trainerint + trainerintptr, trainerigmint, 7);
@@ -583,15 +511,12 @@ patchrom(char* gbaromname,
       *(trainerint + trainerintptr) = 0xE12FFF1E;
       trainerintptr++;
     }
-    FILE *cheattest=fopen("cheat.bin","wb");
-            fwrite(mycheatint,1,cheatintlen*4,cheattest);
-            fclose(cheattest);
+    FILE* cheattest = fopen("cheat.bin", "wb");
+    fwrite(mycheatint, 1, cheatintlen * 4, cheattest);
+    fclose(cheattest);
     int savejump = 0;
     if (wantmenu == 1) {
-      sprintf(tempchar,
-              "Menu placed at 0x%X - trainerintptr = 0x%X\n",
-              0x8000000 + realgbaend + 4 + trainerintptr * 4,
-              trainerintptr * 4);
+      sprintf(tempchar, "Menu placed at 0x%X - trainerintptr = 0x%X\n", 0x8000000 + realgbaend + 4 + trainerintptr * 4, trainerintptr * 4);
       QTextStream(stdout) << tempchar;
       savejump = *gbaromint;
       *gbaromint = 0xEA000000 | (((realgbaend + 4) / 4 + trainerintptr) - 2);
@@ -626,22 +551,14 @@ patchrom(char* gbaromname,
       }
       for (int trainerptr = 0; trainerptr < 9; trainerptr++) {
         *(temptrainermenuint + menupatchoffset + trainerptr + 1) =
-          (*(temptrainermenuint + menupatchoffset + trainerptr + 1) &
-           0xffffff) +
-          0x8000000 + realgbaend + 4 + trainerintptr * 4;
+          (*(temptrainermenuint + menupatchoffset + trainerptr + 1) & 0xffffff) + 0x8000000 + realgbaend + 4 + trainerintptr * 4;
       }
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr,
-              temptrainermenuint + 1,
-              (*trainermenuint) / 4); // TRAINERMENULEN/4);
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) =
-        0xE1A00000; // menupatch;
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 4) =
-        0x8000000 | ((savejump & 0xffffff) * 4 + 8);
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + menupatchoffset +
-        9) = cheatselectram;
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr +
-                (*temptrainermenuint) / 4,
-              menuint,
+      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr, temptrainermenuint + 1,
+              (*trainermenuint) / 4);                                         // TRAINERMENULEN/4);
+      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) = 0xE1A00000; // menupatch;
+      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 4) = 0x8000000 | ((savejump & 0xffffff) * 4 + 8);
+      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + menupatchoffset + 9) = cheatselectram;
+      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint,
               0x400); // TRAINERMENULEN/4,menuint,0x400);
     }
 
@@ -654,9 +571,7 @@ patchrom(char* gbaromname,
       int byteswritten = fwrite(gbaromint, 1, realgbaend + 4, newgbaromfile);
       free(gbaromint);
       int currlen = ftell(newgbaromfile);
-      unsigned char padbuff[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                                  0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
-                                  0xff, 0xff, 0xff, 0xff };
+      unsigned char padbuff[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff };
       int bytewritenum = 16 - (currlen % 16);
       if (bytewritenum == 0)
         bytewritenum = 16;

@@ -1,7 +1,5 @@
-#include <QTextStream>
-#include <cstring>
-#include <fstream>
-#include <stdio.h>
+#include <../functions.h>
+#include <../variables.h>
 
 void
 goodname(char* badname)
@@ -95,12 +93,7 @@ bmp2short(char* bmpfilestr, unsigned short* shortbuffer, int whichpic)
     thisline += bmpbytesperline;
   }
 
-  sprintf(tempchar,
-          "BMP info - width: %d height: %d bpp: %d bytes per line: %d",
-          bmpwidth,
-          bmpheight,
-          bmpbpp,
-          bmpbytesperline);
+  sprintf(tempchar, "BMP info - width: %d height: %d bpp: %d bytes per line: %d", bmpwidth, bmpheight, bmpbpp, bmpbytesperline);
   QTextStream(stdout) << tempchar;
 
   sprintf(tempchar, "Bitmap imported successfully");

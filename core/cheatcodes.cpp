@@ -1,26 +1,11 @@
-#include <QTextStream>
-#include <cstring>
-#include <fstream>
-#include <stdio.h>
-#include <stdlib.h> 
-#define MAXCHTLINE 4000
-#define MAXCODELEN 40960
-#define u8 unsigned char
-#define u16 unsigned short
-#define u32 unsigned int
-
-u8 cheatsCBASeedBuffer[0x30];
-u32 cheatsCBASeed[4];
-u32 cheatsCBATemporaryValue = 0;
-u16 cheatsCBATable[256];
-bool cheatsCBATableGenerated = false;
+#include <../functions.h>
+#include <../variables.h>
 
 int
 hextoint(char* hexstr)
 {
   int pos = 0;
-  char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A',
-                    'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f' };
+  char hexmap[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'a', 'b', 'c', 'd', 'e', 'f' };
   int returnval = -1;
   while (hexstr[pos] != 0) {
     for (int i = 0; i < 22; i++) {
@@ -41,13 +26,7 @@ hextoint(char* hexstr)
   return returnval;
 }
 
-u8 cheatsCBACurrentSeed[12] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-                                0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-
-#define CHEAT_IS_HEX(a) ( ((a)>='A' && (a) <='F') || ((a) >='0' && (a) <= '9'))
-
-#define SIZEOFHOOKJUMP 10 // 7
-  void
+void
 cheatsCBAReverseArray(u8* array, u8* dest)
 {
   dest[0] = array[3];
@@ -294,22 +273,10 @@ cheatsCBACalcCRC(u8* rom, int count)
     count = (count >> 2) - 1;
     if (count != -1) {
       while (count != -1) {
-        crc = (((crc << 0x08) ^
-                cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++])
-               << 0x10) >>
-              0x10;
-        crc = (((crc << 0x08) ^
-                cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++])
-               << 0x10) >>
-              0x10;
-        crc = (((crc << 0x08) ^
-                cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++])
-               << 0x10) >>
-              0x10;
-        crc = (((crc << 0x08) ^
-                cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++])
-               << 0x10) >>
-              0x10;
+        crc = (((crc << 0x08) ^ cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++]) << 0x10) >> 0x10;
+        crc = (((crc << 0x08) ^ cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++]) << 0x10) >> 0x10;
+        crc = (((crc << 0x08) ^ cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++]) << 0x10) >> 0x10;
+        crc = (((crc << 0x08) ^ cheatsCBATable[(((u32)crc << 0x10) >> 0x18) ^ *rom++]) << 0x10) >> 0x10;
         count--;
       }
     }
@@ -330,8 +297,7 @@ cheatsCBADecrypt(u8* decrypt)
   }
   cheatsCBAArrayToValue(array, decrypt);
   *((u32*)decrypt) = cheatsCBAGetValue(decrypt) ^ cheatsCBASeed[0];
-  *((u16*)(decrypt + 4)) =
-    (cheatsCBAGetData(decrypt) ^ cheatsCBASeed[1]) & 0xffff;
+  *((u16*)(decrypt + 4)) = (cheatsCBAGetData(decrypt) ^ cheatsCBASeed[1]) & 0xffff;
 
   cheatsCBAReverseArray(decrypt, array);
 
@@ -349,14 +315,8 @@ cheatsCBADecrypt(u8* decrypt)
   cheatsCBAArrayToValue(array, decrypt);
 
   *((u32*)decrypt) = cheatsCBAGetValue(decrypt) ^ cheatsCBASeed[2];
-  *((u16*)(decrypt + 4)) =
-    (cheatsCBAGetData(decrypt) ^ cheatsCBASeed[3]) & 0xffff;
+  *((u16*)(decrypt + 4)) = (cheatsCBAGetData(decrypt) ^ cheatsCBASeed[3]) & 0xffff;
 }
-
-unsigned int seed0 = 0x9F4FBBD;
-unsigned int seed1 = 0x9681884A;
-unsigned int seed2 = 0x352027E9;
-unsigned int seed3 = 0xF3DEE5A7;
 
 void
 GSdecrypt(unsigned int* addressptr, unsigned int* valueptr)
@@ -366,10 +326,8 @@ GSdecrypt(unsigned int* addressptr, unsigned int* valueptr)
   unsigned int seed = 0xC6EF3720;
   int decrypt = 32;
   while (decrypt > 0) {
-    value -= ((((address << 4) + seed2) ^ (address + seed)) ^
-              ((address >> 5) + seed3));
-    address -=
-      ((((value << 4) + seed0) ^ (value + seed)) ^ ((value >> 5) + seed1));
+    value -= ((((address << 4) + seed2) ^ (address + seed)) ^ ((address >> 5) + seed3));
+    address -= ((((value << 4) + seed0) ^ (value + seed)) ^ ((value >> 5) + seed1));
     seed -= 0x9E3779B9;
     decrypt--;
   }
@@ -386,8 +344,7 @@ byteflip(short number)
 int
 byteflipint(int number)
 {
-  return (((number >> 24) & 0xff) | ((number >> 8) & 0xff00) |
-          ((number << 8) & 0xff0000) | ((number << 24) & 0xff000000));
+  return (((number >> 24) & 0xff) | ((number >> 8) & 0xff00) | ((number << 8) & 0xff0000) | ((number << 24) & 0xff000000));
 }
 
 int
@@ -423,8 +380,7 @@ testcht(char* cheatcodechar, char* srchstr)
 void
 formatcheats(char* cheatcodechar)
 {
-  char goodcodechar[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8',
-                          '9', 'A', 'B', 'C', 'D', 'E', 'F', ' ' };
+  char goodcodechar[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', ' ' };
   char lastchar[] = { 0, 0 };
   char thischar[] = { 0, 0 };
   int labellast = 0;
@@ -444,8 +400,7 @@ formatcheats(char* cheatcodechar)
       thischar[0] = ' ';
     }
 
-    if (((thischar[0] < 0x20) || (thischar[0] > 0x7e)) &&
-        (thischar[0] != 0xa) && (thischar[0] != 0x9)) {
+    if (((thischar[0] < 0x20) || (thischar[0] > 0x7e)) && (thischar[0] != 0xa) && (thischar[0] != 0x9)) {
       lastchar[0] = thischar[0];
     }
     if ((thischar[0] >= 0x61) && (thischar[0] <= 0x7a)) {
@@ -462,11 +417,8 @@ formatcheats(char* cheatcodechar)
         if (templine[0] != '/') {
           howmanylines++;
           int goodchars = 0;
-          for (unsigned int charptr = 0; charptr < strlen(templine);
-               charptr++) {
-            for (unsigned int goodcharptr = 0;
-                 goodcharptr < strlen(goodcodechar);
-                 goodcharptr++) {
+          for (unsigned int charptr = 0; charptr < strlen(templine); charptr++) {
+            for (unsigned int goodcharptr = 0; goodcharptr < strlen(goodcodechar); goodcharptr++) {
               if (templine[charptr] == goodcodechar[goodcharptr]) {
                 goodchars++;
               }
@@ -482,8 +434,7 @@ formatcheats(char* cheatcodechar)
               char* newtempline = (char*)malloc(strlen(templine) + 20);
               memset(newtempline, 0, strlen(templine) + 7);
               int tempcpyptr = 0;
-              while ((tempcpychar[0] != ' ') &&
-                     (tempcpyptr < (int)strlen(templine))) {
+              while ((tempcpychar[0] != ' ') && (tempcpyptr < (int)strlen(templine))) {
                 tempcpychar[0] = *(templine + tempcpyptr);
                 if (tempcpychar[0] != ' ') {
                   strcat(newtempline, tempcpychar);
@@ -495,14 +446,9 @@ formatcheats(char* cheatcodechar)
                 *(newtempline + strlen(templine) - 5) = 0;
               }
               strcat(newtempline, " ");
-              memset(newtempline + strlen(newtempline),
-                     0,
-                     strlen(templine) + 20 - strlen(newtempline));
-              memset(newtempline + tempcpyptr + 1,
-                     '0',
-                     9 - (strlen(templine) - tempcpyptr));
-              sprintf(
-                newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
+              memset(newtempline + strlen(newtempline), 0, strlen(templine) + 20 - strlen(newtempline));
+              memset(newtempline + tempcpyptr + 1, '0', 9 - (strlen(templine) - tempcpyptr));
+              sprintf(newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
               labellast = 0;
               sprintf(templine, "%s\n", newtempline);
 
@@ -547,9 +493,8 @@ getnextcheatline(char* cheatcodechar, int* chtptr, char* chtline)
 {
   memset(chtline, 0, MAXCHTLINE * sizeof(char));
   while (1) {
-    if ((cheatcodechar[chtptr[0]] == '{') /*|| (cheatcodechar[chtptr[0]]=='}')*/
-        || (cheatcodechar[chtptr[0]] ==
-            '\n')) { // add code here possibly for label with '{'?
+    if ((cheatcodechar[chtptr[0]] == '{')        /*|| (cheatcodechar[chtptr[0]]=='}')*/
+        || (cheatcodechar[chtptr[0]] == '\n')) { // add code here possibly for label with '{'?
       chtptr[0]++;
       break;
     }
@@ -602,13 +547,11 @@ trim(char* textchar, char* texttotrim, char* replacechar)
 int
 testchtline(char* cheatline)
 {
-  char goodcharlist[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B',
-                          'C', 'D', 'E', 'F', '0', '1', '2', '3',
-                          '4', '5', '6', '7', '8', '9', ':', ',' };
+  char goodcharlist[] = { 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F',
+                          '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':', ',' };
   for (int chtptr = 0; chtptr < (int)strlen(cheatline); chtptr++) {
     int thismatch = 0;
-    for (int goodcharptr = 0; goodcharptr < (int)strlen(goodcharlist);
-         goodcharptr++)
+    for (int goodcharptr = 0; goodcharptr < (int)strlen(goodcharlist); goodcharptr++)
       if (*(cheatline + chtptr) == *(goodcharlist + goodcharptr))
         thismatch++;
     if (thismatch == 0)
@@ -688,8 +631,7 @@ importcht(char* cheatcodechar)
 
       *multimodchar = 0;
       sprintf(tempchar + strlen(tempchar), "%s - %s\r\n", lastdesc, cheatline);
-      for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1);
-           copyptr++) {
+      for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1); copyptr++) {
         *(cheatline + copyptr) = *(multimodchar + 1 + copyptr);
       }
       *(cheatline + strlen(multimodchar + 1)) = 0;
@@ -704,16 +646,11 @@ importcht(char* cheatcodechar)
       addrchar++;
       int addressint = hextoint(cheatline);
       if (addressint == 0x400130) {
-        sprintf(tempchar + strlen(tempchar),
-                "D0000020 %04X\r\n",
-                hextoint(addrchar) ^ 0xff);
+        sprintf(tempchar + strlen(tempchar), "D0000020 %04X\r\n", hextoint(addrchar) ^ 0xff);
         continue;
       }
       if ((addressint == 0) || (addressint > 0x41FFFFF)) {
-        sprintf(tempchar + strlen(tempchar),
-                "//%08X:%s ;pointer code????\r\n",
-                addressint,
-                addrchar);
+        sprintf(tempchar + strlen(tempchar), "//%08X:%s ;pointer code????\r\n", addressint, addrchar);
         continue;
       }
 
@@ -728,27 +665,15 @@ importcht(char* cheatcodechar)
         switch (strlen(addrchar)) {
           case 1:
           case 2:
-            sprintf(tempchar + strlen(tempchar),
-                    "3%X %04X\r\n",
-                    addressint,
-                    hextoint(addrchar));
+            sprintf(tempchar + strlen(tempchar), "3%X %04X\r\n", addressint, hextoint(addrchar));
             break;
           case 3:
           case 4:
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint,
-                    hextoint(addrchar));
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint, hextoint(addrchar));
             break;
           default:
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint,
-                    hextoint(addrchar) & 0xffff);
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint + 2,
-                    (hextoint(addrchar) >> 16) & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint, hextoint(addrchar) & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint + 2, (hextoint(addrchar) >> 16) & 0xffff);
         }
 
       } else {
@@ -773,160 +698,82 @@ importcht(char* cheatcodechar)
         if (size == 1) {
           switch (commacount) {
             case 1:
-              sprintf(tempchar + strlen(tempchar),
-                      "8%X %02X%02X\r\n",
-                      addressint,
-                      values[1],
-                      values[0]);
+              sprintf(tempchar + strlen(tempchar), "8%X %02X%02X\r\n", addressint, values[1], values[0]);
               break;
             case 2:
               if ((addressint % 2) == 0) { // even address to start
-                sprintf(tempchar + strlen(tempchar),
-                        "8%X %02X%02X\r\n",
-                        addressint,
-                        values[1],
-                        values[0]);
-                sprintf(tempchar + strlen(tempchar),
-                        "3%X %04X\r\n",
-                        addressint + 2,
-                        values[2]);
+                sprintf(tempchar + strlen(tempchar), "8%X %02X%02X\r\n", addressint, values[1], values[0]);
+                sprintf(tempchar + strlen(tempchar), "3%X %04X\r\n", addressint + 2, values[2]);
               } else {
-                sprintf(tempchar + strlen(tempchar),
-                        "3%X %04X\r\n",
-                        addressint,
-                        values[0]);
-                sprintf(tempchar + strlen(tempchar),
-                        "3%X %02X%02X\r\n",
-                        addressint + 1,
-                        values[2],
-                        values[1]);
+                sprintf(tempchar + strlen(tempchar), "3%X %04X\r\n", addressint, values[0]);
+                sprintf(tempchar + strlen(tempchar), "3%X %02X%02X\r\n", addressint + 1, values[2], values[1]);
               }
               break;
             case 3:
-              sprintf(tempchar + strlen(tempchar),
-                      "8%X %02X%02X\r\n",
-                      addressint,
-                      values[1],
-                      values[0]);
-              sprintf(tempchar + strlen(tempchar),
-                      "8%X %02X%02X\r\n",
-                      addressint + 2,
-                      values[3],
-                      values[2]);
+              sprintf(tempchar + strlen(tempchar), "8%X %02X%02X\r\n", addressint, values[1], values[0]);
+              sprintf(tempchar + strlen(tempchar), "8%X %02X%02X\r\n", addressint + 2, values[3], values[2]);
               break;
             default:
               int commahalf = ((int)((commacount + 1) / 2));
-              sprintf(tempchar + strlen(tempchar),
-                      "5%X %04X\r\n",
-                      addressint,
-                      commahalf);
+              sprintf(tempchar + strlen(tempchar), "5%X %04X\r\n", addressint, commahalf);
               int commaptr = 0;
               while (commaptr < commahalf) {
                 int thisval[] = { 0, 0, 0 };
                 if (commaptr < commahalf)
-                  thisval[0] = ((values[commaptr * 2 + 1]) & 0xff) |
-                               ((values[commaptr * 2] & 0xff) << 8);
+                  thisval[0] = ((values[commaptr * 2 + 1]) & 0xff) | ((values[commaptr * 2] & 0xff) << 8);
                 if (commaptr + 1 < commahalf)
-                  thisval[1] = ((values[commaptr * 2 + 3]) & 0xff) |
-                               ((values[commaptr * 2 + 2] & 0xff) << 8);
+                  thisval[1] = ((values[commaptr * 2 + 3]) & 0xff) | ((values[commaptr * 2 + 2] & 0xff) << 8);
                 if (commaptr + 2 < commahalf)
-                  thisval[2] = ((values[commaptr * 2 + 5]) & 0xff) |
-                               ((values[commaptr * 2 + 4] & 0xff) << 8);
-                sprintf(tempchar + strlen(tempchar),
-                        "%04X%04X %04X\r\n",
-                        thisval[0],
-                        thisval[1],
-                        thisval[2]);
+                  thisval[2] = ((values[commaptr * 2 + 5]) & 0xff) | ((values[commaptr * 2 + 4] & 0xff) << 8);
+                sprintf(tempchar + strlen(tempchar), "%04X%04X %04X\r\n", thisval[0], thisval[1], thisval[2]);
                 commaptr += 3;
               }
               if ((commacount + 1) % 2 != 0)
-                sprintf(tempchar + strlen(tempchar),
-                        "3%X %04X\r\n",
-                        addressint + commahalf * 2,
-                        values[commacount]);
+                sprintf(tempchar + strlen(tempchar), "3%X %04X\r\n", addressint + commahalf * 2, values[commacount]);
           }
         }
         if (size == 2) {
           if (commacount == 1) {
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint,
-                    values[0]);
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint + 2,
-                    values[1]);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint, values[0]);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint + 2, values[1]);
             continue;
           }
 
           if (commacount > 1) {
-            sprintf(tempchar + strlen(tempchar),
-                    "5%X %04X\r\n",
-                    addressint,
-                    commacount + 1);
+            sprintf(tempchar + strlen(tempchar), "5%X %04X\r\n", addressint, commacount + 1);
             for (int commactr = 0; commactr < commacount + 1; commactr += 3) {
               int thisval[] = { 0, 0, 0 };
               if (commactr < commacount + 1)
-                thisval[0] = ((values[commactr] >> 8) & 0xff) |
-                             ((values[commactr] & 0xff) << 8);
+                thisval[0] = ((values[commactr] >> 8) & 0xff) | ((values[commactr] & 0xff) << 8);
               if (commactr + 1 < commacount + 1)
-                thisval[1] = ((values[commactr + 1] >> 8) & 0xff) |
-                             ((values[commactr + 1] & 0xff) << 8);
+                thisval[1] = ((values[commactr + 1] >> 8) & 0xff) | ((values[commactr + 1] & 0xff) << 8);
               if (commactr + 2 < commacount + 1)
-                thisval[2] = ((values[commactr + 2] >> 8) & 0xff) |
-                             ((values[commactr + 2] & 0xff) << 8);
-              sprintf(tempchar + strlen(tempchar),
-                      "%04X%04X %04X\r\n",
-                      thisval[0],
-                      thisval[1],
-                      thisval[2]);
+                thisval[2] = ((values[commactr + 2] >> 8) & 0xff) | ((values[commactr + 2] & 0xff) << 8);
+              sprintf(tempchar + strlen(tempchar), "%04X%04X %04X\r\n", thisval[0], thisval[1], thisval[2]);
             }
           }
         }
 
         if (size == 4) {
           if (commacount == 1) {
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint,
-                    values[0] & 0xffff);
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint + 2,
-                    (values[0] >> 16) & 0xffff);
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint + 4,
-                    values[1] & 0xffff);
-            sprintf(tempchar + strlen(tempchar),
-                    "8%X %04X\r\n",
-                    addressint + 6,
-                    (values[1] >> 16) & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint, values[0] & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint + 2, (values[0] >> 16) & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint + 4, values[1] & 0xffff);
+            sprintf(tempchar + strlen(tempchar), "8%X %04X\r\n", addressint + 6, (values[1] >> 16) & 0xffff);
             continue;
           }
 
           if (commacount > 1) {
-            sprintf(tempchar + strlen(tempchar),
-                    "5%X %04X\r\n",
-                    addressint,
-                    (commacount + 1) * 2);
+            sprintf(tempchar + strlen(tempchar), "5%X %04X\r\n", addressint, (commacount + 1) * 2);
             for (int commactr = 0; commactr < commacount + 1; commactr++) {
-              int thisval = ((values[commactr] & 0xff) << 24) |
-                            (((values[commactr] >> 8) & 0xff) << 16) |
-                            ((values[commactr] & 0xff0000) >> 8) |
-                            ((values[commactr] >> 24) & 0xff);
+              int thisval = ((values[commactr] & 0xff) << 24) | (((values[commactr] >> 8) & 0xff) << 16) |
+                            ((values[commactr] & 0xff0000) >> 8) | ((values[commactr] >> 24) & 0xff);
               if ((commactr % 3) == 0)
                 sprintf(tempchar + strlen(tempchar), "%08X ", thisval);
               if ((commactr % 3) == 1)
-                sprintf(tempchar + strlen(tempchar),
-                        "%04X\r\n%04X",
-                        (thisval >> 16) & 0xffff,
-                        thisval & 0xffff);
+                sprintf(tempchar + strlen(tempchar), "%04X\r\n%04X", (thisval >> 16) & 0xffff, thisval & 0xffff);
               if ((commactr % 3) == 2)
-                sprintf(tempchar + strlen(tempchar),
-                        "%04X %04X\r\n",
-                        (thisval >> 16) & 0xffff,
-                        thisval & 0xffff);
+                sprintf(tempchar + strlen(tempchar), "%04X %04X\r\n", (thisval >> 16) & 0xffff, thisval & 0xffff);
             }
             if (((commacount + 1) % 3) == 1)
               sprintf(tempchar + strlen(tempchar), "0000\r\n");

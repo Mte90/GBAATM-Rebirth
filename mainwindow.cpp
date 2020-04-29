@@ -1,18 +1,11 @@
 #include "mainwindow.h"
-#include "core/GBAATMres.h"
+#include "core/cheatcodes-converters.cpp"
+#include "core/cheatcodes.cpp"
 #include "core/convertbmps.cpp"
 #include "core/romfuncs.cpp"
-#include "core/cheatcodes.cpp"
-#include <core/cheatcodes-converters.cpp>
 #include "functions.h"
 #include "ui_mainwindow.h"
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QSettings>
-#include <cstring>
-#include <iostream>
-#include <stdio.h>
-#include <string.h>
+#include "variables.h"
 
 char romname[25];
 
@@ -30,10 +23,7 @@ MainWindow::MainWindow(QWidget* parent)
   connect(ui->patchgame, &QPushButton::pressed, this, &MainWindow::patchGame);
   connect(ui->loadbg, &QPushButton::pressed, this, &MainWindow::loadBg);
   connect(ui->loadfont, &QPushButton::pressed, this, &MainWindow::loadFont);
-  connect(ui->loadselection,
-          &QPushButton::pressed,
-          this,
-          &MainWindow::loadSelectionBar);
+  connect(ui->loadselection, &QPushButton::pressed, this, &MainWindow::loadSelectionBar);
 
   if (settings->value("files/input").toString() != "") {
     ui->input_path->setText(settings->value("files/input").toString());
@@ -50,11 +40,8 @@ MainWindow::MainWindow(QWidget* parent)
 void
 MainWindow::openRom()
 {
-  QString fileName =
-    QFileDialog::getOpenFileName(this,
-                                 tr("Open GBA rom"),
-                                 settings->value("files/input").toString(),
-                                 tr("Image Files (*.gba *.rom *.bin)"));
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open GBA rom"), settings->value("files/input").toString(),
+                                                  tr("Image Files (*.gba *.rom *.bin)"));
   if (!fileName.isEmpty()) {
     ui->input_path->setText(fileName);
     settings->setValue("files/input", fileName);
@@ -66,10 +53,7 @@ void
 MainWindow::loadBg()
 {
   QString fileName =
-    QFileDialog::getOpenFileName(this,
-                                 tr("Open background image"),
-                                 settings->value("files/input").toString(),
-                                 tr("Image Files (*.bmp)"));
+    QFileDialog::getOpenFileName(this, tr("Open background image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menubgshort, 1);
@@ -82,10 +66,7 @@ void
 MainWindow::loadFont()
 {
   QString fileName =
-    QFileDialog::getOpenFileName(this,
-                                 tr("Open font image"),
-                                 settings->value("files/input").toString(),
-                                 tr("Image Files (*.bmp)"));
+    QFileDialog::getOpenFileName(this, tr("Open font image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menufontshort, 3);
@@ -98,10 +79,7 @@ void
 MainWindow::loadSelectionBar()
 {
   QString fileName =
-    QFileDialog::getOpenFileName(this,
-                                 tr("Open background image"),
-                                 settings->value("files/input").toString(),
-                                 tr("Image Files (*.bmp)"));
+    QFileDialog::getOpenFileName(this, tr("Open background image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menuselectshort, 2);
@@ -113,11 +91,8 @@ MainWindow::loadSelectionBar()
 void
 MainWindow::saveRom()
 {
-  QString fileName =
-    QFileDialog::getSaveFileName(this,
-                                 tr("Save GBA rom"),
-                                 settings->value("files/output").toString(),
-                                 tr("Image Files (*.gba *.rom *.bin)"));
+  QString fileName = QFileDialog::getSaveFileName(this, tr("Save GBA rom"), settings->value("files/output").toString(),
+                                                  tr("Image Files (*.gba *.rom *.bin)"));
   if (!fileName.isEmpty()) {
     ui->output_path->setText(fileName);
     settings->setValue("files/output", fileName);
@@ -127,11 +102,8 @@ MainWindow::saveRom()
 void
 MainWindow::openCheat()
 {
-  QString fileName = QFileDialog::getOpenFileName(
-    this,
-    tr("Open cheat file"),
-    settings->value("files/cheat").toString(),
-    tr("CHT Files (*.cht);;Text Files (*.txt);;Assembly Code File (*.asm)"));
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open cheat file"), settings->value("files/cheat").toString(),
+                                                  tr("CHT Files (*.cht);;Text Files (*.txt);;Assembly Code File (*.asm)"));
   if (!fileName.isEmpty()) {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -198,7 +170,7 @@ MainWindow::deadbeef()
     this->appendLog(tr("Then enter the RAM to use address where at least 2 "
                        "DEADBEEFs are in a row"));
   } else {
-      this->appendLog(tr("Output not defined"));
+    this->appendLog(tr("Output not defined"));
   }
 
   return true;
@@ -215,23 +187,19 @@ MainWindow::patchGame()
     QString menu_text = ui->menu_text->text().toUpper();
     if (ui->enable_trainer->isChecked()) {
       myedstruct.wantenable = 1;
-      myedstruct.enablekey =
-        ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
+      myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
       if (myedstruct.enablekey == 0x3ff) {
         myedstruct.enablekey = 0xfe;
         ui->trainer_enable_keys->setText("L+R+A");
       }
-      sprintf(myedstruct.enablekeystr, "%s",
-              ui->trainer_enable_keys->text().toLocal8Bit().data());
+      sprintf(myedstruct.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
 
-      myedstruct.disablekey =
-        ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
+      myedstruct.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
       if (myedstruct.disablekey == 0x3ff) {
         myedstruct.disablekey = 0xfd;
         ui->trainer_disable_keys->setText("L+R+B");
       }
-      sprintf(myedstruct.disablekeystr, "%s",
-              ui->trainer_disable_keys->text().toLocal8Bit().data());
+      sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
       this->appendLog(tr("Trainer enabled"));
     }
 
@@ -240,8 +208,7 @@ MainWindow::patchGame()
     unsigned int* cheatint = (unsigned int*)malloc(0x8000);
     memset(cheatint, 0, 0x8000);
     int cheatintlength = 0;
-    int cheatselectram =
-      hextoint(ui->ram_block->currentText().toLocal8Bit().data());
+    int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
 
     if (ui->cheats->toPlainText().length() > 0) {
       char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
@@ -252,19 +219,17 @@ MainWindow::patchGame()
       formatcheats(cheatcodes);
 
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
-        cheatintlength =
-          convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+        cheatintlength = convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       } else { // raw
-        cheatintlength =
-          convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+        cheatintlength = convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       }
-      //QTextStream(stdout) << cheatintlength;
+      // QTextStream(stdout) << cheatintlength;
 
       this->appendLog(tr("Cheats added"));
     } else {
       this->appendLog(tr("Cheats missing!"));
-        free(menuint);
-        free(cheatint);
+      free(menuint);
+      free(cheatint);
       return;
     }
 
@@ -279,72 +244,50 @@ MainWindow::patchGame()
       QStringList lines = menu_text.split("/", QString::SkipEmptyParts);
       int trainerlines = lines.count();
 
-      for (int thistrainerline = 0; thistrainerline < lines.count();
-           thistrainerline++) {
+      for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
         menutitle = lines[thistrainerline].toLocal8Bit().data();
         if (strlen(menutitle) > 26) {
           menutitle[26] = 0;
         }
-        *(trainermenuchar + *temptrainermenuint - 92 + (thistrainerline * 30)) =
-          (char)((240 - (strlen(menutitle) * 9)) / 2);
+        *(trainermenuchar + *temptrainermenuint - 92 + (thistrainerline * 30)) = (char)((240 - (strlen(menutitle) * 9)) / 2);
         *(trainermenuchar + *temptrainermenuint - 91 + (thistrainerline * 30)) =
           (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
-        memcpy(trainermenuchar + *temptrainermenuint - 90 +
-                 (thistrainerline * 30),
-               menutitle,
-               strlen(menutitle));
+        memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
       }
       this->appendLog(tr("Menu title added"));
     }
 
     if (ui->enable_slowmotion->isChecked()) {
       myslomostruct.wantslomo = ui->enable_slowmotion->isChecked();
-      myslomostruct.slowdownkey =
-        ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
+      myslomostruct.slowdownkey = ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
       if (myslomostruct.slowdownkey == 0x3ff) {
         myslomostruct.slowdownkey = 0xbf;
         ui->slowmotion_slow_keys->setText("L+R+UP");
       }
-      sprintf(myslomostruct.slowdownkeystr, "%s",
-              ui->slowmotion_slow_keys->text().toLocal8Bit().data());
+      sprintf(myslomostruct.slowdownkeystr, "%s", ui->slowmotion_slow_keys->text().toLocal8Bit().data());
 
-      myslomostruct.speedupkey =
-        ConvertKeys(ui->slowmotion_up_keys->text().toLocal8Bit().data());
+      myslomostruct.speedupkey = ConvertKeys(ui->slowmotion_up_keys->text().toLocal8Bit().data());
       if (myslomostruct.speedupkey == 0x3ff) {
         myslomostruct.speedupkey = 0x7f;
         ui->slowmotion_up_keys->setText("L+R+DOWN");
       }
-      sprintf(myslomostruct.speedupkeystr, "%s",
-              ui->slowmotion_up_keys->text().toLocal8Bit().data());
+      sprintf(myslomostruct.speedupkeystr, "%s", ui->slowmotion_up_keys->text().toLocal8Bit().data());
 
       this->appendLog(tr("Slowmotion enabled"));
     }
 
     if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
       this->appendLog(tr("You didn't select any patches!"));
-        free(temptrainermenuint);
+      free(temptrainermenuint);
       return;
     }
 
-    patchrom(ui->input_path->text().toLocal8Bit().data(),
-             ui->output_path->text().toLocal8Bit().data(),
-             cheatint,
-             cheatintlength,
-             cheatselectram,
-             myslomostruct,
-             myedstruct,
-             ui->execute_every->text().toInt(),
-             (menu_text.length() > 0),
-             menuint,
-             cheatselectram + 4,
-             ui->vblank->isChecked(),
-             temptrainermenuint,
-             wantbg,
-             wantfont,
-             wantselect);
+    patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
+             cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (menu_text.length() > 0), menuint,
+             cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
     this->appendLog(tr("Game patched"));
   } else {
-      this->appendLog(tr("Output not defined"));
+    this->appendLog(tr("Output not defined"));
   }
 }
 
