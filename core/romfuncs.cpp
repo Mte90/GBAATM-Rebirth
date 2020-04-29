@@ -435,7 +435,7 @@ patchrom(char* gbaromname,
     memset(regtaken, 0, 16);
 
     for (int gbaptr = 0; gbaptr < (realgbaend - 12) / 4; gbaptr++) {
-
+      int hooktype = 0;
       // new hook detect
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301 /*mov r[5th],*/) &&
           ((gbaromint[gbaptr + 1] & 0xfff00fff) ==
@@ -445,6 +445,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
+        hooktype = 1;
       }
       // end new hook detect
 
@@ -456,6 +457,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 2] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = gbaptr * 4;
+        hooktype = 2;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe92d0000 /*push*/) &&
@@ -466,6 +468,7 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
+        hooktype = 3;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00640 /*mov 5th],*/) &&
@@ -480,12 +483,14 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 7] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 5) * 4;
+        hooktype = 4;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0fff) == 0xe3a00301) &&
           ((gbaromint[gbaptr + 1] & 0xfff00fff) == 0xe5b00200) &&
           ((gbaromint[gbaptr + 2] & 0xfff00fff) == 0xe1d000b8)) {
         temphookaddr = gbaptr * 4;
+        hooktype = 5;
       }
 
       if (((gbaromint[gbaptr] & 0xffff0000) == 0xe59f0000 /*ldr rX,[r15,+]*/) &&
@@ -496,12 +501,15 @@ patchrom(char* gbaromname,
           ((gbaromint[gbaptr + 3] & 0xffff0000) !=
            0xe59f0000 /*ldr rX,[r15,+]*/)) {
         temphookaddr = (gbaptr + 1) * 4;
+        hooktype = 6;
       }
 
       if (temphookaddr != 0) {
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
-        sprintf(tempchar, "IRQ found at 0x%X\n", temphookaddr + 0x8000000);
+        sprintf(tempchar, "Hook %d found at 0x%X using hook type %d\n", gbaptr, temphookaddr + 0x8000000, hooktype);
+        QTextStream(stdout) << tempchar;
+        sprintf(tempchar, " Placing code at 0x%X\n", realgbaend + 0x8000004);
         QTextStream(stdout) << tempchar;
         temphookaddr = 0;
         if (gbahooks == 9)
