@@ -223,7 +223,6 @@ MainWindow::patchGame()
       } else { // raw
         cheatintlength = convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       }
-      // QTextStream(stdout) << cheatintlength;
 
       this->appendLog(tr("Cheats added"));
     } else {

@@ -511,9 +511,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       *(trainerint + trainerintptr) = 0xE12FFF1E;
       trainerintptr++;
     }
-    FILE* cheattest = fopen("cheat.bin", "wb");
-    fwrite(mycheatint, 1, cheatintlen * 4, cheattest);
-    fclose(cheattest);
+
     int savejump = 0;
     if (wantmenu == 1) {
       sprintf(tempchar, "Menu placed at 0x%X - trainerintptr = 0x%X\n", 0x8000000 + realgbaend + 4 + trainerintptr * 4, trainerintptr * 4);
@@ -525,7 +523,6 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     copyint(gbaromint + (realgbaend + 4) / 4, trainerint, trainerintptr);
 
     if (wantmenu == 1) {
-
       int searchptr = 0;
       int menupatchoffset = 0;
       for (int searchptr = 0; searchptr < 0x200; searchptr++) {

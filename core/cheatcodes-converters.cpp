@@ -30,7 +30,6 @@ convertraw(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheat
     copyint(cheatcodeint + intcounter, loadramreg, 3);
     intcounter += 3;
   }
-
   while (cheatptr[0] < (int)strlen(cheatcodes)) {
     if (strlen(cheatline) > 0) {
       strcpy(lastcheatline, cheatline);
@@ -345,7 +344,6 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
       int decval = hextoint(templongchar) & 0xffff;
 
       if (superon > 0) {
-
         if ((superon % 4) == 0) { // if (((superon/6)%2)==0) {
           *(cheatcodeint + intcounter) = byteflipint(tempdec);
           intcounter++;
@@ -377,7 +375,6 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
       }
 
       if (slideon == 1) {
-
         copyint((cheatcodeint + intcounter + 2), slideint, 8);
         *(cheatcodeint + intcounter + 9) = 0xEA000002;
         *(cheatcodeint + intcounter + 11) = ((decval << 16) | slideval);
@@ -389,7 +386,6 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
       }
 
       if (cheatline[0] == '4') {
-
         *(cheatcodeint + intcounter) = 0xE1DF02B4;
         slideval = decval;
 
@@ -631,6 +627,7 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
       }
     }
   }
+
   *(cheatcodeint + intcounter) = 0xE12FFF1E;
   intcounter++;
 
