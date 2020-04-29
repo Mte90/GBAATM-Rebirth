@@ -626,7 +626,9 @@ patchrom(char* gbaromname,
       *(trainerint + trainerintptr) = 0xE12FFF1E;
       trainerintptr++;
     }
-
+    FILE *cheattest=fopen("cheat.bin","wb");
+            fwrite(mycheatint,1,cheatintlen*4,cheattest);
+            fclose(cheattest);
     int savejump = 0;
     if (wantmenu == 1) {
       sprintf(tempchar,
@@ -1174,7 +1176,7 @@ formatcheats(char* cheatcodechar)
               sprintf(
                 newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
               labellast = 0;
-              sprintf(templine, "%s", newtempline);
+              sprintf(templine, "%s\n", newtempline);
 
               free(newtempline);
             }

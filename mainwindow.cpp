@@ -256,12 +256,13 @@ MainWindow::patchGame()
         cheatintlength =
           convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       }
+      //QTextStream(stdout) << cheatintlength;
 
       this->appendLog(tr("Cheats added"));
     } else {
       this->appendLog(tr("Cheats missing!"));
         free(menuint);
-            free(cheatint);
+        free(cheatint);
       return;
     }
 
