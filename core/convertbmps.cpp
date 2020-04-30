@@ -1,5 +1,5 @@
-#include <../functions.h>
-#include <../variables.h>
+#include "../functions.h"
+#include "../variables.h"
 
 void
 goodname(char* badname)

@@ -1,5 +1,5 @@
-#include <../functions.h>
-#include <../variables.h>
+#include "../functions.h"
+#include "../variables.h"
 
 int
 convertraw(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheatselectram, unsigned int* menuint)

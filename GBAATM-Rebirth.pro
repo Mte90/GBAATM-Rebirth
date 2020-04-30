@@ -45,5 +45,3 @@ DISTFILES += \
     core/aero2.bmp \
     core/greenspiralburst-256.bmp \
     core/greenspiralburst.bmp \
-    core/smileybounce.gba \
-    core/smileybouncebitmap.gba

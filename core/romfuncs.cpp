@@ -1,6 +1,6 @@
+#include "../functions.h"
+#include "../variables.h"
 #include "core/trainermenu.h"
-#include <../functions.h>
-#include <../variables.h>
 
 int
 ConvertKeys(char* keystr)
