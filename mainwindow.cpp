@@ -211,7 +211,10 @@ MainWindow::patchGame()
     int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
 
     if (ui->cheats->toPlainText().length() > 0) {
-      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
+      char* cheatcodes;
+      cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
+      memset(cheatcodes,0,MAXCODELEN*sizeof(char));
+      cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
       if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
         importcht(cheatcodes);
       }
