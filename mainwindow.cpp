@@ -211,20 +211,17 @@ MainWindow::patchGame()
     int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
 
     if (ui->cheats->toPlainText().length() > 0) {
-      char* cheatcodes;
-      cheatcodes=(char *)malloc(MAXCODELEN*sizeof(char));
-      memset(cheatcodes,0,MAXCODELEN*sizeof(char));
-      cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
+      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
       if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
         importcht(cheatcodes);
       }
 
-      formatcheats(cheatcodes);
+      char* formatted_cheatcodes = formatcheats(cheatcodes);
 
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
-        cheatintlength = convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+        cheatintlength = convertcb(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       } else { // raw
-        cheatintlength = convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+        cheatintlength = convertraw(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       }
 
       this->appendLog(tr("Cheats added"));

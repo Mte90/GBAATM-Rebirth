@@ -50,7 +50,7 @@ void GSdecrypt(unsigned int* addressptr, unsigned int* valueptr);
 short byteflip(short number);
 int byteflipint(int number);
 int testcht(char* cheatcodechar, char* srchstr);
-void formatcheats(char* cheatcodechar);
+char* formatcheats(char* cheatcodechar);
 void getnextcheatline(char* cheatcodechar, int* chtptr, char* chtline);
 void getnextchtline(char* cheatcodechar, int* chtptr, char* chtline);
 void trim(char* textchar, char* texttotrim, char* replacechar);

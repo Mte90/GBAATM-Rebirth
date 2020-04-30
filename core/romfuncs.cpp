@@ -575,9 +575,9 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       int byteswritten2 = fwrite(padbuff, 1, bytewritenum, newgbaromfile);
       fclose(newgbaromfile);
       if ((byteswritten == realgbaend + 4) && (byteswritten2 == bytewritenum)) {
-        QTextStream(stdout) << "The patched game was written successfully!";
+        QTextStream(stdout) << "The patched game was written successfully!\n";
       } else {
-        QTextStream(stdout) << "There was a problem writing the game!";
+        QTextStream(stdout) << "There was a problem writing the game!\n";
       }
     } else {
       QTextStream(stdout) << "The file could not be written!";
