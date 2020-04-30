@@ -384,7 +384,6 @@ formatcheats(char* cheatcodechar)
   char lastchar[] = { 0, 0 };
   char thischar[] = { 0, 0 };
   int labellast = 0;
-  char* lastgood;
   char* templine = (char*)malloc(500);
   memset(templine, 0, 500);
   char* tempchar = (char*)malloc(strlen(cheatcodechar) * 5);
@@ -461,10 +460,6 @@ formatcheats(char* cheatcodechar)
               if ((labellast == 0) && (howmanylines > 1)) {
                 strcat(tempchar, "}\n");
               }
-              if (labellast == 1) {
-                memset(lastgood, 0, 100);
-              }
-              lastgood = tempchar + strlen(tempchar);
               sprintf(tempchar + strlen(tempchar), "[%s]\n{\n", templine);
               labellast = 1;
             }
@@ -480,9 +475,6 @@ formatcheats(char* cheatcodechar)
       }
     }
   }
-
-  if (labellast == 1)
-    *lastgood = 0;
 
   strcpy(cheatcodechar, tempchar);
   free(tempchar);
