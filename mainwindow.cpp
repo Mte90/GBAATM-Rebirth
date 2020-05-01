@@ -187,21 +187,22 @@ MainWindow::patchGame()
     QString menu_text = ui->menu_text->text().toUpper();
     if (ui->enable_trainer->isChecked()) {
       myedstruct.wantenable = 1;
-      myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
-      if (myedstruct.enablekey == 0x3ff) {
-        myedstruct.enablekey = 0xfe;
-        ui->trainer_enable_keys->setText("L+R+A");
-      }
-      sprintf(myedstruct.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
-
-      myedstruct.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
-      if (myedstruct.disablekey == 0x3ff) {
-        myedstruct.disablekey = 0xfd;
-        ui->trainer_disable_keys->setText("L+R+B");
-      }
-      sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
       this->appendLog(tr("Trainer enabled"));
     }
+
+    myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
+    if (myedstruct.enablekey == 0x3ff) {
+      myedstruct.enablekey = 0xfe;
+      ui->trainer_enable_keys->setText("L+R+A");
+    }
+    sprintf(myedstruct.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
+
+    myedstruct.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
+    if (myedstruct.disablekey == 0x3ff) {
+      myedstruct.disablekey = 0xfd;
+      ui->trainer_disable_keys->setText("L+R+B");
+    }
+    sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
     unsigned int* menuint = (unsigned int*)malloc(0x1000);
     memset(menuint, 0, 0x1000);
@@ -235,6 +236,7 @@ MainWindow::patchGame()
     unsigned int* temptrainermenuint;
     temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
     memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
+    // TODO: if there is a title create the trainer menu
     if (menu_text.length() > 0) {
       settings->setValue("rom/menutitle", menu_text);
       char* trainermenuchar = (char*)temptrainermenuint + 1;
