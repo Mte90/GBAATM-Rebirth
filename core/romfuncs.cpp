@@ -345,9 +345,6 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
 
     int temphookaddr = 0;
 
-    char regtaken[16];
-    memset(regtaken, 0, 16);
-
     for (int gbaptr = 0; gbaptr < (realgbaend - 12) / 4; gbaptr++) {
       int hooktype = 0;
       // new hook detect

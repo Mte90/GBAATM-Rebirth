@@ -227,10 +227,8 @@ MainWindow::patchGame()
 
       this->appendLog(tr("Cheats added"));
     } else {
-      this->appendLog(tr("Cheats missing!"));
       free(menuint);
       free(cheatint);
-      return;
     }
 
     unsigned int* temptrainermenuint;
