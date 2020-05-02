@@ -451,6 +451,11 @@ formatcheats(char* cheatcodechar)
               labellast = 0;
               sprintf(templine, "%s\n", newtempline);
 
+              if (tempcpyptr == (int)strlen(templine)) {
+                QTextStream(stdout) << QString("Bad code detected: %s").arg(templine);
+                templine[0] = 0;
+              }
+
               free(newtempline);
             }
             strcat(tempchar, templine);

@@ -401,13 +401,21 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
         hooktype = 6;
       }
 
+      for (int opctr = 0; opctr < 4; opctr++) {
+        int thisop = gbaromint[temphookaddr / 4 + opctr];
+        if (((thisop & 0xf0000) == 0xd0000) || ((thisop & 0xf000) == 0xd000))
+          temphookaddr = 0;
+      }
+
       if (temphookaddr != 0) {
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
-        sprintf(tempchar, "Hook %d found at 0x%X using hook type %d\n", gbaptr, temphookaddr + 0x8000000, hooktype);
+        sprintf(tempchar, "Hook %d found at 0x%X using hook type %d\n", gbahooks + 1, temphookaddr + 0x8000000, hooktype);
         QTextStream(stdout) << tempchar;
-        sprintf(tempchar, " Placing code at 0x%X\n", realgbaend + 0x8000004);
-        QTextStream(stdout) << tempchar;
+        if (realgbaend < 0x2000000) {
+          sprintf(tempchar, "  Placing code @ 0x%X", realgbaend + gbahooks * SIZEOFHOOKJUMP * 4 + 0x8000004);
+          QTextStream(stdout) << tempchar;
+        }
         temphookaddr = 0;
         if (gbahooks == 9)
           break;
@@ -438,36 +446,27 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       QTextStream(stdout) << tempchar;
     }
 
-    int oktopatch = 1;
-
     for (int hookctr = 0; hookctr < gbahooks + 1; hookctr++) {
+      *(trainerint + trainerintptr) = 0xE92D4000;     // push r14
+      *(trainerint + trainerintptr + 1) = 0xE3A0E402; // mov r14, #0x2000000
 
-      for (int opctr = 0; opctr < 4; opctr++) {
-        int thisop = gbaromint[gbahookaddr[hookctr] / 4 + opctr];
+      *(trainerint + trainerintptr + 2) = 0xE28EE701; // add r14, #40000
+      *(trainerint + trainerintptr + 3) = 0xE24EE004; // sub r14, #28
 
-        if (((thisop & 0xf0000) == 0xd0000) || ((thisop & 0xf000) == 0xd000))
-          oktopatch = -1;
-      }
+      *(trainerint + trainerintptr + 4) = 0xE90E08FF; // stmdb [r14], r0-r7,r11 //0xE92D48FF; //push r0-r7,r11,r14
+      *(trainerint + trainerintptr + 5) = 0xEB000000 | (((gbahooks - hookctr) * SIZEOFHOOKJUMP + (SIZEOFHOOKJUMP - 7))); // bl trainerfunc
 
-      if (oktopatch == -1) {
-        sprintf(tempchar, "Patch not applied to %d\n", gbahookaddr[hookctr] + 0x8000000);
-        QTextStream(stdout) << tempchar;
-        continue;
-      }
+      *(trainerint + trainerintptr + 6) = 0xE3A0E402; // mov r14, #0x2000000
+      *(trainerint + trainerintptr + 7) = 0xE28EE701; // add r14, #40000
+      *(trainerint + trainerintptr + 8) = 0xE24EE028; // sub r14, #28
 
-      *(trainerint + trainerintptr) = 0xE92D48FF; // push r0-r7,r11,r14
-      *(trainerint + trainerintptr + 1) = 0xEB000000 | (((gbahooks - hookctr) * SIZEOFHOOKJUMP + (SIZEOFHOOKJUMP - 3))); // bl trainerfunc
+      *(trainerint + trainerintptr + 9) = 0xE89E08FF;  // ldmia [r14],r0-r7,r11 //0xE8BD48FF; //pop r0-r7,r11,r14
+      *(trainerint + trainerintptr + 10) = 0xE8BD4000; // pop r14
+      *(trainerint + trainerintptr + 11) = gbaromint[gbahookaddr[hookctr] / 4];
+      *(trainerint + trainerintptr + 12) = gbaromint[gbahookaddr[hookctr] / 4 + 1];
+      *(trainerint + trainerintptr + 13) = gbaromint[gbahookaddr[hookctr] / 4 + 2];
 
-      *(trainerint + trainerintptr + 2) = 0xE51D005A; // ldr r0, [r13, -5A]
-      *(trainerint + trainerintptr + 3) = 0xE2800008; // add r0, 8
-      *(trainerint + trainerintptr + 4) = 0xE50D005A; // str r0, [r13, -5A]
-
-      *(trainerint + trainerintptr + 5) = 0xE8BD48FF; // pop r0-r7,r11,r14
-      *(trainerint + trainerintptr + 6) = gbaromint[gbahookaddr[hookctr] / 4];
-      *(trainerint + trainerintptr + 7) = gbaromint[gbahookaddr[hookctr] / 4 + 1];
-      *(trainerint + trainerintptr + 8) = gbaromint[gbahookaddr[hookctr] / 4 + 2];
-
-      *(trainerint + trainerintptr + 9) = 0xE8BD8000; // pop r15
+      *(trainerint + trainerintptr + 14) = 0xE8BD8000; // pop r15
 
       gbaromint[gbahookaddr[hookctr] / 4] = 0xE92D8000;                                                // push r15
       gbaromint[gbahookaddr[hookctr] / 4 + 1] = 0xE51FF004;                                            // ldr r15,traineraddr

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 
 #define CHEAT_IS_HEX(a) (((a) >= 'A' && (a) <= 'F') || ((a) >= '0' && (a) <= '9'))
-#define SIZEOFHOOKJUMP 10 // 7
+#define SIZEOFHOOKJUMP 15 // 10 //7
 #define MAXCHTLINE 4000
 #define MAXCODELEN 40960
 #define u8 unsigned char

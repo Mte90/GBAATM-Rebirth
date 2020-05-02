@@ -280,7 +280,7 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
     }
 
     if (strlen(cheatline) != 0) {
-      if (encryptionon == 1) {
+      if ((encryptionon == 1) && (cheatline[0] != '{') && (cheatline[0] != '[') && (cheatline[0] != '}')) {
         char tempaddressstr[9];
         memset(tempaddressstr, 0, 9);
         memcpy(tempaddressstr, cheatline, 8);
@@ -431,6 +431,7 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
         whichbit--;
         cheatcounter--;
         cheatline[0] = 0;
+        continue;
       }
 
       if ((cheatline[0] == '2') || (cheatline[0] == '6') || (cheatline[0] == 'E')) {
