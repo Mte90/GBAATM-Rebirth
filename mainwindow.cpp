@@ -218,7 +218,6 @@ MainWindow::patchGame()
       }
 
       char* formatted_cheatcodes = formatcheats(cheatcodes);
-
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
         cheatintlength = convertcb(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
       } else { // raw

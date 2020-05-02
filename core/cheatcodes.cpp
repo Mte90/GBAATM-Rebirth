@@ -408,7 +408,7 @@ formatcheats(char* cheatcodechar)
 
     if (lastchar[0] != thischar[0]) {
       if ((thischar[0] != 0x9) && (thischar[0] != 0xd)) {
-        strcat(templine, thischar);
+        strcat(templine, QString(thischar).remove("\r").remove("\n").toLocal8Bit().data());
         lastchar[0] = thischar[0];
       }
 
@@ -440,19 +440,20 @@ formatcheats(char* cheatcodechar)
                 }
                 tempcpyptr++;
               }
+
               if (tempcpyptr == (int)strlen(templine)) {
-                tempcpyptr = strlen(templine) - 5;
-                *(newtempline + strlen(templine) - 5) = 0;
+                tempcpyptr = strlen(templine) - 4;
+                *(newtempline + strlen(templine) - 4) = 0;
               }
               strcat(newtempline, " ");
               memset(newtempline + strlen(newtempline), 0, strlen(templine) + 20 - strlen(newtempline));
-              memset(newtempline + tempcpyptr + 1, '0', 9 - (strlen(templine) - tempcpyptr));
+              memset(newtempline + tempcpyptr + 1, '0', 8 - (strlen(templine) - tempcpyptr));
               sprintf(newtempline + strlen(newtempline), "%s", templine + tempcpyptr);
               labellast = 0;
               sprintf(templine, "%s\n", newtempline);
 
               if (tempcpyptr == (int)strlen(templine)) {
-                QTextStream(stdout) << QString("Bad code detected: %s").arg(templine);
+                QTextStream(stdout) << QString("Bad code detected: %1").arg(templine);
                 templine[0] = 0;
               }
 
@@ -460,8 +461,7 @@ formatcheats(char* cheatcodechar)
             }
             strcat(tempchar, templine);
           } else { // label or bad code
-            if (strlen(templine) > 0) {
-              templine[strlen(templine) - 1] = 0;
+            if (strlen(templine) > 1) {
               if ((labellast == 0) && (howmanylines > 1)) {
                 strcat(tempchar, "}\n");
               }
@@ -479,6 +479,11 @@ formatcheats(char* cheatcodechar)
         strcat(templine, thischar);
       }
     }
+  }
+
+  // Add missing closing parenthesis
+  if (QString(tempchar).count(QLatin1Char('{')) > QString(tempchar).count(QLatin1Char('}'))) {
+    strcat(tempchar, "}\n");
   }
 
   return tempchar;

@@ -477,12 +477,12 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       QTextStream(stdout) << "Vblank added\n";
     }
 
+    QTextStream(stdout) << QString("Execute set cheat every %1 cycle\n").arg(excycles);
     if (excycles > 1) {
       copyint(trainerint + trainerintptr, execint, 10);
       *(trainerint + trainerintptr + 2) |= excycles;
       *(trainerint + trainerintptr + 9) = freeram;
       trainerintptr += 10;
-      QTextStream(stdout) << QString("Execute set cheat every %d\n").arg(excycles);
     }
     if (edstruct.wantenable == 1) {
       copyint(trainerint + trainerintptr, eddisint, 19);
