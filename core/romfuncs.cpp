@@ -484,17 +484,19 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       *(trainerint + trainerintptr + 9) = freeram;
       trainerintptr += 10;
     }
+    // The failure is here
     if (edstruct.wantenable == 1) {
       copyint(trainerint + trainerintptr, eddisint, 19);
       *(trainerint + trainerintptr + 17) = freeram;
       *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
       trainerintptr += 19;
     }
+
     if (slomostruct.wantslomo == 1) {
       copyint(trainerint + trainerintptr, slomoint, 35);
-      trainerintptr += 35;
       *(trainerint + trainerintptr - 2) = freeram;
       *(trainerint + trainerintptr - 1) = (slomostruct.slowdownkey << 16) | slomostruct.speedupkey;
+      trainerintptr += 35;
     }
     if (wantmenu == 1) {
       copyint(trainerint + trainerintptr, trainerigmint, 7);
