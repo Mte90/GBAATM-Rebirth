@@ -413,7 +413,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
         sprintf(tempchar, "Hook %d found at 0x%X using hook type %d\n", gbahooks + 1, temphookaddr + 0x8000000, hooktype);
         QTextStream(stdout) << tempchar;
         if (realgbaend < 0x2000000) {
-          sprintf(tempchar, "  Placing code @ 0x%X", realgbaend + gbahooks * SIZEOFHOOKJUMP * 4 + 0x8000004);
+          sprintf(tempchar, "  Placing code @ 0x%X\n", realgbaend + gbahooks * SIZEOFHOOKJUMP * 4 + 0x8000004);
           QTextStream(stdout) << tempchar;
         }
         temphookaddr = 0;
