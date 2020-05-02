@@ -474,6 +474,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     if (vblankcheck == 1) {
       copyint(trainerint + trainerintptr, vblankint, 6);
       trainerintptr += 6;
+      QTextStream(stdout) << "Vblank added\n";
     }
 
     if (excycles > 1) {
@@ -481,6 +482,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       *(trainerint + trainerintptr + 2) |= excycles;
       *(trainerint + trainerintptr + 9) = freeram;
       trainerintptr += 10;
+      QTextStream(stdout) << QString("Execute set cheat every %d\n").arg(excycles);
     }
     if (edstruct.wantenable == 1) {
       copyint(trainerint + trainerintptr, eddisint, 19);
@@ -498,6 +500,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       copyint(trainerint + trainerintptr, trainerigmint, 7);
       *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
       trainerintptr += 7;
+      QTextStream(stdout) << "Menu added\n";
     }
 
     if (cheatintlen > 0) {
@@ -506,6 +509,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     } else {
       *(trainerint + trainerintptr) = 0xE12FFF1E;
       trainerintptr++;
+      QTextStream(stdout) << "No cheat added\n";
     }
 
     int savejump = 0;
@@ -521,9 +525,10 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     if (wantmenu == 1) {
       int searchptr = 0;
       int menupatchoffset = 0;
-      for (int searchptr = 0; searchptr < 0x200; searchptr++) {
-        if (*(temptrainermenuint + searchptr + 1) == 0x8000000) {
-          menupatchoffset = searchptr;
+      for (int tempsearchptr = 0; tempsearchptr < 0x200; tempsearchptr++) {
+        if (*(temptrainermenuint + tempsearchptr + 1) == 0x8000000) {
+          menupatchoffset = tempsearchptr;
+          searchptr = tempsearchptr;
           break;
         }
       }
@@ -546,13 +551,11 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
         *(temptrainermenuint + menupatchoffset + trainerptr + 1) =
           (*(temptrainermenuint + menupatchoffset + trainerptr + 1) & 0xffffff) + 0x8000000 + realgbaend + 4 + trainerintptr * 4;
       }
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr, temptrainermenuint + 1,
-              (*trainermenuint) / 4);                                         // TRAINERMENULEN/4);
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) = 0xE1A00000; // menupatch;
+      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr, temptrainermenuint + 1, (*trainermenuint) / 4);
+      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) = 0xE1A00000;
       *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 4) = 0x8000000 | ((savejump & 0xffffff) * 4 + 8);
       *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + menupatchoffset + 9) = cheatselectram;
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint,
-              0x400); // TRAINERMENULEN/4,menuint,0x400);
+      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint, 0x400);
     }
 
     if (fileexists(newgbaromname) == 1)
