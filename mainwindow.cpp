@@ -256,7 +256,7 @@ MainWindow::patchGame()
     }
 
     if (ui->enable_slowmotion->isChecked()) {
-      myslomostruct.wantslomo = ui->enable_slowmotion->isChecked();
+      myslomostruct.wantslomo = 1;
       myslomostruct.slowdownkey = ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
       if (myslomostruct.slowdownkey == 0x3ff) {
         myslomostruct.slowdownkey = 0xbf;
