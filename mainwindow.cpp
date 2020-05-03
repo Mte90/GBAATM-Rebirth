@@ -180,7 +180,6 @@ MainWindow::deadbeef()
 void
 MainWindow::patchGame()
 {
-  ui->log->setPlainText("");
   myslomostruct.wantslomo = 0;
   myedstruct.wantenable = 0;
   this->appendLog(tr("Game patching in progress"));
