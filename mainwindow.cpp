@@ -184,7 +184,6 @@ MainWindow::patchGame()
   myedstruct.wantenable = 0;
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
-    QString menu_text = ui->menu_text->text().toUpper();
     if (ui->enable_trainer->isChecked()) {
       myedstruct.wantenable = 1;
       this->appendLog(tr("Trainer enabled"));
@@ -210,6 +209,9 @@ MainWindow::patchGame()
     memset(cheatint, 0, 0x8000);
     int cheatintlength = 0;
     int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
+    unsigned int* temptrainermenuint;
+    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
+    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
 
     if (ui->cheats->toPlainText().length() > 0) {
       char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
@@ -225,21 +227,16 @@ MainWindow::patchGame()
       }
 
       this->appendLog(tr("Cheats added"));
-    } else {
-      free(menuint);
-      free(cheatint);
-    }
 
-    unsigned int* temptrainermenuint;
-    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
-    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
-    // TODO: if there is a title create the trainer menu
-    if (menu_text.length() > 0) {
-      settings->setValue("rom/menutitle", menu_text);
+      if (ui->menu_text->text().length() == 0) {
+        ui->menu_text->setText(ui->romname->text());
+      }
+
+      settings->setValue("rom/menutitle", ui->menu_text->text().toUpper());
       char* trainermenuchar = (char*)temptrainermenuint + 1;
       char* menutitle;
 
-      QStringList lines = menu_text.split("/", QString::SkipEmptyParts);
+      QStringList lines = ui->menu_text->text().toUpper().split("/", QString::SkipEmptyParts);
       int trainerlines = lines.count();
 
       for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
@@ -252,6 +249,9 @@ MainWindow::patchGame()
           (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
         memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
       }
+    } else {
+      free(menuint);
+      free(cheatint);
     }
 
     if (ui->enable_slowmotion->isChecked()) {
@@ -279,7 +279,7 @@ MainWindow::patchGame()
 
     QString output =
       patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
-               cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (menu_text.length() > 0), menuint,
+               cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), menuint,
                cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
     this->appendLog(output);
   } else {

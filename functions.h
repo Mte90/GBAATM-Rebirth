@@ -16,14 +16,10 @@
 int ConvertKeys(char* keystr);
 int fileexists(const char* filename);
 void flippath(char* path);
-void formatfopenstr(char* path);
-void formatsystemstr(char* path);
 void getpathfromfilename(char* filename, char* path);
 void copyint(unsigned int* destint, unsigned int* srcint, int numint);
 void strright(char* srcstr, char* deststr, unsigned int chartocpy);
 void strleft(char* srcstr, char* deststr, unsigned int chartocpy);
-void strmid(char* srcstr, char* deststr, unsigned int charstart, unsigned int chartocpy);
-void stripnpc(char* stringtostrip);
 void getromname(char* gbaromstr, char* tempname);
 int findromend(unsigned int* gbaint, int gbaeof);
 QString deadbeefrom(char* gbaromname, char* newgbaromname);

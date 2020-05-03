@@ -69,18 +69,6 @@ fileexists(const char* filename)
 }
 
 void
-flippath(char* path)
-{
-  for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
-    if (path[strptr] == '\\') {
-      path[strptr] = (char)'/';
-    } else if (path[strptr] == '/') {
-      path[strptr] = (char)'\\';
-    }
-  }
-}
-
-void
 formatfopenstr(char* path)
 {
   for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
@@ -91,36 +79,13 @@ formatfopenstr(char* path)
 }
 
 void
-formatsystemstr(char* path)
-{
-  for (int strptr = 0; strptr < (int)strlen(path); strptr++) {
-    if (path[strptr] == '\\') {
-      path[strptr] = (char)'/';
-    }
-  }
-}
-
-void
-getpathfromfilename(char* filename, char* path)
-{
-  int lastslash;
-  lastslash = -1;
-  for (int charptr = 0; charptr < (int)strlen(filename); charptr++) {
-    if ((filename[charptr] == '\\') || (filename[charptr] == '/')) {
-      lastslash = charptr;
-    }
-  }
-  memcpy(path, filename, lastslash + 1);
-  path[lastslash + 1] = 0;
-}
-
-void
 copyint(unsigned int* destint, unsigned int* srcint, int numint)
 {
   for (int intptr = 0; intptr < numint; intptr++) {
     *(destint + intptr) = *(srcint + intptr);
   }
 }
+
 void
 strright(char* srcstr, char* deststr, unsigned int chartocpy)
 {
@@ -137,40 +102,6 @@ strleft(char* srcstr, char* deststr, unsigned int chartocpy)
     deststr[charcpy] = srcstr[charcpy];
   }
   deststr[chartocpy] = 0;
-}
-
-void
-strmid(char* srcstr, char* deststr, unsigned int charstart, unsigned int chartocpy)
-{
-  for (unsigned int charcpy = 0; charcpy < chartocpy; charcpy++) {
-    deststr[charcpy] = srcstr[charcpy + charstart - 1];
-  }
-  deststr[chartocpy] = 0;
-}
-
-void
-stripnpc(char* stringtostrip)
-{
-  char* tempstr = (char*)malloc(strlen(stringtostrip) + 100);
-  memset(tempstr, 0, strlen(stringtostrip) + 100);
-  int tempptr = 0;
-  for (int charptr = 0; charptr < (int)strlen(stringtostrip); charptr++) {
-    char thischar = *(stringtostrip + charptr);
-
-    if ((thischar >= 0x20) && (thischar <= 0x7a)) {
-      *(tempstr + tempptr) = thischar;
-      tempptr++;
-    }
-
-    if (thischar == 0xa) {
-      *(tempstr + tempptr) = '\r';
-      *(tempstr + tempptr + 1) = '\n';
-      tempptr += 2;
-    }
-  }
-  memset(stringtostrip, 0, strlen(stringtostrip) + 1);
-  memcpy(stringtostrip, tempstr, strlen(tempstr) + 1);
-  free(tempstr);
 }
 
 void
@@ -196,7 +127,6 @@ findromend(unsigned int* gbaint, int gbaeof)
 {
   int lastnonpad = -1;
   for (int gbaptr = 0; gbaptr < (gbaeof / 4) - 1; gbaptr++) {
-    // if (gbaint[gbaptr]!=padint) { lastnonpad=gbaptr; }
     if (((gbaint[gbaptr] != 0xffffffff) && (gbaint[gbaptr] != 0x0)) || (gbaint[gbaptr] != gbaint[gbaptr + 1])) {
       lastnonpad = gbaptr;
     }
@@ -227,8 +157,8 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 
 #define SIZEOFDBFUNC 9
 
-  char tempchar[300];
   QString code = "-1";
+  QString output;
   unsigned int* gbaromint = NULL;
   formatfopenstr(gbaromname);
   FILE* gbafile = fopen(gbaromname, "rb");
@@ -247,8 +177,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
     }
     fclose(gbafile);
     int realgbaend = findromend(gbaromint, gbalen + SIZEOFDBFUNC * 4);
-    sprintf(tempchar, "Free space found at 0x%X\n", realgbaend + 0x8000004);
-    QTextStream(stdout) << tempchar;
+    output.append(QString("Free space found at 0x%1\n").arg(QString().number(realgbaend + 0x8000004, 16).toUpper()));
 
     copyint(gbaromint + (realgbaend + 4) / 4, gbadeadbeefint, SIZEOFDBFUNC);
     *(gbaromint + (realgbaend + 4) / 4 + SIZEOFDBFUNC - 2) = 0x8000000 | ((*gbaromint & 0xffffff) * 4 + 8);
@@ -276,7 +205,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
   }
 
   free(gbaromint);
-  return tempchar;
+  return output;
 }
 
 QString
@@ -429,11 +358,6 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
 
     spaceneeded += (gbahooks + 1) * SIZEOFHOOKJUMP * 4;
     spaceneeded = ((int)((spaceneeded + 3) / 4)) * 4;
-
-    if ((realgbaend + spaceneeded) > 0x1000000) {
-      output.append(QString("The game will be larger than 16MB. Many flash carts have a 16MB "
-                            "limit if the games run from PSRAM so it may not work!\n"));
-    }
 
     if ((realgbaend + spaceneeded) > 0x2000000) {
       output.append(QString("The max size a GBA game can be is 32MB. There is not enough space "

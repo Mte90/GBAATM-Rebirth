@@ -355,7 +355,6 @@ testcht(char* cheatcodechar, char* srchstr)
   memset(tempchar, 0, strlen(cheatcodechar) + 10);
   memset(tempsrch, 0, strlen(srchstr) + 10);
   char thischar;
-  int charptr = 0;
   for (int charptr = 0; charptr < (int)strlen(cheatcodechar); charptr++) {
     thischar = *(cheatcodechar + charptr);
     if ((thischar >= 0x61) && (thischar <= 0x7a))
@@ -363,7 +362,7 @@ testcht(char* cheatcodechar, char* srchstr)
     *(tempchar + charptr) = thischar;
   }
 
-  for (charptr = 0; charptr < (int)strlen(srchstr); charptr++) {
+  for (int charptr = 0; charptr < (int)strlen(srchstr); charptr++) {
     thischar = *(srchstr + charptr);
     if ((thischar >= 0x61) && (thischar <= 0x7a))
       thischar -= 0x20;
