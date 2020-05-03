@@ -279,7 +279,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
   return tempchar;
 }
 
-int
+QString
 patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
          ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu, unsigned int* menuint, int cheatselectram, bool vblankcheck,
          unsigned int* temptrainermenuint, int wantbg, int wantfont, int wantselect)
@@ -301,7 +301,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
 
 #define TRAINERINTMAX 0x4000
 
-  char tempchar[300];
+  QString output;
 
   unsigned int* trainerint = (unsigned int*)malloc(TRAINERINTMAX);
   int trainerintptr = 0;
@@ -323,9 +323,8 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     }
     fclose(gbafile);
     int realgbaend = findromend(gbaromint, gbalen + 0x20000);
-    sprintf(tempchar, "Free space found at 0x%X\n", realgbaend + 0x8000004);
+    output.append(QString("Free space found at 0x%1\n").arg(QString().number(realgbaend + 0x8000004, 16).toUpper()));
 
-    QTextStream(stdout) << tempchar;
     int spaceneeded = 4;
     if (cheatintlen > 0)
       spaceneeded = cheatintlen;
@@ -408,11 +407,13 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       if (temphookaddr != 0) {
         gbahooks++;
         gbahookaddr[gbahooks] = temphookaddr;
-        sprintf(tempchar, "Hook %d found at 0x%X using hook type %d\n", gbahooks + 1, temphookaddr + 0x8000000, hooktype);
-        QTextStream(stdout) << tempchar;
+        output.append(QString("Hook %1 found at 0x%2 using hook type %3\n")
+                        .arg(QString().number(gbahooks + 1, 16).toUpper())
+                        .arg(QString().number(temphookaddr + 0x8000000, 16).toUpper())
+                        .arg(hooktype));
         if (realgbaend < 0x2000000) {
-          sprintf(tempchar, "  Placing code @ 0x%X\n", realgbaend + gbahooks * SIZEOFHOOKJUMP * 4 + 0x8000004);
-          QTextStream(stdout) << tempchar;
+          output.append(
+            QString("  Placing code @ 0x%1\n").arg(QString().number(realgbaend + gbahooks * SIZEOFHOOKJUMP * 4 + 0x8000004, 16).toUpper()));
         }
         temphookaddr = 0;
         if (gbahooks == 9)
@@ -421,27 +422,25 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     }
 
     if (gbahooks == -1) {
-      sprintf(tempchar, "No IRQs found!\n");
-      QTextStream(stdout) << tempchar;
+      output.append(QString("No IRQs found!\n"));
       free(gbaromint);
-      return -1;
+      return output;
     }
 
     spaceneeded += (gbahooks + 1) * SIZEOFHOOKJUMP * 4;
     spaceneeded = ((int)((spaceneeded + 3) / 4)) * 4;
 
     if ((realgbaend + spaceneeded) > 0x1000000) {
-      QTextStream(stdout) << "The game will be larger than 16MB. Many flash carts have a 16MB "
-                             "limit if the games run from PSRAM so it may not work!\n";
+      output.append(QString("The game will be larger than 16MB. Many flash carts have a 16MB "
+                            "limit if the games run from PSRAM so it may not work!\n"));
     }
 
     if ((realgbaend + spaceneeded) > 0x2000000) {
-      QTextStream(stdout) << "The max size a GBA game can be is 32MB. There is not enough space "
-                             "at the end of this game.\r\nThe game will be trimmed to the proper "
-                             "size but it may result graphics corruption, etc.\n";
+      output.append(QString("The max size a GBA game can be is 32MB. There is not enough space "
+                            "at the end of this game.\r\nThe game will be trimmed to the proper "
+                            "size but it may result graphics corruption, etc.\n"));
       realgbaend = 0x2000000 - spaceneeded;
-      sprintf(tempchar, "The game was trimmed to 0x8%07X", realgbaend * 4);
-      QTextStream(stdout) << tempchar;
+      output.append(QString("The game was trimmed to 0x8%07X").arg(QString().number(realgbaend * 4, 16).toUpper()));
     }
 
     for (int hookctr = 0; hookctr < gbahooks + 1; hookctr++) {
@@ -475,10 +474,10 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     if (vblankcheck == 1) {
       copyint(trainerint + trainerintptr, vblankint, 6);
       trainerintptr += 6;
-      QTextStream(stdout) << "Vblank added\n";
+      output.append(QString("Vblank added\n"));
     }
 
-    QTextStream(stdout) << QString("Execute set cheat every %1 cycle\n").arg(excycles);
+    output.append(QString("Execute set cheat every %1 cycle\n").arg(excycles));
     if (excycles > 1) {
       copyint(trainerint + trainerintptr, execint, 10);
       *(trainerint + trainerintptr + 2) |= excycles;
@@ -491,7 +490,7 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       *(trainerint + trainerintptr + 17) = freeram;
       *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
       trainerintptr += 19;
-      QTextStream(stdout) << "Trainer keys added\n";
+      output.append(QString("Trainer keys added\n"));
     }
 
     if (slomostruct.wantslomo == 1) {
@@ -499,13 +498,13 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       *(trainerint + trainerintptr - 2) = freeram;
       *(trainerint + trainerintptr - 1) = (slomostruct.slowdownkey << 16) | slomostruct.speedupkey;
       trainerintptr += 35;
-      QTextStream(stdout) << QString("Slowmotion enabled\n");
+      output.append(QString("Slowmotion enabled\n"));
     }
     if (wantmenu == 1) {
       copyint(trainerint + trainerintptr, trainerigmint, 7);
       *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
       trainerintptr += 7;
-      QTextStream(stdout) << "Menu added\n";
+      output.append(QString("Menu added\n"));
     }
 
     if (cheatintlen > 0) {
@@ -514,13 +513,12 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
     } else {
       *(trainerint + trainerintptr) = 0xE12FFF1E;
       trainerintptr++;
-      QTextStream(stdout) << "No cheat added\n";
+      output.append(QString("No cheat added\n"));
     }
 
     int savejump = 0;
     if (wantmenu == 1) {
-      sprintf(tempchar, "Menu placed at 0x%X - trainerintptr = 0x%X\n", 0x8000000 + realgbaend + 4 + trainerintptr * 4, trainerintptr * 4);
-      QTextStream(stdout) << tempchar;
+      output.append(QString("Menu placed at 0x%1\n").arg(QString().number(0x8000000 + realgbaend + 4 + trainerintptr * 4, 16).toUpper()));
       savejump = *gbaromint;
       *gbaromint = 0xEA000000 | (((realgbaend + 4) / 4 + trainerintptr) - 2);
     }
@@ -579,15 +577,15 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       int byteswritten2 = fwrite(padbuff, 1, bytewritenum, newgbaromfile);
       fclose(newgbaromfile);
       if ((byteswritten == realgbaend + 4) && (byteswritten2 == bytewritenum)) {
-        QTextStream(stdout) << "The patched game was written successfully!\n";
+        output.append(QString("The patched game was written successfully!\n"));
       } else {
-        QTextStream(stdout) << "There was a problem writing the game!\n";
+        output.append(QString("There was a problem writing the game!\n"));
       }
     } else {
-      QTextStream(stdout) << "The file could not be written!";
+      output.append(QString("The file could not be written!"));
     }
   }
 
   free(trainerint);
-  return 1;
+  return output;
 }

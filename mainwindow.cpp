@@ -150,6 +150,7 @@ MainWindow::isOutputDefined()
 bool
 MainWindow::deadbeef()
 {
+  ui->log->setPlainText("");
   this->appendLog(tr("DEADBEEF process in progress"));
   if (this->isOutputDefined()) {
     char* output = ui->output_path->text().toLocal8Bit().data();
@@ -179,7 +180,7 @@ MainWindow::deadbeef()
 void
 MainWindow::patchGame()
 {
-  QString str;
+  ui->log->setPlainText("");
   myslomostruct.wantslomo = 0;
   myedstruct.wantenable = 0;
   this->appendLog(tr("Game patching in progress"));
@@ -252,7 +253,6 @@ MainWindow::patchGame()
           (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
         memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
       }
-      this->appendLog(tr("Menu title added"));
     }
 
     if (ui->enable_slowmotion->isChecked()) {
@@ -270,8 +270,6 @@ MainWindow::patchGame()
         ui->slowmotion_up_keys->setText("L+R+DOWN");
       }
       sprintf(myslomostruct.speedupkeystr, "%s", ui->slowmotion_up_keys->text().toLocal8Bit().data());
-
-      this->appendLog(tr("Slowmotion enabled"));
     }
 
     if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
@@ -280,10 +278,11 @@ MainWindow::patchGame()
       return;
     }
 
-    patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
-             cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (menu_text.length() > 0), menuint,
-             cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
-    this->appendLog(tr("Game patched"));
+    QString output =
+      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
+               cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (menu_text.length() > 0), menuint,
+               cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
+    this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));
   }
