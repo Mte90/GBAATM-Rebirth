@@ -137,6 +137,15 @@ MainWindow::appendLog(QString text)
   ui->log->appendPlainText(text);
 }
 
+void
+MainWindow::removeIfExists(QString path)
+{
+  if (QFileInfo::exists(path)) {
+    QFile file(path);
+    file.remove();
+  }
+}
+
 bool
 MainWindow::isOutputDefined()
 {
@@ -153,6 +162,7 @@ MainWindow::deadbeef()
   ui->log->setPlainText("");
   this->appendLog(tr("DEADBEEF process in progress"));
   if (this->isOutputDefined()) {
+    this->removeIfExists(ui->output_path->text());
     char* output = ui->output_path->text().toLocal8Bit().data();
     char* input = ui->input_path->text().toLocal8Bit().data();
 
@@ -277,6 +287,7 @@ MainWindow::patchGame()
       return;
     }
 
+    this->removeIfExists(ui->output_path->text());
     QString output =
       patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
                cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), menuint,

@@ -16,7 +16,7 @@
 int ConvertKeys(char* keystr);
 int fileexists(const char* filename);
 void flippath(char* path);
-void getpathfromfilename(char* filename, char* path);
+void formatfopenstr(char* path);
 void copyint(unsigned int* destint, unsigned int* srcint, int numint);
 void strright(char* srcstr, char* deststr, unsigned int chartocpy);
 void strleft(char* srcstr, char* deststr, unsigned int chartocpy);

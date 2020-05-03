@@ -23,6 +23,7 @@ public:
   bool deadbeef();
   void patchGame();
   bool isOutputDefined();
+  void removeIfExists(QString path);
   void readRom();
   void appendLog(QString text);
   void loadBg();
@@ -32,8 +33,8 @@ public:
 private:
   Ui::MainWindow* ui;
   QSettings* settings;
-  int wantbg=0;
-  int wantselect=0;
-  int wantfont=0;
+  int wantbg = 0;
+  int wantselect = 0;
+  int wantfont = 0;
 };
 #endif // MAINWINDOW_H

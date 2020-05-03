@@ -56,18 +56,6 @@ ConvertKeys(char* keystr)
   return keycode;
 }
 
-int
-fileexists(const char* filename)
-{
-  FILE* thisfile = fopen(filename, "rb");
-  if (thisfile) {
-    fclose(thisfile);
-    return 1;
-  } else {
-    return 0;
-  }
-}
-
 void
 formatfopenstr(char* path)
 {
@@ -182,9 +170,6 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
     copyint(gbaromint + (realgbaend + 4) / 4, gbadeadbeefint, SIZEOFDBFUNC);
     *(gbaromint + (realgbaend + 4) / 4 + SIZEOFDBFUNC - 2) = 0x8000000 | ((*gbaromint & 0xffffff) * 4 + 8);
     *gbaromint = 0xea000000 | ((realgbaend / 4) - 1);
-    if (fileexists(newgbaromname) == 1) {
-      remove(newgbaromname);
-    }
     formatfopenstr(newgbaromname);
     FILE* newgbaromfile = fopen(newgbaromname, "wb");
     if (newgbaromfile) {
@@ -485,8 +470,6 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
       copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint, 0x400);
     }
 
-    if (fileexists(newgbaromname) == 1)
-      remove(newgbaromname);
     formatfopenstr(newgbaromname);
     FILE* newgbaromfile = fopen(newgbaromname, "wb");
     if (newgbaromfile) {
