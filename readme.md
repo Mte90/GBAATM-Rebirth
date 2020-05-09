@@ -3,17 +3,17 @@
 [![License](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](http://www.gnu.org/licenses/gpl-3.0)   
 
 This project is a refactoring of the old GBAATM (last release around 2011) with the original source code as starting point (got from Cracker, the original author).  
-The purpose is a new UI, multiplatform support and maybe new features with code refactoring and optimization.  
+The purpose is a new UI, multiplatform support and maybe new features (with code refactoring and optimization).  
 The original source code is available at [this page](https://github.com/Mte90/GBAATM-Rebirth/releases/tag/original).  
-Any help is important to improve the code and document what is doing.
 
-## Roadmap
+![](https://user-images.githubusercontent.com/403283/81478548-88cc8380-921e-11ea-8a90-fc25344fecbc.png)
 
-* Port all the features
-  * Missing Slow Motion that is broken
-  * Everything rest is done
+## Roadmap/Status
+
+* Ported all the features
+  * Removed Slowmo
 * Revamp the original source code
-  * Work in progress with refactoring with optimization
+  * Refactored and optimized to avoid crash and rom broke
 * Add new features to UI
   * Checksum - TODO
   * UI in Tabs - DONE
