@@ -17,20 +17,10 @@
 
 struct ENABLEDISABLESTRUCT
 {
-  int wantenable;
   int enablekey;
   int disablekey;
   char enablekeystr[50];
   char disablekeystr[50];
-};
-
-struct SLOMOSTRUCT
-{
-  int wantslomo;
-  int slowdownkey;
-  int speedupkey;
-  char slowdownkeystr[50];
-  char speedupkeystr[50];
 };
 
 struct CUSTOMIZE
@@ -53,7 +43,6 @@ struct LVALSTRUCT
 };
 
 ENABLEDISABLESTRUCT myedstruct;
-SLOMOSTRUCT myslomostruct;
 CUSTOMIZE customizetrainer;
 unsigned short* menubgshort = (unsigned short*)malloc(76800);
 unsigned short* menuselectshort = (unsigned short*)malloc(6720);

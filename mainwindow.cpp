@@ -191,13 +191,12 @@ MainWindow::deadbeef()
 void
 MainWindow::patchGame()
 {
-  myedstruct.wantenable = 0;
   ui->log->setPlainText("");
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
-    myedstruct.wantenable = 1;
     this->appendLog(tr("Trainer enabled"));
 
+    // TODO if this fields are empty
     myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
     if (myedstruct.enablekey == 0x3ff) {
       myedstruct.enablekey = 0xfe;
@@ -233,17 +232,14 @@ MainWindow::patchGame()
 
       settings->setValue("rom/menutitle", ui->menu_text->text().toUpper());
       cheats.titleGeneration(ui->menu_text->text());
-    }
-
-    if (myedstruct.wantenable == 0) {
-      this->appendLog(tr("You didn't select any patches!"));
+    } else {
+      this->appendLog(tr("Cheatcodes not imported"));
       return;
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output =
-      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats, myedstruct,
-               ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), ui->vblank->isChecked(), customizetrainer);
+    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats, myedstruct,
+                              ui->execute_every->text().toInt(), ui->vblank->isChecked(), customizetrainer);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));

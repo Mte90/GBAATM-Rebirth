@@ -194,8 +194,8 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 }
 
 QString
-patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu,
-         bool vblankcheck, CUSTOMIZE customizetrainer)
+patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLESTRUCT edstruct, int excycles, bool vblankcheck,
+         CUSTOMIZE customizetrainer)
 {
   unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
   unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
@@ -240,16 +240,15 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLE
     int realgbaend = findromend(gbaromint, gbalen + 0x20000);
     output.append(QString("Free space found at 0x%1\n").arg(QString().number(realgbaend + 0x8000004, 16).toUpper()));
 
-    int spaceneeded = 4;
+    // Include space for the trainer
+    int spaceneeded = 80;
     if (cheatintlen > 0)
       spaceneeded = cheatintlen;
     spaceneeded += 924;
-    if (wantmenu == 1)
-      spaceneeded += trainermenuint[0] + 28 + 340;
+    // Add the trainer title
+    spaceneeded += trainermenuint[0] + 28 + 340;
     if (excycles > 1)
       spaceneeded += 40;
-    if (edstruct.wantenable == 1)
-      spaceneeded += 76;
     if (!vblankcheck)
       spaceneeded -= 6;
 
@@ -258,6 +257,7 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLE
 
     int temphookaddr = 0;
 
+    // Search for a hook to append the new code
     for (int gbaptr = 0; gbaptr < (realgbaend - 12) / 4; gbaptr++) {
       int hooktype = 0;
       // new hook detect
@@ -393,75 +393,66 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLE
       trainerintptr += 10;
     }
 
-    if (edstruct.wantenable == 1) {
-      copyint(trainerint + trainerintptr, eddisint, 19);
-      *(trainerint + trainerintptr + 17) = freeram;
-      *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
-      trainerintptr += 19;
-      output.append(QString("Trainer keys added\n"));
-    }
+    // Add the Trainer keys
+    copyint(trainerint + trainerintptr, eddisint, 19);
+    *(trainerint + trainerintptr + 17) = freeram;
+    *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
+    trainerintptr += 19;
+    output.append(QString("Trainer keys added\n"));
 
-    if (wantmenu == 1) {
-      copyint(trainerint + trainerintptr, trainerigmint, 7);
-      *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
-      trainerintptr += 7;
-      output.append(QString("Menu added\n"));
-    }
+    // Add the Trainer title
+    copyint(trainerint + trainerintptr, trainerigmint, 7);
+    *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
+    trainerintptr += 7;
+    output.append(QString("Title added\n"));
 
-    if (cheatintlen > 0) {
-      copyint(trainerint + trainerintptr, mycheatint, cheatintlen);
-      trainerintptr += cheatintlen;
-    } else {
-      *(trainerint + trainerintptr) = 0xE12FFF1E;
-      trainerintptr++;
-      output.append(QString("No cheat added\n"));
-    }
+    // Add the cheat code
+    copyint(trainerint + trainerintptr, mycheatint, cheatintlen);
+    trainerintptr += cheatintlen;
 
+    // Add the Trainer menu
     int savejump = 0;
-    if (wantmenu == 1) {
-      output.append(QString("Menu placed at 0x%1\n").arg(QString().number(0x8000000 + realgbaend + 4 + trainerintptr * 4, 16).toUpper()));
-      savejump = *gbaromint;
-      *gbaromint = 0xEA000000 | (((realgbaend + 4) / 4 + trainerintptr) - 2);
-    }
-
+    output.append(QString("Menu placed at 0x%1\n").arg(QString().number(0x8000000 + realgbaend + 4 + trainerintptr * 4, 16).toUpper()));
+    savejump = *gbaromint;
+    *gbaromint = 0xEA000000 | (((realgbaend + 4) / 4 + trainerintptr) - 2);
     copyint(gbaromint + (realgbaend + 4) / 4, trainerint, trainerintptr);
 
-    if (wantmenu == 1) {
-      int searchptr = 0;
-      int menupatchoffset = 0;
-      for (int tempsearchptr = 0; tempsearchptr < 0x200; tempsearchptr++) {
-        if (*(temptrainermenuint + tempsearchptr + 1) == 0x8000000) {
-          menupatchoffset = tempsearchptr;
-          searchptr = tempsearchptr;
-          break;
-        }
+    // Add custom UI element and the Trainer menu
+    int searchptr = 0;
+    int menupatchoffset = 0;
+    for (int tempsearchptr = 0; tempsearchptr < 0x200; tempsearchptr++) {
+      if (*(temptrainermenuint + tempsearchptr + 1) == 0x8000000) {
+        menupatchoffset = tempsearchptr;
+        searchptr = tempsearchptr;
+        break;
       }
-      if (customizetrainer.background == 1) {
-        char* bgptr = (char*)temptrainermenuint;
-        bgptr += (*(temptrainermenuint + searchptr + 7) & 0xffffff) + 8;
-        memcpy(bgptr, (char*)menubgshort, 76800);
-      }
-      if (customizetrainer.selectionbar == 1) {
-        char* selectptr = (char*)temptrainermenuint;
-        selectptr += (*(temptrainermenuint + searchptr + 5) & 0xffffff) + 8;
-        memcpy(selectptr, (char*)menuselectshort, 6720);
-      }
-      if (customizetrainer.font == 1) {
-        char* fontptr = (char*)temptrainermenuint;
-        fontptr += (*(temptrainermenuint + searchptr + 2) & 0xffffff) + 4;
-        memcpy(fontptr, (char*)menufontshort, 216);
-      }
-      for (int trainerptr = 0; trainerptr < 9; trainerptr++) {
-        *(temptrainermenuint + menupatchoffset + trainerptr + 1) =
-          (*(temptrainermenuint + menupatchoffset + trainerptr + 1) & 0xffffff) + 0x8000000 + realgbaend + 4 + trainerintptr * 4;
-      }
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr, temptrainermenuint + 1, (*trainermenuint) / 4);
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) = 0xE1A00000;
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 4) = 0x8000000 | ((savejump & 0xffffff) * 4 + 8);
-      *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + menupatchoffset + 9) = cheatselectram;
-      copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint, 0x400);
     }
+    if (customizetrainer.background == 1) {
+      char* bgptr = (char*)temptrainermenuint;
+      bgptr += (*(temptrainermenuint + searchptr + 7) & 0xffffff) + 8;
+      memcpy(bgptr, (char*)menubgshort, 76800);
+    }
+    if (customizetrainer.selectionbar == 1) {
+      char* selectptr = (char*)temptrainermenuint;
+      selectptr += (*(temptrainermenuint + searchptr + 5) & 0xffffff) + 8;
+      memcpy(selectptr, (char*)menuselectshort, 6720);
+    }
+    if (customizetrainer.font == 1) {
+      char* fontptr = (char*)temptrainermenuint;
+      fontptr += (*(temptrainermenuint + searchptr + 2) & 0xffffff) + 4;
+      memcpy(fontptr, (char*)menufontshort, 216);
+    }
+    for (int trainerptr = 0; trainerptr < 9; trainerptr++) {
+      *(temptrainermenuint + menupatchoffset + trainerptr + 1) =
+        (*(temptrainermenuint + menupatchoffset + trainerptr + 1) & 0xffffff) + 0x8000000 + realgbaend + 4 + trainerintptr * 4;
+    }
+    copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr, temptrainermenuint + 1, (*trainermenuint) / 4);
+    *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 2) = 0xE1A00000;
+    *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + 4) = 0x8000000 | ((savejump & 0xffffff) * 4 + 8);
+    *(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + menupatchoffset + 9) = cheatselectram;
+    copyint(gbaromint + ((realgbaend + 4) / 4) + trainerintptr + (*temptrainermenuint) / 4, menuint, 0x400);
 
+    // Save the new rom
     formatfopenstr(newgbaromname);
     FILE* newgbaromfile = fopen(newgbaromname, "wb");
     if (newgbaromfile) {
