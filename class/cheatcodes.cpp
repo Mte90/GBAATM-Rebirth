@@ -30,6 +30,26 @@ Cheatcodes::init(char* cheatcodes, char* selectram, int cheat_type)
   }
 }
 
+void
+Cheatcodes::titleGeneration(QString title)
+{
+  char* trainermenuchar = (char*)temptrainermenuint + 1;
+  char* menutitle;
+
+  QStringList lines = title.toUpper().split("/", QString::SkipEmptyParts);
+  int trainerlines = lines.count();
+
+  for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
+    menutitle = lines[thistrainerline].toLocal8Bit().data();
+    if (strlen(menutitle) > 26) {
+      menutitle[26] = 0;
+    }
+    *(trainermenuchar + *temptrainermenuint - 92 + (thistrainerline * 30)) = (char)((240 - (strlen(menutitle) * 9)) / 2);
+    *(trainermenuchar + *temptrainermenuint - 91 + (thistrainerline * 30)) = (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
+    memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
+  }
+}
+
 char*
 Cheatcodes::format(char* cheatcodechar)
 {

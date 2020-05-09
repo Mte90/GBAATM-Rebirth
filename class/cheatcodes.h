@@ -1,5 +1,6 @@
 #ifndef CHEATCODES
 #define CHEATCODES
+#include <QString>
 
 class Cheatcodes
 {
@@ -11,6 +12,7 @@ class Cheatcodes
 
 public:
   void init(char* cheatcodes, char* selectram, int cheat_type);
+  void titleGeneration(QString title);
   unsigned int* getTempTrainerMenuInt();
   int getCheatLength();
   int getSelectRam();

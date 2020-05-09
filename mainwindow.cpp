@@ -216,7 +216,6 @@ MainWindow::patchGame()
     sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
     Cheatcodes cheats;
-    unsigned int* temptrainermenuint;
     if (ui->cheats->toPlainText().length() > 0) {
       int cheat_type;
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
@@ -228,7 +227,6 @@ MainWindow::patchGame()
       }
 
       cheats.init(ui->cheats->toPlainText().toLocal8Bit().data(), ui->ram_block->currentText().toLocal8Bit().data(), cheat_type);
-      temptrainermenuint = cheats.getTempTrainerMenuInt();
 
       this->appendLog(tr("Cheats added"));
 
@@ -237,22 +235,7 @@ MainWindow::patchGame()
       }
 
       settings->setValue("rom/menutitle", ui->menu_text->text().toUpper());
-      char* trainermenuchar = (char*)temptrainermenuint + 1;
-      char* menutitle;
-
-      QStringList lines = ui->menu_text->text().toUpper().split("/", QString::SkipEmptyParts);
-      int trainerlines = lines.count();
-
-      for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
-        menutitle = lines[thistrainerline].toLocal8Bit().data();
-        if (strlen(menutitle) > 26) {
-          menutitle[26] = 0;
-        }
-        *(trainermenuchar + *temptrainermenuint - 92 + (thistrainerline * 30)) = (char)((240 - (strlen(menutitle) * 9)) / 2);
-        *(trainermenuchar + *temptrainermenuint - 91 + (thistrainerline * 30)) =
-          (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
-        memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
-      }
+      cheats.titleGeneration(ui->menu_text->text());
     }
 
     if (ui->enable_slowmotion->isChecked()) {
