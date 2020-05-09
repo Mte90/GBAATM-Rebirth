@@ -422,9 +422,7 @@ formatcheats(char* cheatcodechar)
               }
             }
           }
-          // This lines seems that fix the correct generation of the output.
-          // Why? I have no idea
-          QTextStream(stdout) << QString("Parsed cheat char %1\n").arg(strptr);
+
           if ((goodchars >= 10) && ((strlen(templine) - goodchars) < 5)) {
             if (goodchars < 20) {
               char tempcpychar[2];
