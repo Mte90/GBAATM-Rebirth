@@ -3,7 +3,6 @@
 
 class Cheatcodes
 {
-  char* cheatcodes;
   unsigned int* temptrainermenuint;
   unsigned int* menuint;
   unsigned int* cheatint;

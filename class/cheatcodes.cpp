@@ -6,13 +6,11 @@
 void
 Cheatcodes::init(char* cheatcodes, char* selectram, int cheat_type)
 {
-  unsigned int* menuint = (unsigned int*)malloc(0x1000);
+  menuint = (unsigned int*)malloc(0x1000);
   memset(menuint, 0, 0x1000);
-  unsigned int* cheatint = (unsigned int*)malloc(0x8000);
+  cheatint = (unsigned int*)malloc(0x8000);
   memset(cheatint, 0, 0x8000);
-  int cheatintlength = 0;
-  int cheatselectram = hextoint(selectram);
-  unsigned int* temptrainermenuint;
+  cheatselectram = hextoint(selectram);
   temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
   memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
 
@@ -24,14 +22,13 @@ Cheatcodes::init(char* cheatcodes, char* selectram, int cheat_type)
 
   if (cheat_type == 1) {
     cheatintlength = convertcb(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-  } else {
+  } else if (cheat_type == 2) {
     cheatintlength = convertraw(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
   }
-  return;
 }
 
 unsigned int*
-Cheatcodes::getTrainerMenuInt()
+Cheatcodes::getTempTrainerMenuInt()
 {
   return temptrainermenuint;
 }
