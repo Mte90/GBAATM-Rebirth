@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "class/cheatcodes.cpp"
 #include "core/cheatcodes-converters.cpp"
 #include "core/cheatcodes.cpp"
 #include "core/convertbmps.cpp"
@@ -213,28 +214,26 @@ MainWindow::patchGame()
     }
     sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
-    unsigned int* menuint = (unsigned int*)malloc(0x1000);
-    memset(menuint, 0, 0x1000);
-    unsigned int* cheatint = (unsigned int*)malloc(0x8000);
-    memset(cheatint, 0, 0x8000);
-    int cheatintlength = 0;
-    int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
+    int cheatintlength;
+    int cheatselectram;
     unsigned int* temptrainermenuint;
-    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
-    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
-
+    unsigned int* menuint;
+    unsigned int* cheatint;
     if (ui->cheats->toPlainText().length() > 0) {
-      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
-      if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
-        importcht(cheatcodes);
+      int cheat_type;
+      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
+        cheat_type = 1;
+      } else { // raw
+        cheat_type = 2;
       }
 
-      char* formatted_cheatcodes = formatcheats(cheatcodes);
-      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
-        cheatintlength = convertcb(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      } else { // raw
-        cheatintlength = convertraw(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      }
+      Cheatcodes cheats;
+      cheats.init(ui->cheats->toPlainText().toLocal8Bit().data(), ui->ram_block->currentText().toLocal8Bit().data(), cheat_type);
+      temptrainermenuint = cheats.getTempTrainerMenuInt();
+      menuint = cheats.getMenuInt();
+      cheatint = cheats.getCheatInt();
+      cheatintlength = cheats.getCheatLength();
+      cheatselectram = cheats.getSelectRam();
 
       this->appendLog(tr("Cheats added"));
 
@@ -259,9 +258,6 @@ MainWindow::patchGame()
           (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
         memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
       }
-    } else {
-      free(menuint);
-      free(cheatint);
     }
 
     if (ui->enable_slowmotion->isChecked()) {
@@ -283,7 +279,6 @@ MainWindow::patchGame()
 
     if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
       this->appendLog(tr("You didn't select any patches!"));
-      free(temptrainermenuint);
       return;
     }
 
