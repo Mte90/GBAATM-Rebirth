@@ -195,7 +195,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 
 QString
 patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT slomostruct, ENABLEDISABLESTRUCT edstruct, int excycles,
-         int wantmenu, bool vblankcheck, int wantbg, int wantfont, int wantselect)
+         int wantmenu, bool vblankcheck, CUSTOMIZE customizetrainer)
 {
   unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
   unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
@@ -449,17 +449,17 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT s
           break;
         }
       }
-      if (wantbg == 1) {
+      if (customizetrainer.background == 1) {
         char* bgptr = (char*)temptrainermenuint;
         bgptr += (*(temptrainermenuint + searchptr + 7) & 0xffffff) + 8;
         memcpy(bgptr, (char*)menubgshort, 76800);
       }
-      if (wantselect == 1) {
+      if (customizetrainer.selectionbar == 1) {
         char* selectptr = (char*)temptrainermenuint;
         selectptr += (*(temptrainermenuint + searchptr + 5) & 0xffffff) + 8;
         memcpy(selectptr, (char*)menuselectshort, 6720);
       }
-      if (wantfont == 1) {
+      if (customizetrainer.font == 1) {
         char* fontptr = (char*)temptrainermenuint;
         fontptr += (*(temptrainermenuint + searchptr + 2) & 0xffffff) + 4;
         memcpy(fontptr, (char*)menufontshort, 216);

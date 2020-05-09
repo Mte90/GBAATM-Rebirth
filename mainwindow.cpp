@@ -59,7 +59,7 @@ MainWindow::loadBg()
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menubgshort, 1);
     if (goodbmp == 1)
-      wantbg = 1;
+      customizetrainer.background = 1;
   }
 }
 
@@ -72,7 +72,7 @@ MainWindow::loadFont()
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menufontshort, 3);
     if (goodbmp == 1)
-      wantfont = 1;
+      customizetrainer.font = 1;
   }
 }
 
@@ -85,7 +85,7 @@ MainWindow::loadSelectionBar()
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menuselectshort, 2);
     if (goodbmp == 1)
-      wantselect = 1;
+      customizetrainer.selectionbar = 1;
   }
 }
 
@@ -261,9 +261,9 @@ MainWindow::patchGame()
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats,
-                              myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0),
-                              ui->vblank->isChecked(), wantbg, wantfont, wantselect);
+    QString output =
+      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats, myslomostruct, myedstruct,
+               ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), ui->vblank->isChecked(), customizetrainer);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));

@@ -33,6 +33,13 @@ struct SLOMOSTRUCT
   char speedupkeystr[50];
 };
 
+struct CUSTOMIZE
+{
+  int font;
+  int background;
+  int selectionbar;
+};
+
 struct ADDRESSSTRUCT
 {
   unsigned int* oldasmaddrs;
@@ -47,6 +54,7 @@ struct LVALSTRUCT
 
 ENABLEDISABLESTRUCT myedstruct;
 SLOMOSTRUCT myslomostruct;
+CUSTOMIZE customizetrainer;
 unsigned short* menubgshort = (unsigned short*)malloc(76800);
 unsigned short* menuselectshort = (unsigned short*)malloc(6720);
 unsigned short* menufontshort = (unsigned short*)malloc(216);

@@ -26,7 +26,7 @@ int findromend(unsigned int* gbaint, int gbaeof);
 QString deadbeefrom(char* gbaromname, char* newgbaromname);
 QString patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
                  ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu, unsigned int* menuint, int cheatselectram, bool vblankcheck,
-                 int wantbg, int wantfont, int wantselect);
+                 CUSTOMIZE customizetrainer);
 void goodname(char* badname);
 int bmp2short(char* bmpfilestr, unsigned short* shortbuffer, int whichpic);
 int hextoint(char* hexstr);
