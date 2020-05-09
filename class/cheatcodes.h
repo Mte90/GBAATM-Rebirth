@@ -16,5 +16,10 @@ public:
   int getSelectRam();
   unsigned int* getMenuInt();
   unsigned int* getCheatInt();
+
+private:
+  int test(char* cheatcodechar, char* srchstr);
+  char* import(char* cheatcodechar);
+  char* format(char* cheatcodechar);
 };
 #endif // CHEATCODES
