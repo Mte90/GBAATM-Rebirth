@@ -193,6 +193,7 @@ MainWindow::patchGame()
 {
   myslomostruct.wantslomo = 0;
   myedstruct.wantenable = 0;
+  ui->log->setPlainText("");
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
     if (ui->enable_trainer->isChecked()) {
