@@ -194,9 +194,8 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 }
 
 QString
-patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
-         ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu, unsigned int* menuint, int cheatselectram, bool vblankcheck,
-         unsigned int* temptrainermenuint, int wantbg, int wantfont, int wantselect)
+patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT slomostruct, ENABLEDISABLESTRUCT edstruct, int excycles,
+         int wantmenu, bool vblankcheck, int wantbg, int wantfont, int wantselect)
 {
   unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
   unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
@@ -213,6 +212,12 @@ patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int ch
                               0xE1A00000, 0xE2511001, 0x1AFFFFFB, 0xE2500001, 0x3A000002, 0x2AFFFFF7, 0xDDDDDDDD, 0xEEEEFFFF };
   unsigned int trainerigmint[] = { 0xE3A01301, 0xE591B130, 0xE59F2008, 0xE15B0002, 0xA000000, 0xEA000000, 0x35b }; // select+down+left
 
+  unsigned int* mycheatint = cheats.getCheatInt();
+  unsigned int* menuint = cheats.getMenuInt();
+  int freeram = cheats.getSelectRam();
+  int cheatintlen = cheats.getCheatLength();
+  int cheatselectram = cheats.getSelectRam() + 4;
+  unsigned int* temptrainermenuint = cheats.getTempTrainerMenuInt();
 #define TRAINERINTMAX 0x4000
 
   QString output;

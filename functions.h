@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QString>
 #include <QTextStream>
+#include <class/cheatcodes.h>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -23,9 +24,9 @@ void strleft(char* srcstr, char* deststr, unsigned int chartocpy);
 void getromname(char* gbaromstr, char* tempname);
 int findromend(unsigned int* gbaint, int gbaeof);
 QString deadbeefrom(char* gbaromname, char* newgbaromname);
-QString patchrom(char* gbaromname, char* newgbaromname, unsigned int* mycheatint, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
+QString patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, int cheatintlen, int freeram, SLOMOSTRUCT slomostruct,
                  ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu, unsigned int* menuint, int cheatselectram, bool vblankcheck,
-                 unsigned int* temptrainermenuint, int wantbg, int wantfont, int wantselect);
+                 int wantbg, int wantfont, int wantselect);
 void goodname(char* badname);
 int bmp2short(char* bmpfilestr, unsigned short* shortbuffer, int whichpic);
 int hextoint(char* hexstr);

@@ -215,11 +215,8 @@ MainWindow::patchGame()
     }
     sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
-    int cheatintlength;
-    int cheatselectram;
+    Cheatcodes cheats;
     unsigned int* temptrainermenuint;
-    unsigned int* menuint;
-    unsigned int* cheatint;
     if (ui->cheats->toPlainText().length() > 0) {
       int cheat_type;
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
@@ -230,13 +227,8 @@ MainWindow::patchGame()
         cheat_type = 3;
       }
 
-      Cheatcodes cheats;
       cheats.init(ui->cheats->toPlainText().toLocal8Bit().data(), ui->ram_block->currentText().toLocal8Bit().data(), cheat_type);
       temptrainermenuint = cheats.getTempTrainerMenuInt();
-      menuint = cheats.getMenuInt();
-      cheatint = cheats.getCheatInt();
-      cheatintlength = cheats.getCheatLength();
-      cheatselectram = cheats.getSelectRam();
 
       this->appendLog(tr("Cheats added"));
 
@@ -286,10 +278,9 @@ MainWindow::patchGame()
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output =
-      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
-               cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), menuint,
-               cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
+    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats,
+                              myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0),
+                              ui->vblank->isChecked(), wantbg, wantfont, wantselect);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));
