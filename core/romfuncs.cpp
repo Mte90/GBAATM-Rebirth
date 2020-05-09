@@ -194,8 +194,8 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 }
 
 QString
-patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT slomostruct, ENABLEDISABLESTRUCT edstruct, int excycles,
-         int wantmenu, bool vblankcheck, CUSTOMIZE customizetrainer)
+patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLESTRUCT edstruct, int excycles, int wantmenu,
+         bool vblankcheck, CUSTOMIZE customizetrainer)
 {
   unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
   unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
@@ -206,10 +206,6 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT s
   unsigned int eddisint[] = { 0xE59F103C, 0xE5D14000, 0xE1DF23BA, 0xE1DF33B4, 0xE3A00301, 0xE5900130, 0xE3A05C03,
                               0xE28550FF, 0xE0000005, 0xE1500002, 0x3A04000,  0xE1500003, 0x3A04001,  0xE5C14000,
                               0xE3540001, 0x1A000002, 0xE12FFF1E, 0xDDDDDDDD, 0xEEEEFFFF };
-  unsigned int slomoint[] = { 0xE3A02000, 0xE1DF47BE, 0xE1DF57B8, 0xE3A01301, 0xE5911130, 0xE3A03C03, 0xE28330FF, 0xE0011003, 0xE59F605C,
-                              0xE5D60002, 0xE1510004, 0x3A02001,  0x2800002,  0xE35000FE, 0xC3A000FE, 0xE1510005, 0x3A02001,  0x2500002,
-                              0xB3A00000, 0xE5D61001, 0xE3510000, 0x5C60002,  0xE3500000, 0xA00000A,  0xE5C62001, 0xE3A01088, 0xE1A00000,
-                              0xE1A00000, 0xE2511001, 0x1AFFFFFB, 0xE2500001, 0x3A000002, 0x2AFFFFF7, 0xDDDDDDDD, 0xEEEEFFFF };
   unsigned int trainerigmint[] = { 0xE3A01301, 0xE591B130, 0xE59F2008, 0xE15B0002, 0xA000000, 0xEA000000, 0x35b }; // select+down+left
 
   unsigned int* mycheatint = cheats.getCheatInt();
@@ -254,8 +250,6 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT s
       spaceneeded += 40;
     if (edstruct.wantenable == 1)
       spaceneeded += 76;
-    if (slomostruct.wantslomo == 1)
-      spaceneeded += 132;
     if (!vblankcheck)
       spaceneeded -= 6;
 
@@ -407,13 +401,6 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, SLOMOSTRUCT s
       output.append(QString("Trainer keys added\n"));
     }
 
-    if (slomostruct.wantslomo == 1) {
-      copyint(trainerint + trainerintptr, slomoint, 35);
-      *(trainerint + trainerintptr - 2) = freeram;
-      *(trainerint + trainerintptr - 1) = (slomostruct.slowdownkey << 16) | slomostruct.speedupkey;
-      trainerintptr += 35;
-      output.append(QString("Slowmotion enabled\n"));
-    }
     if (wantmenu == 1) {
       copyint(trainerint + trainerintptr, trainerigmint, 7);
       *(trainerint + trainerintptr + 4) |= cheatintlen + 6;
