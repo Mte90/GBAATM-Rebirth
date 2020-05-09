@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "class/cheatcodes.cpp"
 #include "core/cheatcodes-converters.cpp"
 #include "core/cheatcodes.cpp"
 #include "core/convertbmps.cpp"
@@ -192,6 +193,7 @@ MainWindow::patchGame()
 {
   myslomostruct.wantslomo = 0;
   myedstruct.wantenable = 0;
+  ui->log->setPlainText("");
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
     if (ui->enable_trainer->isChecked()) {
@@ -213,28 +215,18 @@ MainWindow::patchGame()
     }
     sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
-    unsigned int* menuint = (unsigned int*)malloc(0x1000);
-    memset(menuint, 0, 0x1000);
-    unsigned int* cheatint = (unsigned int*)malloc(0x8000);
-    memset(cheatint, 0, 0x8000);
-    int cheatintlength = 0;
-    int cheatselectram = hextoint(ui->ram_block->currentText().toLocal8Bit().data());
-    unsigned int* temptrainermenuint;
-    temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
-    memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
-
+    Cheatcodes cheats;
     if (ui->cheats->toPlainText().length() > 0) {
-      char* cheatcodes = ui->cheats->toPlainText().toLocal8Bit().data();
-      if (testcht(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
-        importcht(cheatcodes);
+      int cheat_type;
+      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
+        cheat_type = 1;
+      } else if (ui->mode->currentText() == "RAW (VBA)") { // raw
+        cheat_type = 2;
+      } else { // gs
+        cheat_type = 3;
       }
 
-      char* formatted_cheatcodes = formatcheats(cheatcodes);
-      if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
-        cheatintlength = convertcb(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      } else { // raw
-        cheatintlength = convertraw(formatted_cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
-      }
+      cheats.init(ui->cheats->toPlainText().toLocal8Bit().data(), ui->ram_block->currentText().toLocal8Bit().data(), cheat_type);
 
       this->appendLog(tr("Cheats added"));
 
@@ -243,25 +235,7 @@ MainWindow::patchGame()
       }
 
       settings->setValue("rom/menutitle", ui->menu_text->text().toUpper());
-      char* trainermenuchar = (char*)temptrainermenuint + 1;
-      char* menutitle;
-
-      QStringList lines = ui->menu_text->text().toUpper().split("/", QString::SkipEmptyParts);
-      int trainerlines = lines.count();
-
-      for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
-        menutitle = lines[thistrainerline].toLocal8Bit().data();
-        if (strlen(menutitle) > 26) {
-          menutitle[26] = 0;
-        }
-        *(trainermenuchar + *temptrainermenuint - 92 + (thistrainerline * 30)) = (char)((240 - (strlen(menutitle) * 9)) / 2);
-        *(trainermenuchar + *temptrainermenuint - 91 + (thistrainerline * 30)) =
-          (char)((42 - (trainerlines * 14)) / 2) + 14 * thistrainerline;
-        memcpy(trainermenuchar + *temptrainermenuint - 90 + (thistrainerline * 30), menutitle, strlen(menutitle));
-      }
-    } else {
-      free(menuint);
-      free(cheatint);
+      cheats.titleGeneration(ui->menu_text->text());
     }
 
     if (ui->enable_slowmotion->isChecked()) {
@@ -283,15 +257,13 @@ MainWindow::patchGame()
 
     if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
       this->appendLog(tr("You didn't select any patches!"));
-      free(temptrainermenuint);
       return;
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output =
-      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheatint, cheatintlength,
-               cheatselectram, myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), menuint,
-               cheatselectram + 4, ui->vblank->isChecked(), temptrainermenuint, wantbg, wantfont, wantselect);
+    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats,
+                              myslomostruct, myedstruct, ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0),
+                              ui->vblank->isChecked(), wantbg, wantfont, wantselect);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));

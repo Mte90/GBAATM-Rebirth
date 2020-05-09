@@ -300,6 +300,11 @@
            <string>RAW (VBA)</string>
           </property>
          </item>
+         <item>
+          <property name="text">
+           <string>GS/AR v1/2 (Experimental)</string>
+          </property>
+         </item>
         </widget>
        </widget>
        <widget class="QWidget" name="tab_3">
