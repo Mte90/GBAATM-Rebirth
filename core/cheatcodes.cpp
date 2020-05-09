@@ -380,29 +380,6 @@ getnextchtline(char* cheatcodechar, int* chtptr, char* chtline)
   }
 }
 
-void
-trim(char* textchar, char* texttotrim, char* replacechar)
-{
-  char* tempchar = (char*)malloc(MAXCHTLINE * sizeof(char));
-  memset(tempchar, 0, MAXCHTLINE * sizeof(char));
-  char* lastptr = textchar;
-  while (1) {
-    char* strptr = strstr(lastptr, texttotrim);
-    if (strptr)
-      *strptr = 0;
-    else {
-      strcat(tempchar, lastptr);
-      break;
-    }
-    strcat(tempchar, lastptr);
-    strcat(tempchar, replacechar);
-    lastptr = strptr + strlen(texttotrim);
-  }
-  memset(textchar, 0, strlen(tempchar) + 1);
-  sprintf(textchar, "%s", tempchar);
-  free(tempchar);
-}
-
 int
 testchtline(char* cheatline)
 {

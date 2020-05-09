@@ -50,7 +50,6 @@ int testcht(char* cheatcodechar, char* srchstr);
 char* formatcheats(char* cheatcodechar);
 void getnextcheatline(char* cheatcodechar, int* chtptr, char* chtline);
 void getnextchtline(char* cheatcodechar, int* chtptr, char* chtline);
-void trim(char* textchar, char* texttotrim, char* replacechar);
 int testchtline(char* cheatline);
 int countcommas(char* textchar);
 void importcht(char* cheatcodechar);

@@ -181,30 +181,30 @@ Cheatcodes::import(char* cheatcodechar)
 
   int myptr = 0;
 
-  char* cheatline = (char*)malloc(MAXCHTLINE);
+  QString cheatline;
   char* lastdesc = (char*)malloc(MAXCHTLINE);
   char* lastlabel = NULL;
   while (myptr < (int)strlen(cheatcodechar)) {
-    getnextchtline(cheatcodechar, &myptr, cheatline);
+    getnextchtline(cheatcodechar, &myptr, cheatline.toLocal8Bit().data());
 
-    if (test(cheatline, (char*)"OFF=") == 1)
+    if (test(cheatline.toLocal8Bit().data(), (char*)"OFF=") == 1)
       continue;
-    if (strlen(cheatline) > 0) {
-      trim(cheatline, (char*)"[", (char*)"");
-      trim(cheatline, (char*)"]", (char*)"");
-      trim(cheatline, (char*)",\r\n", (char*)"\r\n");
-      trim(cheatline, (char*)";\r\n", (char*)"\r\n");
-      trim(cheatline, (char*)"ON=\r\n", (char*)"");
-      trim(cheatline, (char*)"ON=", (char*)"");
-      trim(cheatline, (char*)"0=", (char*)"");
-      trim(cheatline, (char*)"MAX=", (char*)"");
-      if (*cheatline == '=')
-        trim(cheatline, (char*)"=", (char*)"");
-      trim(cheatline, (char*)";", (char*)"\r\n");
-      trim(cheatline, (char*)"TEXT=", (char*)"");
-      trim(cheatline, (char*)"Text=", (char*)"");
-      if (strlen(cheatline) > 1)
-        sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
+    if (cheatline.length() > 0) {
+      cheatline.replace("[", (char*)"");
+      cheatline.replace("]", (char*)"");
+      cheatline.replace(",\r\n", (char*)"\r\n");
+      cheatline.replace(";\r\n", (char*)"\r\n");
+      cheatline.replace("ON=\r\n", (char*)"");
+      cheatline.replace("ON=", (char*)"");
+      cheatline.replace("0=", (char*)"");
+      cheatline.replace("MAX=", (char*)"");
+      if (cheatline == '=')
+        cheatline.replace("=", (char*)"");
+      cheatline.replace(";", (char*)"\r\n");
+      cheatline.replace("TEXT=", (char*)"");
+      cheatline.replace("Text=", (char*)"");
+      if (cheatline.length() > 1)
+        sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline.toLocal8Bit().data());
     }
   }
 
@@ -215,12 +215,12 @@ Cheatcodes::import(char* cheatcodechar)
   myptr = 0;
 
   while (myptr < (int)strlen(cheatcodechar)) {
-    getnextcheatline(cheatcodechar, &myptr, cheatline);
-    if (strlen(cheatline) == 0)
+    getnextcheatline(cheatcodechar, &myptr, cheatline.toLocal8Bit().data());
+    if (cheatline.length() == 0)
       continue;
-    if (*cheatline == '=')
+    if (cheatline == '=')
       continue;
-    char* multimodchar = strstr(cheatline, "=");
+    char* multimodchar = strstr(cheatline.toLocal8Bit().data(), "=");
     if (multimodchar) {
       if (lastlabel != NULL) {
         *lastlabel = 0;
@@ -228,21 +228,21 @@ Cheatcodes::import(char* cheatcodechar)
       }
 
       *multimodchar = 0;
-      sprintf(tempchar + strlen(tempchar), "%s - %s\r\n", lastdesc, cheatline);
+      sprintf(tempchar + strlen(tempchar), "%s - %s\r\n", lastdesc, cheatline.toLocal8Bit().data());
       for (int copyptr = 0; copyptr < (int)strlen(multimodchar + 1); copyptr++) {
-        *(cheatline + copyptr) = *(multimodchar + 1 + copyptr);
+        cheatline[copyptr] = *(multimodchar + 1 + copyptr);
       }
-      *(cheatline + strlen(multimodchar + 1)) = 0;
+      cheatline.insert(strlen(multimodchar + 1), 0);
     }
 
-    int cheat = testchtline(cheatline);
+    int cheat = testchtline(cheatline.toLocal8Bit().data());
 
     if (cheat == 1) {
-      trim(cheatline, (char*)":", (char*)",");
-      char* addrchar = strstr(cheatline, ",");
+      cheatline.replace(":", (char*)",");
+      char* addrchar = strstr(cheatline.toLocal8Bit().data(), ",");
       *addrchar = 0;
       addrchar++;
-      int addressint = hextoint(cheatline);
+      int addressint = hextoint(cheatline.toLocal8Bit().data());
       if (addressint == 0x400130) {
         sprintf(tempchar + strlen(tempchar), "D0000020 %04X\r\n", hextoint(addrchar) ^ 0xff);
         continue;
@@ -382,16 +382,15 @@ Cheatcodes::import(char* cheatcodechar)
       }
     } else {
       lastlabel = tempchar + strlen(tempchar);
-      sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline);
+      sprintf(tempchar + strlen(tempchar), "%s\r\n", cheatline.toLocal8Bit().data());
       memset(lastdesc, 0, MAXCHTLINE);
-      sprintf(lastdesc, "%s", cheatline);
+      sprintf(lastdesc, "%s", cheatline.toLocal8Bit().data());
     }
   }
   memset(cheatcodechar, 0, MAXCODELEN);
   memcpy(cheatcodechar, tempchar, MAXCODELEN);
 
   free(tempchar);
-  free(cheatline);
 
   return cheatcodechar;
 }
