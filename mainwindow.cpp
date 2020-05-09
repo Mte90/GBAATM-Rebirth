@@ -195,10 +195,8 @@ MainWindow::patchGame()
   ui->log->setPlainText("");
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
-    if (ui->enable_trainer->isChecked()) {
-      myedstruct.wantenable = 1;
-      this->appendLog(tr("Trainer enabled"));
-    }
+    myedstruct.wantenable = 1;
+    this->appendLog(tr("Trainer enabled"));
 
     myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
     if (myedstruct.enablekey == 0x3ff) {
