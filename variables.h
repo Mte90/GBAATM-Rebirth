@@ -33,6 +33,18 @@ struct SLOMOSTRUCT
   char speedupkeystr[50];
 };
 
+struct ADDRESSSTRUCT
+{
+  unsigned int* oldasmaddrs;
+  unsigned int* asmaddr;
+};
+
+struct LVALSTRUCT
+{
+  unsigned int* oldasmlvalues;
+  unsigned int* asmlvalue;
+};
+
 ENABLEDISABLESTRUCT myedstruct;
 SLOMOSTRUCT myslomostruct;
 unsigned short* menubgshort = (unsigned short*)malloc(76800);

@@ -223,8 +223,10 @@ MainWindow::patchGame()
       int cheat_type;
       if (ui->mode->currentText() == "Codebreaker/GS V3") { // cb/gssp
         cheat_type = 1;
-      } else { // raw
+      } else if (ui->mode->currentText() == "RAW (VBA)") { // raw
         cheat_type = 2;
+      } else { // gs
+        cheat_type = 3;
       }
 
       Cheatcodes cheats;

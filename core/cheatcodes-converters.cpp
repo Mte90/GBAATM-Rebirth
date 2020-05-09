@@ -636,378 +636,285 @@ convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheats
   return intcounter;
 }
 
-/*
-int convertgs(char * cheatcodes,unsigned int * cheatcodeint) {
+int
+convertgs(char* cheatcodes)
+{
 
-int intcounter=0;
+  int intcounter = 0;
 
 #define maxaddr 300
 
-    char * asmtop=(char *)malloc(20480*sizeof(char));
-    char * asmaddresses=(char *)malloc(4096*sizeof(char));
-    //char * asmhvals=(char *)malloc(1024*sizeof(char));
-    char * asmlvals=(char *)malloc(4096*sizeof(char));
-    //char * asmdata=(char *)malloc(1024*sizeof(char));
-    char * addrstr=(char *)malloc(4*sizeof(char)); //change back to 3?
-    char * tempaddr=(char *)malloc(9*sizeof(char));
-    char * tempstr=(char *)malloc(50*sizeof(char));
-    char * lvalstr=(char *)malloc(4*sizeof(char)); //change back to 3?
-    //char * hvalstr=(char *)malloc(3*sizeof(char));
-    char * templongchar=(char *)malloc(9*sizeof(char));
+  char* asmtop = (char*)malloc(20480 * sizeof(char));
+  char* asmaddresses = (char*)malloc(4096 * sizeof(char));
+  char* asmlvals = (char*)malloc(4096 * sizeof(char));
+  char* tempaddr = (char*)malloc(9 * sizeof(char));
+  char* templongchar = (char*)malloc(9 * sizeof(char));
 
-    int labellevel=0;
-    int labeladdr[30];
-    int encryptionon=0;
-    int slideon=0;
-    int superon=0;
-    int conditionalon=0;
-    char tempchar[600];
+  int encryptionon = 0;
+  int slideon = 0;
+  int superon = 0;
+  int conditionalon = 0;
+  char tempchar[600];
 
-    ADDRESSSTRUCT myaddressstruct;
-    LVALSTRUCT mylvalstruct;
-    myaddressstruct.asmaddr=(unsigned int *)malloc(1*sizeof(unsigned int));
-    *myaddressstruct.asmaddr=0;
-    mylvalstruct.asmlvalue=(unsigned int *)malloc(1*sizeof(unsigned int));
-    *mylvalstruct.asmlvalue=0;
-    myaddressstruct.oldasmaddrs=(unsigned int *)malloc(maxaddr*sizeof(unsigned
-int)); mylvalstruct.oldasmlvalues=(unsigned int *)malloc(maxaddr*sizeof(unsigned
-int)); unsigned int * myaddrs=(unsigned int *)malloc(maxaddr*sizeof(unsigned
-int)); myaddressstruct.oldasmaddrs=myaddrs; unsigned int * mylvals=(unsigned int
-*)malloc(maxaddr*sizeof(unsigned int)); mylvalstruct.oldasmlvalues=mylvals; for
-(int fillloop=0; fillloop<maxaddr; fillloop++) {
-        *(myaddressstruct.oldasmaddrs+fillloop)=0x0;
-        *(mylvalstruct.oldasmlvalues+fillloop)=0x0;
+  ADDRESSSTRUCT myaddressstruct;
+  LVALSTRUCT mylvalstruct;
+  myaddressstruct.asmaddr = (unsigned int*)malloc(1 * sizeof(unsigned int));
+  *myaddressstruct.asmaddr = 0;
+  mylvalstruct.asmlvalue = (unsigned int*)malloc(1 * sizeof(unsigned int));
+  *mylvalstruct.asmlvalue = 0;
+  myaddressstruct.oldasmaddrs = (unsigned int*)malloc(maxaddr * sizeof(unsigned int));
+  mylvalstruct.oldasmlvalues = (unsigned int*)malloc(maxaddr * sizeof(unsigned int));
+  unsigned int* myaddrs = (unsigned int*)malloc(maxaddr * sizeof(unsigned int));
+  myaddressstruct.oldasmaddrs = myaddrs;
+  unsigned int* mylvals = (unsigned int*)malloc(maxaddr * sizeof(unsigned int));
+  mylvalstruct.oldasmlvalues = mylvals;
+  for (int fillloop = 0; fillloop < maxaddr; fillloop++) {
+    *(myaddressstruct.oldasmaddrs + fillloop) = 0x0;
+    *(mylvalstruct.oldasmlvalues + fillloop) = 0x0;
+  }
+
+  memset(asmtop, 0, 20480 * sizeof(char));
+  memset(asmaddresses, 0, 4096 * sizeof(char));
+  memset(asmlvals, 0, 4096 * sizeof(char));
+
+  int asmloop = 0;
+  int asmlabel = 0;
+  int labellast = 0;
+  int* cheatptr = (int*)malloc(2 * sizeof(int));
+  char* cheatline = (char*)malloc(MAXCHTLINE * sizeof(char));
+  char* lastcheatline = (char*)malloc(MAXCHTLINE * sizeof(char));
+  cheatptr[0] = 0;
+  cheatline[0] = 0;
+
+  while (cheatptr[0] < (int)strlen(cheatcodes)) {
+    if (strlen(cheatline) > 0) {
+      strcpy(lastcheatline, cheatline);
     }
-    char * asmlabelstr=(char *)malloc(3*sizeof(char));
-    //char * asmvaluestr=(char *)malloc(3*sizeof(char));
+    getnextcheatline(cheatcodes, cheatptr, cheatline);
 
-    memset(asmtop,0,20480*sizeof(char));
-    memset(asmaddresses,0,4096*sizeof(char));
-    //memset(asmhvals,0,1024*sizeof(char));
-    memset(asmlvals,0,4096*sizeof(char));
-    //memset(asmdata,0,1024*sizeof(char));
+    if ((cheatline[0] == '[') || (cheatline[0] == '{') || (cheatline[0] == '}')) {
+      // add some labeling code here if needed
+      if ((cheatline[0] == '{') && (labellast == 0)) {
+        sprintf(asmtop + strlen(asmtop), "label%d:\n", asmlabel);
+        asmlabel++;
+        labellast = 1;
+      }
+      cheatline[0] = 0;
+    } else {
+      labellast = 0;
+    }
 
-    int asmloop=0;
-    int asmlabel=0;
-    int labellast=0;
-    int * cheatptr=(int *)malloc(2*sizeof(int));
-    char * cheatline=(char *)malloc(MAXCHTLINE*sizeof(char));
-    char * lastcheatline=(char *)malloc(MAXCHTLINE*sizeof(char));
-    cheatptr[0]=0;
-    cheatline[0]=0;
+    if (strlen(cheatline) != 0) {
+      if (encryptionon == 1) {
+        // decrypt code
+        char tempaddressstr[9];
+        memset(tempaddressstr, 0, 9);
+        memcpy(tempaddressstr, cheatline, 8);
+        int tempaddress = hextoint(tempaddressstr);
+        char tempvaluestr[9];
+        memset(tempvaluestr, 0, 9);
+        memcpy(tempvaluestr, cheatline + 9, 8);
+        int tempvalue = hextoint(tempvaluestr);
+        unsigned char codebuffer[8] = { (unsigned char)(tempaddress & 255),
+                                        (unsigned char)((tempaddress >> 8) & 255),
+                                        (unsigned char)((tempaddress >> 16) & 255),
+                                        (unsigned char)((tempaddress >> 24) & 255),
+                                        (unsigned char)(tempvalue & 255),
+                                        (unsigned char)((tempvalue >> 8) & 255),
+                                        0,
+                                        0 };
+        cheatsCBADecrypt(codebuffer);
+        int* codebuffint = (int*)codebuffer;
+        tempaddress = *codebuffint;
+        tempvalue = *(codebuffint + 1);
+        sprintf(cheatline, "%X 0000%X", tempaddress, tempvalue);
+      }
 
-    while (cheatptr[0]<strlen(cheatcodes)) {
-        if (strlen(cheatline)>0) { strcpy(lastcheatline,cheatline); }
-        getnextcheatline(cheatcodes,cheatptr,cheatline);
+      //	* CodeBreaker codes types: (based on the CBA clone "Cheatcode S" v1.1)
+      //	*
+      //	* 0000AAAA 000Y - Game CRC (Y are flags: 8 - CRC, 2 - DI)
+      //	* 1AAAAAAA YYYY - Master Code function (store address at ((YYYY << 0x16)
+      //	*                 + 0x08000100))
+      //	* 2AAAAAAA YYYY - 16-bit or
+      //	* 3AAAAAAA YYYY - 8-bit constant write
+      //	* 4AAAAAAA YYYY - Slide code
+      //	* XXXXCCCC IIII   (C is count and I is address increment, X is value incr.)
+      //	* 5AAAAAAA CCCC - Super code (Write bytes to address, 2*CCCC is count)
+      //	* BBBBBBBB BBBB
+      //	* 6AAAAAAA YYYY - 16-bit and
+      //	* 7AAAAAAA YYYY - if address contains 16-bit value enable next code
+      //	* 8AAAAAAA YYYY - 16-bit constant write
+      //	* 9AAAAAAA YYYY - change decryption (when first code only?)
+      //	* AAAAAAAA YYYY - if address does not contain 16-bit value enable next code
+      //	* BAAAAAAA YYYY - if 16-bit value at address  <= YYYY skip next code
+      //	* CAAAAAAA YYYY - if 16-bit value at address  >= YYYY skip next code
+      //	* D00000X0 YYYY - if button keys ... enable next code (else skip next code)
+      //	* EAAAAAAA YYYY - increase 16/32bit value stored in address
+      //	* FAAAAAAA YYYY - if 16-bit value at address AND YYYY = 0 then skip next code
+      memset(tempaddr, 0, 9);
+      strleft(cheatline, tempaddr, 8);
+      unsigned int tempdec = hextoint(tempaddr);
 
+      memset(templongchar, 0, 9);
+      strright(cheatline, templongchar, 8);
+      unsigned int decval = hextoint(templongchar);
 
-        if ((cheatline[0]=='[') || (cheatline[0]=='{') || (cheatline[0]=='}')) {
-            //add some labeling code here if needed
-            if ((cheatline[0]=='{') && (labellast==0)) {
-                sprintf(asmtop+strlen(asmtop),"label%d:\n",asmlabel);
-                asmlabel++;
-                labellast=1;
-            }
-            cheatline[0]=0;
+      unsigned int* decryptaddr = (unsigned int*)malloc(sizeof(int));
+      unsigned int* decryptval = (unsigned int*)malloc(sizeof(int));
+      *decryptaddr = tempdec;
+      *decryptval = decval;
+      GSdecrypt(decryptaddr, decryptval);
+      printf(tempchar, "%X %X", *decryptaddr, *decryptval);
+
+      if (superon > 0) {
+        superon -= 6;
+        sprintf(asmtop + strlen(asmtop), "0x%X, 0x%X, 0x%X", byteflip((tempdec >> 16) & 0xffff) & 0xffff,
+                byteflip(tempdec & 0xffff) & 0xffff, byteflip(decval) & 0xffff);
+        if (superon > 0) {
+          sprintf(asmtop + strlen(asmtop), ", ");
+        } else {
+          sprintf(asmtop + strlen(asmtop), "\nlabel%d:\n", asmlabel);
+          asmlabel++;
+          labellast = 1;
         }
-        else {
-            labellast=0;
+        cheatline[0] = 0;
+      }
+
+      if (slideon == 1) {
+
+        for (int i = 2; i < 5; i++) {
+          if (i == 3) {
+            decval = tempdec & 0xffff;
+          }
+          if (i == 4) {
+            decval = (tempdec >> 16) & 0xffff;
+          }
+          if (decval <= 0xff) {
+            sprintf(asmtop + strlen(asmtop), "mov r%d,#0x%X\n", i, decval);
+          } else {
+            sprintf(templongchar, "%X", decval);
+            int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+            sprintf(asmtop + strlen(asmtop), "ldr r%d,lval%d\n", i, thislval);
+          }
         }
+        sprintf(asmtop + strlen(asmtop), "loop%d:\nstrh r0,[r1],r2\nadd r0,r0,r4\nsubs r3,r3,#0x1\nbne loop%d\n", asmloop, asmloop);
+        asmloop++;
+        cheatline[0] = 0;
+        slideon = 0;
+        conditionalon--;
+      }
 
-        if (strlen(cheatline)!=0) {
-            if (encryptionon==1) {
-                //ErrorMessage(cheatline);
-                //decrypt code
-                char tempaddressstr[9];
-                memset(tempaddressstr,0,9);
-                memcpy(tempaddressstr,cheatline,8);
-                int tempaddress=hextoint(tempaddressstr);
-                //HexMessage(tempaddress,tempaddressstr);
-                char tempvaluestr[9];
-                memset(tempvaluestr,0,9);
-                //strright(tempvaluestr,cheatline,4);
-                memcpy(tempvaluestr,cheatline+9,8);
-                int tempvalue=hextoint(tempvaluestr);
-                //HexMessage(tempvalue,tempvaluestr);
-                unsigned char
-codebuffer[8]={(tempaddress&255),((tempaddress>>8)&255),((tempaddress>>16)&255),((tempaddress>>24)&255),(tempvalue&255),((tempvalue>>8)&255),0,0};
-                cheatsCBADecrypt(codebuffer);
-                int * codebuffint=(int *)codebuffer;
-                tempaddress=*codebuffint;
-                short * codebuffshort=(short *)codebuffer;
-                tempvalue=*(codebuffint+1);
-                sprintf(cheatline,"%X 0000%X",tempaddress,tempvalue);
-                //ErrorMessage(cheatline);
-            }
-
-
-        //	* CodeBreaker codes types: (based on the CBA clone "Cheatcode S"
-v1.1)
-        //	*
-        //	* 0000AAAA 000Y - Game CRC (Y are flags: 8 - CRC, 2 - DI)
-        //	* 1AAAAAAA YYYY - Master Code function (store address at ((YYYY
-<< 0x16)
-        //	*                 + 0x08000100))
-        //	* 2AAAAAAA YYYY - 16-bit or
-        //	* 3AAAAAAA YYYY - 8-bit constant write
-        //	* 4AAAAAAA YYYY - Slide code
-        //	* XXXXCCCC IIII   (C is count and I is address increment, X is
-value incr.)
-        //	* 5AAAAAAA CCCC - Super code (Write bytes to address, 2*CCCC is
-count)
-        //	* BBBBBBBB BBBB
-        //	* 6AAAAAAA YYYY - 16-bit and
-        //	* 7AAAAAAA YYYY - if address contains 16-bit value enable next
-code
-        //	* 8AAAAAAA YYYY - 16-bit constant write
-        //	* 9AAAAAAA YYYY - change decryption (when first code only?)
-        //	* AAAAAAAA YYYY - if address does not contain 16-bit value
-enable next code
-        //	* BAAAAAAA YYYY - if 16-bit value at address  <= YYYY skip next
-code
-        //	* CAAAAAAA YYYY - if 16-bit value at address  >= YYYY skip next
-code
-        //	* D00000X0 YYYY - if button keys ... enable next code (else skip
-next code)
-        //	* EAAAAAAA YYYY - increase 16/32bit value stored in address
-        //	* FAAAAAAA YYYY - if 16-bit value at address AND YYYY = 0 then
-skip next code memset(tempaddr,0,9); strleft(cheatline,tempaddr,8); unsigned int
-tempdec=hextoint(tempaddr);
-
-                memset(templongchar,0,9);
-                strright(cheatline,templongchar,8);
-                unsigned int decval=hextoint(templongchar);
-
-                unsigned int * decryptaddr=(unsigned int *)malloc(sizeof(int));
-                unsigned int * decryptval=(unsigned int *)malloc(sizeof(int));
-                *decryptaddr=tempdec;
-                *decryptval=decval;
-                GSdecrypt(decryptaddr,decryptval);
-                printf(tempchar,"%X %X",*decryptaddr,*decryptval);
-                //ErrorMessage(tempchar);
-                return 0;
-
-
-                if (superon>0) {
-                    superon-=6;
-                    sprintf(asmtop+strlen(asmtop),"0x%X, 0x%X,
-0x%X",byteflip((tempdec>>16)&0xffff)&0xffff,byteflip(tempdec&0xffff)&0xffff,byteflip(decval)&0xffff);
-                    if (superon>0) {
-                        sprintf(asmtop+strlen(asmtop),", ");
-                    }
-                    else {
-                        sprintf(asmtop+strlen(asmtop),"\nlabel%d:\n",asmlabel);
-                        asmlabel++;
-                        labellast=1;
-                    }
-                    cheatline[0]=0;
-                }
-
-            if (slideon==1) {
-
-                for (int i=2; i<5; i++) {
-                    if (i==3) { decval=tempdec&0xffff; }
-                    if (i==4) { decval=(tempdec>>16)&0xffff; }
-                if (decval<=0xff) {
-                    sprintf(asmtop+strlen(asmtop),"mov r%d,#0x%X\n",i,decval);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr
-r%d,lval%d\n",i,thislval);
-                }
-                }
-                sprintf(asmtop+strlen(asmtop),"loop%d:\nstrh r0,[r1],r2\nadd
-r0,r0,r4\nsubs r3,r3,#0x1\nbne loop%d\n",asmloop,asmloop); asmloop++;
-                cheatline[0]=0;
-                slideon=0;
-                conditionalon--;
-            }
-
-            if (cheatline[0]=='4') {
-                if (decval<=0xff) {
-                    sprintf(asmtop+strlen(asmtop),"mov r0,#0x%X\n",decval);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr r0,lval%d\n",thislval);
-                }
-                sprintf(tempaddr,"%X",(tempdec&0xfffffff));
-                int thisaddr=addresstest(tempaddr,asmaddresses,myaddressstruct);
-                sprintf(asmtop+strlen(asmtop),"ldr r1,address%d\n",thisaddr);
-                slideon=1;
-            }
-
-            if (cheatline[0]=='5') {
-                if (decval<=0xff) {
-                    sprintf(asmtop+strlen(asmtop),"mov r3,#0x%X\n",decval);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr r3,lval%d\n",thislval);
-                }
-                sprintf(tempaddr,"%X",(tempdec&0xfffffff));
-                int thisaddr=addresstest(tempaddr,asmaddresses,myaddressstruct);
-                sprintf(asmtop+strlen(asmtop),"ldr r1,address%d\nadd
-r2,r15,#0x10\nloop%d:\nldrh r0,[r2],#0x2\nstrh r0,[r1],#0x2\nsubs
-r3,r3,#0x1\nbne loop%d\nb label%d\n.short ",thisaddr,asmloop,asmloop,asmlabel);
-                asmloop++;
-                superon=decval*2;
-            }
-
-            if (cheatline[0]=='9') {
-                unsigned int seed[8];
-                cheatsCBAParseSeedCode(tempdec,decval,seed);
-                cheatsCBAChangeEncryption(seed);
-                encryptionon=1;
-            }
-
-
-            if ((cheatline[0]=='2') || (cheatline[0]=='6') ||
-(cheatline[0]=='E')) {
-
-                if (decval<=0xff) {
-                sprintf(asmtop+strlen(asmtop),"mov r2,#0x%X\n",decval);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr r2,lval%d\n",thislval);
-                }
-
-                sprintf(tempaddr,"%X",(tempdec&0xfffffff));
-                int thisaddr=addresstest(tempaddr,asmaddresses,myaddressstruct);
-                sprintf(asmtop+strlen(asmtop),"ldr r1,address%d\nldrh
-r0,[r1]\n",thisaddr);
-
-                if (cheatline[0]=='2') {
-                    sprintf(asmtop+strlen(asmtop),"orr r0,r0,r2\n");
-                }
-                if (cheatline[0]=='6') {
-                    sprintf(asmtop+strlen(asmtop),"and r0,r0,r2\n");
-                }
-                if (cheatline[0]=='E') {
-                    sprintf(asmtop+strlen(asmtop),"add r0,r0,r2\n");
-                }
-
-                sprintf(asmtop+strlen(asmtop),"strh r0,[r1]\n");
-                conditionalon--;
-
-            }
-
-            if ((cheatline[0]=='3') || (cheatline[0]=='8')) {
-
-                sprintf(tempaddr,"%X",(tempdec&0xfffffff));
-                int thisaddr=addresstest(tempaddr,asmaddresses,myaddressstruct);
-
-                if ((cheatline[0]=='3') || (decval<=0xff)) {
-                    sprintf(asmtop+strlen(asmtop),"mov r0,#0x%X\n",decval&0xff);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr r0,lval%d\n",thislval);
-                }
-
-                if (cheatline[0]=='3') {
-                    sprintf(asmtop+strlen(asmtop),"ldr r1,address%d\nstrb
-r0,[r1]\n",thisaddr);
-                }
-                else {
-                    sprintf(asmtop+strlen(asmtop),"ldr r1,address%d\nstrh
-r0,[r1]\n",thisaddr);
-                }
-                conditionalon--;
-
-            }
-
-            if ((cheatline[0]=='7') || (cheatline[0]=='A') ||
-(cheatline[0]=='B') || (cheatline[0]=='C') || (cheatline[0]=='F')) {
-                sprintf(tempaddr,"%X",(tempdec&0xfffffff));
-                int thisaddr=addresstest(tempaddr,asmaddresses,myaddressstruct);
-
-                if (decval<=0xff) {
-                    sprintf(asmtop+strlen(asmtop),"mov r2,#0x%X\nldr
-r1,address%d\nldrh r0,[r1]\n",decval,thisaddr);
-                }
-                else {
-                    sprintf(templongchar,"%X",decval);
-                    int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    sprintf(asmtop+strlen(asmtop),"ldr r2,lval%d\nldr
-r1,address%d\nldrh r0,[r1]\n",thislval,thisaddr);
-                }
-
-                if (cheatline[0]=='7') {
-                    //sprintf(asmtop+strlen(asmtop),"cmp r0,r2\nbne
-label%d\n",asmlabel);
-                }
-                if (cheatline[0]=='A') {
-                    //sprintf(asmtop+strlen(asmtop),"cmp r0,r2\nbeq
-label%d\n",asmlabel);
-                }
-                if (cheatline[0]=='B') {
-                    //sprintf(asmtop+strlen(asmtop),"cmp r0,r2\nble
-label%d\n",asmlabel);
-                }
-                if (cheatline[0]=='C') {
-                    //sprintf(asmtop+strlen(asmtop),"cmp r0,r2\nbge
-label%d\n",asmlabel);
-                }
-                if (cheatline[0]=='F') { //might need to fix
-                    //sprintf(asmtop+strlen(asmtop),"and r0,r0,r2\ncmp
-r0,r2\nbne label%d\n",asmlabel);
-                }
-                conditionalon=2;
-            }
-
-
-            if (cheatline[0]=='D') {
-                if (decval<=0xff) {
-                //sprintf(asmtop+strlen(asmtop),"mov r2,#0x%X\n",decval);
-                }
-                else {
-                    //sprintf(templongchar,"%X",decval);
-                    //int
-thislval=longvaluetest(templongchar,asmlvals,mylvalstruct);
-                    //sprintf(asmtop+strlen(asmtop),"ldr r2,lval%d\n",thislval);
-                }//
-                //sprintf(asmtop+strlen(asmtop),"mov r1,#0x4000000\nldr
-r0,[r1,#+0x130]\nand r0,r0,r2\ncmp r0,r2\nbeq label%d\n",asmlabel);
-                conditionalon=2;
-            }
-
-            if (conditionalon==1) {
-                //sprintf(asmtop+strlen(asmtop),"label%d:\n",asmlabel);
-                //asmlabel++;
-                //labellast=1;
-                conditionalon--;
-            }
-
-
-
+      if (cheatline[0] == '4') {
+        if (decval <= 0xff) {
+          sprintf(asmtop + strlen(asmtop), "mov r0,#0x%X\n", decval);
+        } else {
+          sprintf(templongchar, "%X", decval);
+          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          sprintf(asmtop + strlen(asmtop), "ldr r0,lval%d\n", thislval);
         }
+        sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
+        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\n", thisaddr);
+        slideon = 1;
+      }
+
+      if (cheatline[0] == '5') {
+        if (decval <= 0xff) {
+          sprintf(asmtop + strlen(asmtop), "mov r3,#0x%X\n", decval);
+        } else {
+          sprintf(templongchar, "%X", decval);
+          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          sprintf(asmtop + strlen(asmtop), "ldr r3,lval%d\n", thislval);
+        }
+        sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
+        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        sprintf(asmtop + strlen(asmtop),
+                "ldr r1,address%d\nadd r2,r15,#0x10\nloop%d:\nldrh r0,[r2],#0x2\nstrh r0,[r1],#0x2\nsubs r3,r3,#0x1\nbne loop%d\nb "
+                "label%d\n.short ",
+                thisaddr, asmloop, asmloop, asmlabel);
+        asmloop++;
+        superon = decval * 2;
+      }
+
+      if (cheatline[0] == '9') {
+        unsigned int seed[8];
+        cheatsCBAParseSeedCode(tempdec, decval, seed);
+        cheatsCBAChangeEncryption(seed);
+        encryptionon = 1;
+      }
+
+      if ((cheatline[0] == '2') || (cheatline[0] == '6') || (cheatline[0] == 'E')) {
+
+        if (decval <= 0xff) {
+          sprintf(asmtop + strlen(asmtop), "mov r2,#0x%X\n", decval);
+        } else {
+          sprintf(templongchar, "%X", decval);
+          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          sprintf(asmtop + strlen(asmtop), "ldr r2,lval%d\n", thislval);
         }
 
+        sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
+        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\nldrh r0,[r1]\n", thisaddr);
 
-        //sprintf(asmtop+strlen(asmtop),"bx r14\n"); //"b return\n");
-//"label%d:\nb return\n",asmlabel);
-        //memset(cheatcodes,0,20480);
-        //sprintf(cheatcodes,"%s\n",asmtop);
-        //strcat(cheatcodes,asmaddresses);
-        //strcat(cheatcodes,asmlvals);
-        //strcat(cheatcodes,"return:\n\n");
+        if (cheatline[0] == '2') {
+          sprintf(asmtop + strlen(asmtop), "orr r0,r0,r2\n");
+        }
+        if (cheatline[0] == '6') {
+          sprintf(asmtop + strlen(asmtop), "and r0,r0,r2\n");
+        }
+        if (cheatline[0] == 'E') {
+          sprintf(asmtop + strlen(asmtop), "add r0,r0,r2\n");
+        }
 
+        sprintf(asmtop + strlen(asmtop), "strh r0,[r1]\n");
+        conditionalon--;
+      }
 
-        // *(menuint+cheatcounter*7+1)=0xEFBEADDE;
-        return intcounter;
+      if ((cheatline[0] == '3') || (cheatline[0] == '8')) {
+
+        sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
+        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+
+        if ((cheatline[0] == '3') || (decval <= 0xff)) {
+          sprintf(asmtop + strlen(asmtop), "mov r0,#0x%X\n", decval & 0xff);
+        } else {
+          sprintf(templongchar, "%X", decval);
+          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          sprintf(asmtop + strlen(asmtop), "ldr r0,lval%d\n", thislval);
+        }
+
+        if (cheatline[0] == '3') {
+          sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\nstrb r0,[r1]\n", thisaddr);
+        } else {
+          sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\nstrh r0,[r1]\n", thisaddr);
+        }
+        conditionalon--;
+      }
+
+      if ((cheatline[0] == '7') || (cheatline[0] == 'A') || (cheatline[0] == 'B') || (cheatline[0] == 'C') || (cheatline[0] == 'F')) {
+        sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
+        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+
+        if (decval <= 0xff) {
+          sprintf(asmtop + strlen(asmtop), "mov r2,#0x%X\nldr r1,address%d\nldrh r0,[r1]\n", decval, thisaddr);
+        } else {
+          sprintf(templongchar, "%X", decval);
+          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          sprintf(asmtop + strlen(asmtop), "ldr r2,lval%d\nldr r1,address%d\nldrh r0,[r1]\n", thislval, thisaddr);
+        }
+
+        conditionalon = 2;
+      }
+
+      if (cheatline[0] == 'D') {
+        conditionalon = 2;
+      }
+
+      if (conditionalon == 1) {
+        conditionalon--;
+      }
+    }
+  }
+  return intcounter;
 }
-*/

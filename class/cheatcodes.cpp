@@ -25,6 +25,8 @@ Cheatcodes::init(char* cheatcodes, char* selectram, int cheat_type)
     cheatintlength = convertcb(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
   } else if (cheat_type == 2) {
     cheatintlength = convertraw(cheatcodes, cheatint, 1, cheatselectram + 4, menuint);
+  } else if (cheat_type == 2) {
+    cheatintlength = convertgs(cheatcodes);
   }
 }
 
