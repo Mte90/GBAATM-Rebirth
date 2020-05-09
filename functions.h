@@ -24,7 +24,7 @@ void strleft(char* srcstr, char* deststr, unsigned int chartocpy);
 void getromname(char* gbaromstr, char* tempname);
 int findromend(unsigned int* gbaint, int gbaeof);
 QString deadbeefrom(char* gbaromname, char* newgbaromname);
-QString patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLESTRUCT edstruct, int excycles, bool vblankcheck,
+QString patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, BUTTONS edstruct, int excycles, bool vblankcheck,
                  CUSTOMIZE customizetrainer);
 void goodname(char* badname);
 int bmp2short(char* bmpfilestr, unsigned short* shortbuffer, int whichpic);

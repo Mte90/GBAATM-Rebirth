@@ -188,6 +188,35 @@ MainWindow::deadbeef()
   return true;
 }
 
+bool
+MainWindow::prepareKeys()
+{
+  if (ui->trainer_enable_keys->text().length() > 0) {
+    traineractions.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
+    if (traineractions.enablekey == 0x3ff) {
+      traineractions.enablekey = 0xfe;
+      ui->trainer_enable_keys->setText("L+R+A");
+    }
+    sprintf(traineractions.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
+  } else {
+    this->appendLog(tr("Enable keys is empty"));
+    return false;
+  }
+
+  if (ui->trainer_disable_keys->text().length() > 0) {
+    traineractions.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
+    if (traineractions.disablekey == 0x3ff) {
+      traineractions.disablekey = 0xfd;
+      ui->trainer_disable_keys->setText("L+R+B");
+    }
+    sprintf(traineractions.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
+  } else {
+    this->appendLog(tr("Disable keys is empty"));
+    return false;
+  }
+  return true;
+}
+
 void
 MainWindow::patchGame()
 {
@@ -195,21 +224,9 @@ MainWindow::patchGame()
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
     this->appendLog(tr("Trainer enabled"));
-
-    // TODO if this fields are empty
-    myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
-    if (myedstruct.enablekey == 0x3ff) {
-      myedstruct.enablekey = 0xfe;
-      ui->trainer_enable_keys->setText("L+R+A");
+    if (!this->prepareKeys()) {
+      return;
     }
-    sprintf(myedstruct.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
-
-    myedstruct.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
-    if (myedstruct.disablekey == 0x3ff) {
-      myedstruct.disablekey = 0xfd;
-      ui->trainer_disable_keys->setText("L+R+B");
-    }
-    sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
     Cheatcodes cheats;
     if (ui->cheats->toPlainText().length() > 0) {
@@ -238,8 +255,8 @@ MainWindow::patchGame()
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats, myedstruct,
-                              ui->execute_every->text().toInt(), ui->vblank->isChecked(), customizetrainer);
+    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats,
+                              traineractions, ui->execute_every->text().toInt(), ui->vblank->isChecked(), customizetrainer);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));

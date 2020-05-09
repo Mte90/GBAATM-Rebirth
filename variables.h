@@ -15,7 +15,7 @@
 #define u16 unsigned short
 #define u32 unsigned int
 
-struct ENABLEDISABLESTRUCT
+struct BUTTONS
 {
   int enablekey;
   int disablekey;
@@ -42,7 +42,7 @@ struct LVALSTRUCT
   unsigned int* asmlvalue;
 };
 
-ENABLEDISABLESTRUCT myedstruct;
+BUTTONS traineractions;
 CUSTOMIZE customizetrainer;
 unsigned short* menubgshort = (unsigned short*)malloc(76800);
 unsigned short* menuselectshort = (unsigned short*)malloc(6720);

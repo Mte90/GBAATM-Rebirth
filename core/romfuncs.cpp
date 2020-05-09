@@ -194,7 +194,7 @@ deadbeefrom(char* gbaromname, char* newgbaromname)
 }
 
 QString
-patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLESTRUCT edstruct, int excycles, bool vblankcheck,
+patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, BUTTONS traineractions, int excycles, bool vblankcheck,
          CUSTOMIZE customizetrainer)
 {
   unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
@@ -396,7 +396,7 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, ENABLEDISABLE
     // Add the Trainer keys
     copyint(trainerint + trainerintptr, eddisint, 19);
     *(trainerint + trainerintptr + 17) = freeram;
-    *(trainerint + trainerintptr + 18) = (edstruct.enablekey << 16) | edstruct.disablekey;
+    *(trainerint + trainerintptr + 18) = (traineractions.enablekey << 16) | traineractions.disablekey;
     trainerintptr += 19;
     output.append(QString("Trainer keys added\n"));
 
