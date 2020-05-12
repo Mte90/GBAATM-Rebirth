@@ -114,146 +114,6 @@
          </property>
         </widget>
        </widget>
-       <widget class="QWidget" name="tab">
-        <attribute name="title">
-         <string>Patch</string>
-        </attribute>
-        <widget class="QGroupBox" name="groupBox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>10</y>
-           <width>631</width>
-           <height>131</height>
-          </rect>
-         </property>
-         <property name="title">
-          <string>Trainer</string>
-         </property>
-         <widget class="QWidget" name="gridLayoutWidget_3">
-          <property name="geometry">
-           <rect>
-            <x>9</x>
-            <y>30</y>
-            <width>611</width>
-            <height>91</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_4">
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="enable_trainer">
-             <property name="text">
-              <string>Trainer</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_7">
-             <property name="text">
-              <string>Enable Keys:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLineEdit" name="trainer_enable_keys">
-             <property name="text">
-              <string>L+R+A</string>
-             </property>
-             <property name="placeholderText">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_6">
-             <property name="text">
-              <string>Disable Keys:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="trainer_disable_keys">
-             <property name="text">
-              <string>L+R+B</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-        <widget class="QGroupBox" name="groupBox_5">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>150</y>
-           <width>631</width>
-           <height>131</height>
-          </rect>
-         </property>
-         <property name="title">
-          <string>Slow Motion</string>
-         </property>
-         <widget class="QWidget" name="gridLayoutWidget_2">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>30</y>
-            <width>611</width>
-            <height>91</height>
-           </rect>
-          </property>
-          <layout class="QGridLayout" name="gridLayout_3">
-           <item row="1" column="1">
-            <widget class="QLabel" name="label_5">
-             <property name="text">
-              <string>Speed up Keys:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="0">
-            <widget class="QCheckBox" name="enable_slowmotion">
-             <property name="text">
-              <string>Enable Slow Motion</string>
-             </property>
-             <property name="checked">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="label_4">
-             <property name="text">
-              <string>Slow down Keys:</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLineEdit" name="slowmotion_slow_keys">
-             <property name="text">
-              <string>L+R+UP</string>
-             </property>
-             <property name="frame">
-              <bool>true</bool>
-             </property>
-             <property name="placeholderText">
-              <string/>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="slowmotion_up_keys">
-             <property name="text">
-              <string>L+R+DOWN</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </widget>
-       </widget>
        <widget class="QWidget" name="tab_2">
         <attribute name="title">
          <string>CheatCodes</string>
@@ -399,8 +259,8 @@
         <widget class="QCheckBox" name="vblank">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>150</y>
+           <x>190</x>
+           <y>110</y>
            <width>121</width>
            <height>31</height>
           </rect>
@@ -457,6 +317,62 @@
            <string>0x3007FE0</string>
           </property>
          </item>
+        </widget>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>220</y>
+           <width>631</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <property name="title">
+          <string>Trainer</string>
+         </property>
+         <widget class="QWidget" name="gridLayoutWidget_3">
+          <property name="geometry">
+           <rect>
+            <x>9</x>
+            <y>30</y>
+            <width>611</width>
+            <height>61</height>
+           </rect>
+          </property>
+          <layout class="QGridLayout" name="gridLayout_4">
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Enable Keys:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0">
+            <widget class="QLineEdit" name="trainer_enable_keys">
+             <property name="text">
+              <string>L+R+A</string>
+             </property>
+             <property name="placeholderText">
+              <string/>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_6">
+             <property name="text">
+              <string>Disable Keys:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QLineEdit" name="trainer_disable_keys">
+             <property name="text">
+              <string>L+R+B</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
         </widget>
        </widget>
        <widget class="QWidget" name="tab_5">

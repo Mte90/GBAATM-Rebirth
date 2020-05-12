@@ -15,22 +15,12 @@
 #define u16 unsigned short
 #define u32 unsigned int
 
-struct ENABLEDISABLESTRUCT
+struct BUTTONS
 {
-  int wantenable;
   int enablekey;
   int disablekey;
   char enablekeystr[50];
   char disablekeystr[50];
-};
-
-struct SLOMOSTRUCT
-{
-  int wantslomo;
-  int slowdownkey;
-  int speedupkey;
-  char slowdownkeystr[50];
-  char speedupkeystr[50];
 };
 
 struct CUSTOMIZE
@@ -52,8 +42,7 @@ struct LVALSTRUCT
   unsigned int* asmlvalue;
 };
 
-ENABLEDISABLESTRUCT myedstruct;
-SLOMOSTRUCT myslomostruct;
+BUTTONS traineractions;
 CUSTOMIZE customizetrainer;
 unsigned short* menubgshort = (unsigned short*)malloc(76800);
 unsigned short* menuselectshort = (unsigned short*)malloc(6720);

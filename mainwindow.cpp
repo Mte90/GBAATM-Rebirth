@@ -188,32 +188,45 @@ MainWindow::deadbeef()
   return true;
 }
 
+bool
+MainWindow::prepareKeys()
+{
+  if (ui->trainer_enable_keys->text().length() > 0) {
+    traineractions.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
+    if (traineractions.enablekey == 0x3ff) {
+      traineractions.enablekey = 0xfe;
+      ui->trainer_enable_keys->setText("L+R+A");
+    }
+    sprintf(traineractions.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
+  } else {
+    this->appendLog(tr("Enable keys is empty"));
+    return false;
+  }
+
+  if (ui->trainer_disable_keys->text().length() > 0) {
+    traineractions.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
+    if (traineractions.disablekey == 0x3ff) {
+      traineractions.disablekey = 0xfd;
+      ui->trainer_disable_keys->setText("L+R+B");
+    }
+    sprintf(traineractions.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
+  } else {
+    this->appendLog(tr("Disable keys is empty"));
+    return false;
+  }
+  return true;
+}
+
 void
 MainWindow::patchGame()
 {
-  myslomostruct.wantslomo = 0;
-  myedstruct.wantenable = 0;
   ui->log->setPlainText("");
   this->appendLog(tr("Game patching in progress"));
   if (this->isOutputDefined()) {
-    if (ui->enable_trainer->isChecked()) {
-      myedstruct.wantenable = 1;
-      this->appendLog(tr("Trainer enabled"));
+    this->appendLog(tr("Trainer enabled"));
+    if (!this->prepareKeys()) {
+      return;
     }
-
-    myedstruct.enablekey = ConvertKeys(ui->trainer_enable_keys->text().toLocal8Bit().data());
-    if (myedstruct.enablekey == 0x3ff) {
-      myedstruct.enablekey = 0xfe;
-      ui->trainer_enable_keys->setText("L+R+A");
-    }
-    sprintf(myedstruct.enablekeystr, "%s", ui->trainer_enable_keys->text().toLocal8Bit().data());
-
-    myedstruct.disablekey = ConvertKeys(ui->trainer_disable_keys->text().toLocal8Bit().data());
-    if (myedstruct.disablekey == 0x3ff) {
-      myedstruct.disablekey = 0xfd;
-      ui->trainer_disable_keys->setText("L+R+B");
-    }
-    sprintf(myedstruct.disablekeystr, "%s", ui->trainer_disable_keys->text().toLocal8Bit().data());
 
     Cheatcodes cheats;
     if (ui->cheats->toPlainText().length() > 0) {
@@ -236,34 +249,14 @@ MainWindow::patchGame()
 
       settings->setValue("rom/menutitle", ui->menu_text->text().toUpper());
       cheats.titleGeneration(ui->menu_text->text());
-    }
-
-    if (ui->enable_slowmotion->isChecked()) {
-      myslomostruct.wantslomo = 1;
-      myslomostruct.slowdownkey = ConvertKeys(ui->slowmotion_slow_keys->text().toLocal8Bit().data());
-      if (myslomostruct.slowdownkey == 0x3ff) {
-        myslomostruct.slowdownkey = 0xbf;
-        ui->slowmotion_slow_keys->setText("L+R+UP");
-      }
-      sprintf(myslomostruct.slowdownkeystr, "%s", ui->slowmotion_slow_keys->text().toLocal8Bit().data());
-
-      myslomostruct.speedupkey = ConvertKeys(ui->slowmotion_up_keys->text().toLocal8Bit().data());
-      if (myslomostruct.speedupkey == 0x3ff) {
-        myslomostruct.speedupkey = 0x7f;
-        ui->slowmotion_up_keys->setText("L+R+DOWN");
-      }
-      sprintf(myslomostruct.speedupkeystr, "%s", ui->slowmotion_up_keys->text().toLocal8Bit().data());
-    }
-
-    if (myslomostruct.wantslomo == 0 && myedstruct.wantenable == 0) {
-      this->appendLog(tr("You didn't select any patches!"));
+    } else {
+      this->appendLog(tr("Cheatcodes not imported"));
       return;
     }
 
     this->removeIfExists(ui->output_path->text());
-    QString output =
-      patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats, myslomostruct, myedstruct,
-               ui->execute_every->text().toInt(), (ui->menu_text->text().length() > 0), ui->vblank->isChecked(), customizetrainer);
+    QString output = patchrom(ui->input_path->text().toLocal8Bit().data(), ui->output_path->text().toLocal8Bit().data(), cheats,
+                              traineractions, ui->execute_every->text().toInt(), ui->vblank->isChecked(), customizetrainer);
     this->appendLog(output);
   } else {
     this->appendLog(tr("Output not defined"));

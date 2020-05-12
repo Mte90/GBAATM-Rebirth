@@ -29,6 +29,7 @@ public:
   void loadBg();
   void loadFont();
   void loadSelectionBar();
+  bool prepareKeys();
 
 private:
   Ui::MainWindow* ui;
