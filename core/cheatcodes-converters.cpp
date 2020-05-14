@@ -793,7 +793,7 @@ convertgs(char* cheatcodes)
             sprintf(asmtop + strlen(asmtop), "mov r%d,#0x%X\n", i, decval);
           } else {
             sprintf(templongchar, "%X", decval);
-            int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+            int thislval = longvaluetest(templongchar, mylvalstruct);
             sprintf(asmtop + strlen(asmtop), "ldr r%d,lval%d\n", i, thislval);
           }
         }
@@ -809,11 +809,11 @@ convertgs(char* cheatcodes)
           sprintf(asmtop + strlen(asmtop), "mov r0,#0x%X\n", decval);
         } else {
           sprintf(templongchar, "%X", decval);
-          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          int thislval = longvaluetest(templongchar, mylvalstruct);
           sprintf(asmtop + strlen(asmtop), "ldr r0,lval%d\n", thislval);
         }
         sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
-        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        int thisaddr = addresstest(tempaddr, myaddressstruct);
         sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\n", thisaddr);
         slideon = 1;
       }
@@ -823,11 +823,11 @@ convertgs(char* cheatcodes)
           sprintf(asmtop + strlen(asmtop), "mov r3,#0x%X\n", decval);
         } else {
           sprintf(templongchar, "%X", decval);
-          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          int thislval = longvaluetest(templongchar, mylvalstruct);
           sprintf(asmtop + strlen(asmtop), "ldr r3,lval%d\n", thislval);
         }
         sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
-        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        int thisaddr = addresstest(tempaddr, myaddressstruct);
         sprintf(asmtop + strlen(asmtop),
                 "ldr r1,address%d\nadd r2,r15,#0x10\nloop%d:\nldrh r0,[r2],#0x2\nstrh r0,[r1],#0x2\nsubs r3,r3,#0x1\nbne loop%d\nb "
                 "label%d\n.short ",
@@ -849,12 +849,12 @@ convertgs(char* cheatcodes)
           sprintf(asmtop + strlen(asmtop), "mov r2,#0x%X\n", decval);
         } else {
           sprintf(templongchar, "%X", decval);
-          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          int thislval = longvaluetest(templongchar, mylvalstruct);
           sprintf(asmtop + strlen(asmtop), "ldr r2,lval%d\n", thislval);
         }
 
         sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
-        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        int thisaddr = addresstest(tempaddr, myaddressstruct);
         sprintf(asmtop + strlen(asmtop), "ldr r1,address%d\nldrh r0,[r1]\n", thisaddr);
 
         if (cheatline[0] == '2') {
@@ -874,13 +874,13 @@ convertgs(char* cheatcodes)
       if ((cheatline[0] == '3') || (cheatline[0] == '8')) {
 
         sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
-        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        int thisaddr = addresstest(tempaddr, myaddressstruct);
 
         if ((cheatline[0] == '3') || (decval <= 0xff)) {
           sprintf(asmtop + strlen(asmtop), "mov r0,#0x%X\n", decval & 0xff);
         } else {
           sprintf(templongchar, "%X", decval);
-          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          int thislval = longvaluetest(templongchar, mylvalstruct);
           sprintf(asmtop + strlen(asmtop), "ldr r0,lval%d\n", thislval);
         }
 
@@ -894,13 +894,13 @@ convertgs(char* cheatcodes)
 
       if ((cheatline[0] == '7') || (cheatline[0] == 'A') || (cheatline[0] == 'B') || (cheatline[0] == 'C') || (cheatline[0] == 'F')) {
         sprintf(tempaddr, "%X", (tempdec & 0xfffffff));
-        int thisaddr = addresstest(tempaddr, asmaddresses, myaddressstruct);
+        int thisaddr = addresstest(tempaddr, myaddressstruct);
 
         if (decval <= 0xff) {
           sprintf(asmtop + strlen(asmtop), "mov r2,#0x%X\nldr r1,address%d\nldrh r0,[r1]\n", decval, thisaddr);
         } else {
           sprintf(templongchar, "%X", decval);
-          int thislval = longvaluetest(templongchar, asmlvals, mylvalstruct);
+          int thislval = longvaluetest(templongchar, mylvalstruct);
           sprintf(asmtop + strlen(asmtop), "ldr r2,lval%d\nldr r1,address%d\nldrh r0,[r1]\n", thislval, thisaddr);
         }
 

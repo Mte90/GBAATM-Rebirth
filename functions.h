@@ -56,7 +56,7 @@ void importcht(char* cheatcodechar);
 int convertraw(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheatselectram, unsigned int* menuint);
 int convertcb(char* cheatcodes, unsigned int* cheatcodeint, int wantmenu, int cheatselectram, unsigned int* menuint);
 int convertgs(char* cheatcodes);
-int addresstest(char* addrtotest, char* asmaddresses, ADDRESSSTRUCT addressstruct);
-int longvaluetest(char* lvaltotest, char* asmlvals, LVALSTRUCT lvalstruct);
+int addresstest(char* addrtotest, ADDRESSSTRUCT addressstruct);
+int longvaluetest(char* lvaltotest, LVALSTRUCT lvalstruct);
 
 #endif
