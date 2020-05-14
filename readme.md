@@ -21,4 +21,11 @@ The original source code is available at [this page](https://github.com/Mte90/GB
 
 ## Compile
 
-Use QT Creator.
+Use QT Creator or this way.
+
+```
+mkdir build
+cd build
+qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
+make
+```
