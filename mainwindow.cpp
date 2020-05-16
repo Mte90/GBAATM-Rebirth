@@ -53,8 +53,8 @@ MainWindow::openRom()
 void
 MainWindow::loadBg()
 {
-  QString fileName =
-    QFileDialog::getOpenFileName(this, tr("Open background image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
+  QFileInfo info(settings->value("files/input").toString());
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open background image"), info.dir().path(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menubgshort, 1);
@@ -66,8 +66,8 @@ MainWindow::loadBg()
 void
 MainWindow::loadFont()
 {
-  QString fileName =
-    QFileDialog::getOpenFileName(this, tr("Open font image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
+  QFileInfo info(settings->value("files/input").toString());
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open font image"), info.dir().path(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menufontshort, 3);
@@ -79,8 +79,8 @@ MainWindow::loadFont()
 void
 MainWindow::loadSelectionBar()
 {
-  QString fileName =
-    QFileDialog::getOpenFileName(this, tr("Open background image"), settings->value("files/input").toString(), tr("Image Files (*.bmp)"));
+  QFileInfo info(settings->value("files/input").toString());
+  QString fileName = QFileDialog::getOpenFileName(this, tr("Open background image"), info.dir().path(), tr("Image Files (*.bmp)"));
   if (!fileName.isEmpty()) {
     int goodbmp;
     goodbmp = bmp2short(fileName.toLocal8Bit().data(), menuselectshort, 2);
