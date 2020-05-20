@@ -6,15 +6,17 @@ on:
     branches: [ master ]
   
 jobs:
+  # We define the commit hash and also create the release just once or there are errors
   create-release:
     runs-on: ubuntu-latest
     outputs:
+      # We can access this values in the other jobs
       upload_url: ${{ steps.create_release.outputs.upload_url }}
       sha_short: ${{ steps.vars.outputs.sha_short }}
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
-    - name: Declare some variables
+    - name: Declare Commit Hash
       id: vars
       shell: bash
       run: |
@@ -25,14 +27,15 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
+      # TODO change to the version
         tag_name: ${{ steps.vars.outputs.sha_short }}
         release_name: Release ${{ steps.vars.outputs.sha_short }}
         draft: false
         prerelease: false
 
   build-ubuntu:
-
     runs-on: ubuntu-latest
+    # We import the values of the other jobs
     needs: [create-release]
     steps:
     - name: Checkout repo
@@ -43,10 +46,12 @@ jobs:
       run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
     - name: Build
       run: cd build && make
-    - name: Build project 
+    - name: Package project 
+    # junk paths remove to recreate the path where is the file inside the zip package
       run: |
         zip --junk-paths linux build/GBAATM-Rebirth
     - name: Upload Release Asset
+    # We upload the binaries to the previous release
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
       env:
@@ -58,7 +63,6 @@ jobs:
         asset_content_type: application/zip
 
   build-windows:
-
     runs-on: windows-latest
     needs: [create-release]
     steps:
@@ -67,14 +71,16 @@ jobs:
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
+    # This is required or cannot compile it
         arch: win64_mingw73
     - name: Makefile
       run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
     - name: Build
-      run: cd build && make && ls
-    - name: Build project 
+      run: cd build && make
+    - name: Package project 
+      # Path to the build is different in windows, also the command
       run: |
-        zip --junk-paths windows build/GBAATM-Rebirth.exe
+        Compress-Archive -Path "build/release/GBAATM-Rebirth.exe" -DestinationPath windows.zip
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
@@ -87,10 +93,8 @@ jobs:
         asset_content_type: application/zip
 
   build-macos:
-
     runs-on: macos-latest
     needs: [create-release]
-    
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
@@ -99,10 +103,12 @@ jobs:
     - name: Makefile
       run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
     - name: Build
+    # macdeployqt is required to generate the dmg, compile is not enough
       run: cd build && make && macdeployqt ./GBAATM-Rebirth.app -dmg
-    - name: Build project 
+    - name: Package project 
+      # The command is different to Linux so require also the file extension
       run: |
-        find . -maxdepth 4 && zip osx.zip ./build/GBAATM-Rebirth.dmg
+        zip --junk-paths osx.zip ./build/GBAATM-Rebirth.dmg
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
