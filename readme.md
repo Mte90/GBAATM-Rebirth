@@ -5,6 +5,7 @@
 This project is a refactoring of the old GBAATM (last release around 2011) with the original source code as starting point (got from Cracker, the original author).  
 The purpose is a new UI, multiplatform support and maybe new features (with code refactoring and optimization).  
 The original source code is available at [this page](https://github.com/Mte90/GBAATM-Rebirth/releases/tag/original).  
+The tool to convert a file to the C++ binary representation is avalaible [there](https://github.com/Mte90/GBAATM-Rebirth/releases/tag/bin2array).
 
 ![](https://user-images.githubusercontent.com/403283/81478548-88cc8380-921e-11ea-8a90-fc25344fecbc.png)
 
