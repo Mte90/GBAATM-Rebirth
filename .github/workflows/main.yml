@@ -99,10 +99,10 @@ jobs:
     - name: Makefile
       run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
     - name: Build
-      run: cd build && make
+      run: cd build && make && macdeployqt ./build/GBAATM-Rebirth.app -dmg
     - name: Build project 
       run: |
-        find . -maxdepth 4 && zip osx.zip ./build/GBAATM-Rebirth.app/*
+        find . -maxdepth 4 && zip osx.zip ./build/GBAATM-Rebirth.dmg
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
