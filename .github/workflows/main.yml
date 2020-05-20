@@ -99,7 +99,7 @@ jobs:
     - name: Makefile
       run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
     - name: Build
-      run: cd build && make && macdeployqt ./build/GBAATM-Rebirth.app -dmg
+      run: cd build && make && macdeployqt ./GBAATM-Rebirth.app -dmg
     - name: Build project 
       run: |
         find . -maxdepth 4 && zip osx.zip ./build/GBAATM-Rebirth.dmg
