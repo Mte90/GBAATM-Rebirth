@@ -2,7 +2,7 @@ name: Release on Tag
 on:
   push:
     tags:
-      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+      - 'pre*' # Push events to matching v*, i.e. v1.0, v20.15.10
     # Pick a branch to generate a new build
     #branches: [ master ]
   
@@ -32,7 +32,7 @@ jobs:
         tag_name: ${{ github.ref }}
         release_name: Release ${{ github.ref }}
         draft: false
-        prerelease: false
+        prerelease: true
 
   build-ubuntu:
     runs-on: ubuntu-latest

@@ -19,6 +19,7 @@ The tool to convert a file to the C++ binary representation is avalaible [there]
   * Checksum - TODO
   * UI in Tabs - DONE
   * Save the path and menu title - DONE
+* Auto generate builds for Linux/OSX/Windows - DONE
 
 ## Compile
 
@@ -30,3 +31,7 @@ cd build
 qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
 make
 ```
+
+## Auto build
+
+When a new tag is generated if prefixed with `v` will be created a new release with the builds attached. If it is prefixed with `pre` it will be the same but it will be marked as pre release on GitHub.
