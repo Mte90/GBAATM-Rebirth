@@ -197,7 +197,9 @@ QString
 patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, BUTTONS traineractions, int excycles, bool vblankcheck,
          CUSTOMIZE customizetrainer)
 {
-  unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000206 };
+  // Added 0xE20000FF
+  // 0x4000206 to 0x4000006
+  unsigned int vblankint[] = { 0xE59F100C, 0xE5910000, 0xE20000FF, 0xE35000A0, 0xAA000001, 0xE12FFF1E, 0x4000006 };
   unsigned int execint[] = { 0xE59F101C, 0xE5D12003, 0xE3A03000, 0xE2822001, 0xE1520003,
                              0x3A02000,  0xE5C12003, 0xA000001,  0xE12FFF1E, 0xFFFFFFFF };
   // 0x3A04001 to 0x3A04000
@@ -380,8 +382,8 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, BUTTONS train
     }
 
     if (vblankcheck == 1) {
-      copyint(trainerint + trainerintptr, vblankint, 6);
-      trainerintptr += 6;
+      copyint(trainerint + trainerintptr, vblankint, 7);
+      trainerintptr += 7;
       output.append(QString("Vblank added\n"));
     }
 
