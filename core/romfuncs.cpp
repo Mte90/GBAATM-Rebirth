@@ -434,16 +434,19 @@ patchrom(char* gbaromname, char* newgbaromname, Cheatcodes cheats, BUTTONS train
       char* bgptr = (char*)temptrainermenuint;
       bgptr += (*(temptrainermenuint + searchptr + 7) & 0xffffff) + 8;
       memcpy(bgptr, (char*)menubgshort, 76800);
+      output.append(QString("Custom background added at %1 index\n").arg(searchptr + 7));
     }
     if (customizetrainer.selectionbar == 1) {
       char* selectptr = (char*)temptrainermenuint;
       selectptr += (*(temptrainermenuint + searchptr + 5) & 0xffffff) + 8;
       memcpy(selectptr, (char*)menuselectshort, 6720);
+      output.append(QString("Custom selection bar added at %1 index\n").arg(searchptr + 5));
     }
     if (customizetrainer.font == 1) {
       char* fontptr = (char*)temptrainermenuint;
       fontptr += (*(temptrainermenuint + searchptr + 2) & 0xffffff) + 4;
       memcpy(fontptr, (char*)menufontshort, 216);
+      output.append(QString("Custom font added at %1 index\n").arg(searchptr + 2));
     }
     for (int trainerptr = 0; trainerptr < 9; trainerptr++) {
       *(temptrainermenuint + menupatchoffset + trainerptr + 1) =
