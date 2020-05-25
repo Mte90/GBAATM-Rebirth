@@ -14,9 +14,10 @@ The tool to convert a file to the C++ binary representation is avalaible [there]
 * Ported all the features
   * Removed Slowmo
 * Revamp the original source code
-  * Refactored and optimized to avoid crash and rom broke
+  * Refactored and optimized to avoid crash and rom damaged
+  * Vblank code injected to ROM improved to use 32 bit addresses
 * Add new features to UI
-  * Checksum - TODO
+  * Checksum - DONE
   * UI in Tabs - DONE
   * Save the path and menu title - DONE
 * Auto generate builds for Linux/OSX/Windows - DONE

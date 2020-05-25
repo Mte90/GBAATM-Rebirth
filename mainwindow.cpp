@@ -126,6 +126,11 @@ MainWindow::readRom()
   if (QFileInfo::exists(fileName)) {
     getromname(fileName.toLocal8Bit().data(), romname);
     ui->romname->setText(romname);
+    QFile f(fileName);
+        if (f.open(QFile::ReadOnly)) {
+            QString md5 = QCryptographicHash::hash(f.readAll(),QCryptographicHash::Md5).toHex();
+            ui->checksum->setText(QString("MD5 Checksum: %1").arg(md5));
+        }
     this->appendLog(tr("Valid rom found"));
   } else {
     ui->romname->setText(tr("Input file not found"));

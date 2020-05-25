@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QString>
 #include <QTextStream>
+#include <QCryptographicHash>
 #include <class/cheatcodes.h>
 #include <cstring>
 #include <fstream>
