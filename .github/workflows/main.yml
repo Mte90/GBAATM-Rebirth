@@ -13,6 +13,7 @@ jobs:
     outputs:
       # We can access this values in the other jobs
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
       #sha_short: ${{ steps.vars.outputs.sha_short }}
     steps:
     # This enable to get the commit and can be used for nightly or dev builds
@@ -23,6 +24,9 @@ jobs:
     #  shell: bash
     #  run: |
     #    echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+    - name: Get the version
+      id: get_version
+      run: echo ::set-output name=version::${GITHUB_REF/refs\/tags\//}
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -30,7 +34,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        release_name: ${{ steps.get_version.outputs.version }}
         draft: false
         prerelease: false
 
@@ -49,8 +53,7 @@ jobs:
       run: cd build && make
     - name: Package project 
     # junk paths remove to recreate the path where is the file inside the zip package
-      run: |
-        zip --junk-paths linux build/GBAATM-Rebirth
+      run: zip --junk-paths linux build/GBAATM-Rebirth
     - name: Upload Release Asset
     # We upload the binaries to the previous release
       id: upload-release-asset 
@@ -60,7 +63,7 @@ jobs:
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ./linux.zip
-        asset_name: linux-${{ github.ref }}-GBAATM-rebirth.zip
+        asset_name: linux-${{ needs.create-release.outputs.version }}-GBAATM-rebirth.zip
         asset_content_type: application/zip
 
   build-windows:
@@ -80,8 +83,7 @@ jobs:
       run: cd build && make
     - name: Package project 
       # Path to the build is different in windows, also the command
-      run: |
-        Compress-Archive -Path "build/release/GBAATM-Rebirth.exe" -DestinationPath windows.zip
+      run: Compress-Archive -Path "build/release/GBAATM-Rebirth.exe" -DestinationPath windows.zip
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
@@ -90,7 +92,7 @@ jobs:
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: ./windows.zip
-        asset_name: windows-${{ github.ref }}-GBAATM-rebirth.zip
+        asset_name: windows-${{ needs.create-release.outputs.version }}-GBAATM-rebirth.zip
         asset_content_type: application/zip
 
   build-macos:
@@ -108,8 +110,7 @@ jobs:
       run: cd build && make && macdeployqt ./GBAATM-Rebirth.app -dmg
     - name: Package project 
       # The command is different to Linux so require also the file extension
-      run: |
-        zip --junk-paths osx.zip ./build/GBAATM-Rebirth.dmg
+      run: zip --junk-paths osx.zip ./build/GBAATM-Rebirth.dmg
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
@@ -118,5 +119,5 @@ jobs:
       with:
         upload_url: ${{ needs.create-release.outputs.upload_url }}
         asset_path: osx.zip
-        asset_name: osx-${{ github.ref }}-GBAATM-rebirth.zip
+        asset_name: osx-${{ needs.create-release.outputs.version }}-GBAATM-rebirth.zip
         asset_content_type: application/zip
