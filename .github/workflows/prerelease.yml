@@ -1,10 +1,10 @@
 name: Release on Tag
 on:
   push:
-    #tags:
-    #  - 'pre*' # Push events to matching v*, i.e. v1.0, v20.15.10
+    tags:
+      - 'pre*' # Push events to matching v*, i.e. v1.0, v20.15.10
     # Pick a branch to generate a new build
-    branches: [ master ]
+    # branches: [ master ]
   
 jobs:
   # We define the commit hash and also create the release just once or there are errors
