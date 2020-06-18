@@ -15,7 +15,7 @@ Cheatcodes::init(char* cheatcodes, char* selectram, int cheat_type)
   temptrainermenuint = (unsigned int*)malloc(*trainermenuint + 4);
   memcpy(temptrainermenuint, trainermenuint, *trainermenuint + 4);
 
-  if (this->test(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1) {
+  if (this->test(cheatcodes, QString("[gameinfo]").toLocal8Bit().data()) == 1 || this->test(cheatcodes, QString("[GameInfo]").toLocal8Bit().data()) == 1) {
     cheatcodes = this->import(cheatcodes);
   }
 
