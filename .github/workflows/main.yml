@@ -72,18 +72,29 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
+    - name: Cache Qt
+      id: cache-qt
+      uses: actions/cache@v1
+      with:
+        path: ../Qt
+        key: ${{ runner.os }}-Qt-${{ needs.create-release.outputs.version }}
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
       with:
     # This is required or cannot compile it
         arch: win64_mingw73
+        cached: ${{ steps.cache-qt.outputs.cache-hit }}
+        version: '5.12.8'
     - name: Makefile
-      run: mkdir build && cd build && qmake -makefile -o Makefile "CONFIG+=release" ../GBAATM-Rebirth.pro
+      run: mkdir build/out && cd build && qmake -makefile -o Makefile CONFIG+="release" ../GBAATM-Rebirth.pro
+    - name: MinGW libraries 
+      run: cp "..\Qt\5.12.8\mingw73_64\bin\libgcc_s_seh-1.dll" ".\build\out" && cp "..\Qt\5.12.8\mingw73_64\bin\libstdc++-6.dll" ".\build\out" && cp "..\Qt\5.12.8\mingw73_64\bin\libwinpthread-1.dll" ".\build\out"
     - name: Build
-      run: cd build && make
+    # windeployqt is required to find all the libraries, don't find the C++
+      run: cd build && make && mv ./release/GBAATM-Rebirth.exe ./out && windeployqt --compiler-runtime --no-svg --no-opengl-sw --no-angle --no-system-d3d-compiler ./out/GBAATM-Rebirth.exe
     - name: Package project 
       # Path to the build is different in windows, also the command
-      run: Compress-Archive -Path "build/release/GBAATM-Rebirth.exe" -DestinationPath windows.zip
+      run: Compress-Archive -Path "build/out/*" -DestinationPath windows.zip
     - name: Upload Release Asset
       id: upload-release-asset 
       uses: actions/upload-release-asset@v1
