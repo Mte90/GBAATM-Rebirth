@@ -22,6 +22,22 @@ The tool to convert a file to the C++ binary representation is avalaible [there]
   * Save the path and menu title - DONE
 * Auto generate builds for Linux/OSX/Windows - DONE
 
+## Installation
+If you're using Linux, install following apt-packages
+```
+sudo apt-get install qtchooser qt5-default
+```
+Clone repository with [SingleApplication](https://github.com/itay-grudev/SingleApplication) submodule:
+```
+git clone https://github.com/Mte90/GBAATM-Rebirth.git
+cd GBAATM-Rebirth
+git submodule update --init --recursive
+```
+or
+```
+git clone --recurse-submodules -j8 https://github.com/Mte90/GBAATM-Rebirth.git
+```
+
 ## Compile
 
 Use QT Creator or this way.
