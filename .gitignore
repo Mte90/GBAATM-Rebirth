@@ -34,3 +34,8 @@
 Debug
 *.pro.user
 build
+
+src/
+moc_*
+GBAATM-Rebirth
+.qmake.stash
