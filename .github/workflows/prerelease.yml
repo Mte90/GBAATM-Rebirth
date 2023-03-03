@@ -45,6 +45,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
     - name: Makefile
@@ -72,6 +74,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Cache Qt
       id: cache-qt
       uses: actions/cache@v1
@@ -112,6 +116,8 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v2
+      with:
+        submodules: recursive
     - name: Install Qt
       uses: jurplel/install-qt-action@v2
     - name: Makefile
