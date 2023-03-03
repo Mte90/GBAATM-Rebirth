@@ -88,7 +88,7 @@ jobs:
     # This is required or cannot compile it
         arch: win64_mingw73
         cached: ${{ steps.cache-qt.outputs.cache-hit }}
-        version: '5.15.8'
+        version: '5.15.12'
     - name: Makefile
       run: mkdir build/out && cd build && qmake -makefile -o Makefile CONFIG+="release" ../GBAATM-Rebirth.pro
     - name: MinGW libraries 
