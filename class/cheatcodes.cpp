@@ -37,7 +37,7 @@ Cheatcodes::titleGeneration(QString title)
   char* menutitle;
 
   #if defined(Q_OS_WIN)
-  QStringList lines = title.toUpper().split("/", Qstring::SkipEmptyParts);
+  QStringList lines = title.toUpper().split("/", QString::SkipEmptyParts);
   #else
   QStringList lines = title.toUpper().split("/", Qt::SkipEmptyParts);
   #endif
