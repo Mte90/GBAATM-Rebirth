@@ -94,7 +94,7 @@ jobs:
     - name: Makefile
       run: mkdir build/out && cd build && qmake -makefile -o Makefile CONFIG+="release" ../GBAATM-Rebirth.pro
     - name: MinGW libraries 
-      run: cp "..\Qt\5.12.8\mingw73_64\bin\libgcc_s_seh-1.dll" ".\build\out" && cp "..\Qt\5.12.8\mingw73_64\bin\libstdc++-6.dll" ".\build\out" && cp "..\Qt\5.12.8\mingw73_64\bin\libwinpthread-1.dll" ".\build\out"
+      run: cp "..\Qt\5.12.2\mingw73_64\bin\libgcc_s_seh-1.dll" ".\build\out" && cp "..\Qt\5.12.2\mingw73_64\bin\libstdc++-6.dll" ".\build\out" && cp "..\Qt\5.12.2\mingw73_64\bin\libwinpthread-1.dll" ".\build\out"
     - name: Build
     # windeployqt is required to find all the libraries, don't find the C++
       run: cd build && make && mv ./release/GBAATM-Rebirth.exe ./out && windeployqt --compiler-runtime --no-svg --no-opengl-sw --no-angle --no-system-d3d-compiler ./out/GBAATM-Rebirth.exe
