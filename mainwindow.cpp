@@ -15,7 +15,7 @@ MainWindow::MainWindow(QWidget* parent)
   , ui(new Ui::MainWindow)
 {
   ui->setupUi(this);
-  this->setWindowTitle("GBAATM-Rebirth - 1.0.0 Alpha");
+  this->setWindowTitle("GBAATM-Rebirth - 1.0.0 Alpha 3");
   settings = new QSettings("Mte90", "GBAATM");
   connect(ui->input_btn, &QPushButton::pressed, this, &MainWindow::openRom);
   connect(ui->output_btn, &QPushButton::pressed, this, &MainWindow::saveRom);
