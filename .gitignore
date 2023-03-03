@@ -39,3 +39,4 @@ src/
 moc_*
 GBAATM-Rebirth
 .qmake.stash
+.qtc_clangd

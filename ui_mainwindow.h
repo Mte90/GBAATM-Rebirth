@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.2
+** Created by: Qt User Interface Compiler version 5.15.8
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -47,6 +47,7 @@ public:
     QLabel *label_3;
     QLabel *romname;
     QLabel *checksum;
+    QLabel *warning;
     QWidget *tab_2;
     QPlainTextEdit *cheats;
     QPushButton *opencht;
@@ -90,6 +91,7 @@ public:
         sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
         MainWindow->setSizePolicy(sizePolicy);
         MainWindow->setMinimumSize(QSize(661, 803));
+        MainWindow->setMaximumSize(QSize(661, 803));
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         verticalLayoutWidget = new QWidget(centralwidget);
@@ -146,6 +148,10 @@ public:
         checksum = new QLabel(tab_4);
         checksum->setObjectName(QString::fromUtf8("checksum"));
         checksum->setGeometry(QRect(10, 130, 611, 31));
+        warning = new QLabel(tab_4);
+        warning->setObjectName(QString::fromUtf8("warning"));
+        warning->setGeometry(QRect(10, 220, 611, 91));
+        warning->setMouseTracking(true);
         tabWidget->addTab(tab_4, QString());
         tab_2 = new QWidget();
         tab_2->setObjectName(QString::fromUtf8("tab_2"));
@@ -299,6 +305,7 @@ public:
         label_3->setText(QCoreApplication::translate("MainWindow", "Input", nullptr));
         romname->setText(QString());
         checksum->setText(QString());
+        warning->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>On GBATemp's threads (check <span style=\" text-decoration: underline;\">Info</span> tab) for this app and the original one <span style=\" font-weight:600;\">there are tons of reports</span><br/>about some cheat codes that don't work or crashes the app.</p><p>The <span style=\" text-decoration: underline;\">only</span> solution is to try others or that includes the decryption key.</p><p><span style=\" font-weight:600; text-decoration: underline;\">Or that someone fix the code</span>.</p></body></html>", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Files", nullptr));
         opencht->setText(QCoreApplication::translate("MainWindow", "Open CHT file", nullptr));
         mode->setItemText(0, QCoreApplication::translate("MainWindow", "Codebreaker/GS V3", nullptr));
@@ -330,12 +337,16 @@ public:
 "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
 "p, li { white-space: pre-wrap; }\n"
 "</style></head><body style=\" font-family:'Oxygen'; font-size:9pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Software based on GBAATM 1.9.9.7.0.0.1, made by Cracker, released on GBATemp, in various versions during the years.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Software based on GBAATM 1.9.9.7.0.0.1, made by Cracker.</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">On 2020 a new version after the release of the source code was possible. Thi"
-                        "s new version is built with QT, include a refactoring of the original code that was ported to new systems with a new UI and maybe new features.</span></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">On 2020 a new version after the release of the source code was possible. This new version is built with QT, include a refactoring of th"
+                        "e original code that was ported to new operative systems with a new UI and &quot;maybe&quot; new features.</span></p>\n"
 "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt;\"><br /></p>\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Code released, open for contributions: </span><a href=\"https://github.com/Mte90/GBAATM-Rebirth\"><span style=\" font-size:10pt; text-decoration: underline; color:#2980b9;\">https://github.com/Mte90/GBAATM-Rebirth</span></a></p></body></html>", nullptr));
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><span style=\" font-size:10pt;\">Code released, open for contributions: </span><a href=\"https://github.com/Mte90/GBAATM-Rebirth\"><span style=\" font-size:10pt; text-decoration: underline; color:#2980b9;\">https://github.com/Mte90/GBAATM-Rebirth</span></a></p>\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:10pt; text-decoration: underline; color:#2980b9;\"><br /></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\""
+                        ">Original app Thread: <a href=\"https://github.com/Mte90/GBAATM-Rebirth\"><span style=\" font-size:10pt; text-decoration: underline; color:#2980b9;\">https://gbatemp.net/threads/gba-auto-trainer-maker-gbaatm.99334</span></a></p>\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">New app thread: <a href=\"https://github.com/Mte90/GBAATM-Rebirth\"><span style=\" font-size:10pt; text-decoration: underline; color:#2980b9;\">https://gbatemp.net/threads/gbaatm-rebirth-gba-auto-trainer-maker-a-new-hope.564321</span></a></p></body></html>", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(tab_5), QCoreApplication::translate("MainWindow", "Info", nullptr));
         patchgame->setText(QCoreApplication::translate("MainWindow", "Patch Game!", nullptr));
         deadbeef->setText(QCoreApplication::translate("MainWindow", "DEADBEEF", nullptr));

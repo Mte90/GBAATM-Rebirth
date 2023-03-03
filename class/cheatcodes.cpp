@@ -36,7 +36,7 @@ Cheatcodes::titleGeneration(QString title)
   char* trainermenuchar = (char*)temptrainermenuint + 1;
   char* menutitle;
 
-  QStringList lines = title.toUpper().split("/", QString::SkipEmptyParts);
+  QStringList lines = title.toUpper().split("/", Qt::SkipEmptyParts);
   int trainerlines = lines.count();
 
   for (int thistrainerline = 0; thistrainerline < lines.count(); thistrainerline++) {
