@@ -90,7 +90,7 @@ jobs:
         host: 'windows'
         target: 'desktop'
         arch: 'win64_mingw73'
-        py7zrversion: '0.20.2'
+        py7zrversion: '==0.20.2'
     - name: Makefile
       run: mkdir build/out && cd build && qmake -makefile -o Makefile CONFIG+="release" ../GBAATM-Rebirth.pro
     - name: MinGW libraries 
